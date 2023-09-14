@@ -87,16 +87,22 @@
   /*--------------------------------------------------------------
     3. Menu
   --------------------------------------------------------------*/
-  function mainMenu() {
+ function mainMenu() {
+    // Remove any existing .st-munu-toggle elements
+    $('.st-munu-toggle').remove();
+
+    // Append a single .st-munu-toggle element
     $('.st-nav').append('<span class="st-munu-toggle"><span></span></span>');
-    $('.menu-item-has-children').append('<span class="st-munu-dropdown-toggle"></span>');
+
+    // Attach click event handlers
     $('.st-munu-toggle').on('click', function () {
-      $(this).toggleClass("st-toggle-active").siblings('.st-nav-list').slideToggle();;
+        $(this).toggleClass("st-toggle-active").siblings('.st-nav-list').slideToggle();
     });
     $('.st-munu-dropdown-toggle').on('click', function () {
-      $(this).toggleClass('active').siblings('ul').slideToggle();
+        $(this).toggleClass('active').siblings('ul').slideToggle();
     });
-  }
+}
+
 
   /*--------------------------------------------------------------
     4. Sticky Header
