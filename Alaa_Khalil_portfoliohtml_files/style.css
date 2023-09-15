@@ -546,7 +546,7 @@ section#contact div.container{
 5. Header
 ----------------------------------------------------------------*/
 .st-site-header.st-style1 {
-  background-color: #060707b0;
+  background-color: #f6f2eb;
   -webkit-box-shadow: 0 10px 10px -10px rgba(7, 13, 27, 0.1);
           box-shadow: 0 10px 10px -10px rgba(7, 13, 27, 0.1);
   -webkit-transition: all 0.4s ease;
@@ -575,7 +575,7 @@ section#contact div.container{
 }
 
 .st-site-header.st-style1.st-sticky-active {
-  background-color: #000101;
+  background-color: #646360;
   -webkit-box-shadow: 0 10px 10px -10px rgba(7, 13, 27, 0.1);
           box-shadow: 0 10px 10px -10px rgba(7, 13, 27, 0.1);
 }
@@ -627,7 +627,8 @@ section#contact div.container{
     padding: 15px 0;
     font-size: 15px;
     display: inline-block;
-    color: #fdfeff;
+    font-weight: 20px;
+    color: #000;
     text-transform: uppercase;
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
@@ -650,7 +651,7 @@ section#contact div.container{
     position: absolute;
     height: 11px;
     width: 1px;
-    background: white;
+    background: black;
     left: 0px;
   }
   .st-nav .sp-phone svg {
@@ -947,7 +948,7 @@ section#contact div.container{
 .st-hero-wrap {
   position: relative;
   height: 850px;
-  background-color: #646360;
+  background-color: #555555;
 }
 
 .st-hero-wrap img {
@@ -1388,8 +1389,8 @@ canvas {
 .st-btn.st-style2:hover {
   -webkit-transform: translateY(-1px);
           transform: translateY(-1px);
-  -webkit-box-shadow: 0px 5px 10px 0px #fec64450;
-          box-shadow: 0px 5px 10px 0px #fec64450;
+  -webkit-box-shadow: 0px 5px 10px 0px #c95243;
+          box-shadow: 0px 5px 10px 0px #c95243;
 }
 
 .st-btn.st-style1.st-color1 {
