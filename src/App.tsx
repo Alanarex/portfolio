@@ -1,4 +1,6 @@
 import HeroSection from "./sections/HeroSection";
+import "./App.css";
+
 function App() {
   return (
     <div>
