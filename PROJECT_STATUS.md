@@ -4,16 +4,16 @@
 
 - Product version: v2
 - Integration branch: `main`
-- Feature branch: `feature/PORT-002-laravel-foundation`
+- Current feature: `PORT-003`
+- Planned branch: `feature/PORT-003-admin-auth`
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PHASE 1 — PORT-002 FOUNDATION IN REVIEW**
+**PHASE 1 — PORT-003 READY: SECURE ADMIN AUTHENTICATION**
 
-The clean Laravel 13 modular foundation is implemented on the feature branch. Legacy
-application files, React dependencies and temporary 3D assets remain excluded.
+PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundation is now the active baseline on `main`.
 
 ## Implemented baseline
 
@@ -22,23 +22,21 @@ application files, React dependencies and temporary 3D assets remain excluded.
 - Blade SSR public page
 - Vue 3 + TypeScript + Inertia private dashboard shell
 - isolated lazy-loaded vanilla Three.js placeholder with static fallback
-- Docker Compose with Nginx, PHP-FPM, worker, scheduler and Mailpit
+- Docker Compose with Nginx, PHP-FPM, PostgreSQL, Redis, worker, scheduler and Mailpit
 - PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite and GitHub Actions
 - request-ID propagation, structured JSON logging, liveness and readiness checks
 
+## PORT-002 completion evidence
+
+- PR #19 squash-merged into `main` as `40523ee15a28156a0c8279ea62bc015d6ac80f98`.
+- GitHub Actions backend, frontend and container jobs passed.
+- Issue #6 closed as completed.
+- Docker Compose stack, PostgreSQL migrations and rollback, Redis, `/up`, `/ready`, PHPUnit, Pint, Larastan, ESLint, Stylelint and Vite build were validated.
+- No historical application files or archived 3D assets were restored.
+
 ## Current objective
 
-Review and merge PORT-002 after GitHub Actions confirms the locally validated scaffold.
-
-## PORT-002 validation evidence
-
-- Docker Compose stack healthy: Nginx, PHP-FPM, PostgreSQL, Redis, queue worker, scheduler and Mailpit.
-- PostgreSQL migrations, rollback and re-application completed successfully.
-- Redis returned `PONG`; `/up` and `/ready` returned HTTP 200.
-- PHPUnit: 9 tests, 40 assertions passed.
-- Pint and Larastan/PHPStan level 6 passed.
-- ESLint, Stylelint and the Vite production build passed.
-- Three.js is emitted as a separate lazy chunk; no GLB, avatar or final scene is included.
+Complete issue #8 / PORT-003: harden the single-administrator authentication boundary, including provisioning/reset procedures, session security, throttling, audit events and complete authentication tests.
 
 ## Source of truth
 
@@ -47,6 +45,7 @@ Review and merge PORT-002 after GitHub Actions confirms the locally validated sc
 | Product scope | `docs/product/` |
 | Architecture decisions | `docs/architecture/decisions/` |
 | Current status | `PROJECT_STATUS.md` |
+| Ordered execution | `docs/tracking/execution-queue.md` and issue #17 |
 | Work scope | GitHub Issues |
 | Implementation evidence | Pull Requests |
 | Agent rules | `AGENTS.md` |
@@ -56,16 +55,18 @@ Review and merge PORT-002 after GitHub Actions confirms the locally validated sc
 
 ## Immediate next steps
 
-1. Review the PORT-002 draft pull request and CI results.
-2. Merge PORT-002 after required checks pass.
-3. Configure branch protection using the new CI checks.
-4. Select the next scoped product issue; final visual design and 3D assets remain separate work.
+1. Start issue #8 on `feature/PORT-003-admin-auth` from current `main`.
+2. Review the existing PORT-002 authentication scaffold before changing it.
+3. Implement and test the complete issue acceptance criteria.
+4. Run all backend, frontend and container quality gates.
+5. Open a draft PR with `Closes #8` and follow the issue merge contract.
+6. Do not start PORT-004 until PORT-003 is merged and issue #8 is closed.
 
 ## Parallel non-blocking work
 
+- palette, typography and layout references for the PORT-004 human visual gate;
 - Blender/avatar references;
 - low-poly room blockout;
-- design system and mockups;
 - featured-project repository analysis;
 - public CV/contact/activity visibility decisions.
 
