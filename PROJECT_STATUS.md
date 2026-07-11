@@ -6,14 +6,15 @@
 - Integration branch: `main`
 - Current feature: `PORT-003`
 - Planned branch: `feature/PORT-003-admin-auth`
+- Delivery mode: autonomous continuous PORT chain
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PHASE 1 — PORT-003 READY: SECURE ADMIN AUTHENTICATION**
+**PHASE 1 — AUTONOMOUS DELIVERY: PORT-003 READY**
 
-PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundation is now the active baseline on `main`.
+PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundation is active on `main`. ADR-007 authorizes Codex to deliver PORT-003 through PORT-011 continuously without waiting for a new prompt between features.
 
 ## Implemented baseline
 
@@ -36,7 +37,14 @@ PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundatio
 
 ## Current objective
 
-Complete issue #8 / PORT-003: harden the single-administrator authentication boundary, including provisioning/reset procedures, session security, throttling, audit events and complete authentication tests.
+Start issue #8 / PORT-003 and continue automatically through every remaining executable PORT issue up to PORT-011. Each feature retains its own branch, PR, tests, merge and issue closure.
+
+## Autonomous defaults
+
+- Visual choices use ADR-007 dark-first professional defaults.
+- Privacy choices use ADR-007 conservative public-data defaults.
+- PORT-011 may use original procedural/licensed low-poly assets and a generic stylized developer avatar when personal likeness references are unavailable.
+- Codex stops only for a hard blocker defined by ADR-007.
 
 ## Source of truth
 
@@ -44,6 +52,7 @@ Complete issue #8 / PORT-003: harden the single-administrator authentication bou
 |---|---|
 | Product scope | `docs/product/` |
 | Architecture decisions | `docs/architecture/decisions/` |
+| Autonomous delivery decision | `docs/architecture/decisions/ADR-007-autonomous-continuous-delivery.md` |
 | Current status | `PROJECT_STATUS.md` |
 | Ordered execution | `docs/tracking/execution-queue.md` and issue #17 |
 | Work scope | GitHub Issues |
@@ -56,20 +65,12 @@ Complete issue #8 / PORT-003: harden the single-administrator authentication bou
 ## Immediate next steps
 
 1. Start issue #8 on `feature/PORT-003-admin-auth` from current `main`.
-2. Review the existing PORT-002 authentication scaffold before changing it.
-3. Implement and test the complete issue acceptance criteria.
-4. Run all backend, frontend and container quality gates.
-5. Open a draft PR with `Closes #8` and follow the issue merge contract.
-6. Do not start PORT-004 until PORT-003 is merged and issue #8 is closed.
-
-## Parallel non-blocking work
-
-- palette, typography and layout references for the PORT-004 human visual gate;
-- Blender/avatar references;
-- low-poly room blockout;
-- featured-project repository analysis;
-- public CV/contact/activity visibility decisions.
+2. Complete all issue criteria and quality gates.
+3. Publish, review, squash-merge and verify issue closure.
+4. Update issue #17 and the execution queue.
+5. Immediately start PORT-004, then repeat through PORT-011.
+6. After PORT-011, create a release-readiness issue rather than PORT-012.
 
 ## Update rule
 
-The orchestrator updates this file after each merged milestone or material architectural decision.
+The orchestrator updates this file after each merged milestone or material architectural decision and continues to the next executable issue unless an ADR-007 hard blocker exists.
