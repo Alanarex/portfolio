@@ -2,7 +2,9 @@
     "name": "portfolio-platform-v2",
     "private": true,
     "type": "module",
-    "engines": { "node": ">=20.19.0" },
+    "engines": {
+        "node": ">=20.19.0"
+    },
     "scripts": {
         "build": "vite build",
         "dev": "vite",
@@ -13,11 +15,13 @@
         "@inertiajs/vue3": "^2.3.7",
         "@vitejs/plugin-vue": "^6.0.4",
         "laravel-vite-plugin": "^2.0.1",
+        "three": "^0.185.1",
         "vite": "^7.3.1",
         "vue": "^3.5.30"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@types/three": "^0.185.1",
         "eslint": "^10.0.3",
         "eslint-plugin-vue": "^10.8.0",
         "stylelint": "^17.5.0",
