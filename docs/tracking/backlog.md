@@ -1,78 +1,53 @@
 # Initial Backlog
 
-## M0 — Repository and governance
-
-### PORT-000 — Audit existing v2 prototype
-
-Status: READY
-
-Acceptance criteria:
-
-- [ ] map current React/TypeScript/Tailwind/Three.js files;
-- [ ] classify each material file as retain, adapt, migrate, archive or remove;
-- [ ] record useful visual and 3D assets;
-- [ ] identify security, licensing and performance concerns;
-- [ ] produce migration recommendation.
+## Phase 0 — Foundation
 
 ### PORT-001 — Resolve scaffold decisions
 
-Status: BLOCKED
+Status: Done.
 
-Acceptance criteria:
+### PORT-002 — Scaffold Laravel 13 modular foundation
 
-- [ ] public rendering confirmed;
-- [ ] dashboard frontend confirmed;
-- [ ] Three.js runtime confirmed;
-- [ ] database selected;
-- [ ] package manager selected;
-- [ ] PHP test framework selected;
-- [ ] initial auth scope selected;
-- [ ] hosting target documented.
+Status: Ready.
 
-### PORT-002 — Scaffold Laravel modular foundation
+Scope:
 
-Status: BACKLOG
+- clean Laravel 13 scaffold;
+- preserve documentation and agent configuration;
+- module bootstrap;
+- Docker, PostgreSQL, Redis, Nginx, worker, scheduler and Mailpit;
+- Blade public shell;
+- Vue 3 + TypeScript + Inertia private dashboard shell;
+- isolated lazy-loaded Three.js placeholder and fallback;
+- PHPUnit, Pint, Larastan/PHPStan, ESLint, Stylelint and build scripts;
+- GitHub Actions CI;
+- health checks and request-ID logging.
 
-Depends on: PORT-000, PORT-001.
+## Cancelled
 
-Acceptance criteria:
+### PORT-000 — Audit existing prototype
 
-- [ ] Laravel 13 application runs locally;
-- [ ] modular loader strategy documented and implemented;
-- [ ] Docker services run;
-- [ ] database and Redis health checks pass;
-- [ ] `.env.example` complete;
-- [ ] setup documentation validated on a clean checkout.
+Cancelled by product decision. The old implementation is archived and will not be reused.
 
-### PORT-003 — Configure quality and CI
+## Phase 1 — Portfolio core
 
-Status: BACKLOG
+- AUTH-001: single-admin authentication.
+- PORT-010: portfolio CMS foundation.
+- PORT-011: public landing-page shell.
+- PROJ-001: project and case-study management.
+- MEDIA-001: media management.
 
-Acceptance criteria:
+## Phase 2 — Visual experience
 
-- [ ] Pint;
-- [ ] Larastan/PHPStan;
-- [ ] PHPUnit/Pest;
-- [ ] ESLint;
-- [ ] Stylelint;
-- [ ] frontend build;
-- [ ] GitHub Actions pipeline;
-- [ ] branch protection requirements documented.
+- UI-001: approved design system.
+- PORT3D-001: placeholder preview/fullscreen integration.
+- PORT3D-002: final Blender asset integration.
+- INT-001: personal interests section.
 
-## M1 — CMS and public HTML
+## Phase 3 — Platform expansion
 
-### AUTH-001 — Private administrator authentication
-### PORT-010 — Portfolio content model
-### PORT-011 — Media and CV management
-### PORT-012 — Public HTML landing page
-### PORT-013 — Project cards and case studies
-### PORT-014 — Personal Interests
-### PORT-015 — SEO and contact
-
-## M2 — 3D preview
-
-### PORT3D-001 — Temporary low-poly scene integration
-### PORT3D-002 — Fullscreen and fallback behavior
-### PORT3D-003 — Avatar interaction state machine
-### PORT3D-004 — Hotspot navigation and dashboard configuration
-### PORT3D-005 — Final Blender asset handoff and performance validation
+- GitHub/GitLab activity;
+- tasks, Kanban and calendar;
+- statistics and monitoring;
+- demos and deployment;
+- module registry and licensing.

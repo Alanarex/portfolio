@@ -3,13 +3,13 @@
 ## Repository and governance
 
 - [x] Historical v1 branch exists.
-- [x] v2 preparation branch exists.
+- [x] React prototype archive branch exists.
+- [x] `main` cleaned for v2.
 - [x] Root `AGENTS.md` prepared.
 - [x] Codex agent configuration prepared.
 - [x] Multi-agent workflow prepared.
 - [x] GitHub issue and PR templates prepared.
-- [x] Prepared v2 commit promoted to `main`.
-- [ ] Configure branch protection for `main`.
+- [ ] Configure branch protection after CI checks exist.
 
 ## Product
 
@@ -23,22 +23,20 @@
 ## Architecture
 
 - [x] Modular monolith accepted.
-- [x] Blade + Vue/Inertia + vanilla Three.js frontend strategy accepted.
+- [x] Blade + Vue/Inertia + vanilla Three.js accepted.
 - [x] PostgreSQL, npm, PHPUnit, single-admin and OVH/Docker baseline accepted.
-- [x] Three.js boundary accepted.
-- [x] 3D asset handoff documented.
+- [x] Clean v2 start accepted.
 - [x] Controlled multi-agent delivery accepted.
-- [ ] Complete PORT-000 prototype audit.
+- [x] 3D asset handoff documented.
 
 ## Content
 
 - [x] CV information normalized.
 - [x] Initial project selection documented.
-- [x] Initial GitHub analysis started.
 - [ ] Complete deep repository analysis for featured projects.
 - [ ] Approve public contact details and downloadable CV.
 
-## Development environment
+## Development environment — PORT-002
 
 - [ ] Laravel 13 scaffold.
 - [ ] Docker Compose.
@@ -48,15 +46,15 @@
 - [ ] Mailpit.
 - [ ] `.env.example`.
 - [ ] quality scripts.
-- [ ] CI workflow.
+- [ ] GitHub Actions CI.
 - [ ] branch protection and required checks.
 
 ## 3D preparation
 
 - [x] Preview/fullscreen behavior specified.
 - [x] Node and animation naming contract specified.
-- [ ] Avatar reference photos supplied.
+- [ ] Avatar references supplied.
 - [ ] Low-poly style approved.
 - [ ] Room blockout approved.
-- [ ] Temporary GLB integrated and profiled.
-- [ ] Final Blender asset handoff validated.
+- [ ] Placeholder GLB integrated and profiled.
+- [ ] Final Blender handoff validated.

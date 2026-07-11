@@ -1,26 +1,44 @@
-### Node.js ###
-node_modules/
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# PHP / Laravel
+/vendor/
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*.php
+.phpunit.result.cache
+.phpunit.cache/
+.phpstan.cache
+
+# JavaScript
+/node_modules/
+/public/build/
+/public/hot
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-### Vite ###
-/dist/
-
-### Logs ###
-*.log
-
-### OS System Files ###
+# IDE / OS
+.idea/
+.vscode/
 .DS_Store
 Thumbs.db
 
-### Editor ###
-.vscode/
-.idea/
+# Local infrastructure
+/docker/data/
+coverage/
+playwright-report/
+test-results/
 
-### Environment Variables ###
-.env
-.env.local
-.env.*.local
-
+# Large 3D sources
+*.blend
+*.blend1
+*.fbx
+*.obj
