@@ -15,7 +15,13 @@ final class FrontendTest extends TestCase
 
     public function test_public_home_is_server_rendered(): void
     {
-        $this->get('/')->assertOk()->assertSee('Développeur full-stack PHP / Laravel');
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Développeur full-stack PHP / Laravel')
+            ->assertSee('class="skip-link"', false)
+            ->assertSee('class="site-header"', false)
+            ->assertSee('class="site-footer"', false)
+            ->assertSee('data-three-preview', false);
     }
 
     public function test_guest_can_view_login_but_not_dashboard(): void
@@ -52,5 +58,16 @@ final class FrontendTest extends TestCase
             ->component('Dashboard')
             ->where('auth.user.email', $admin->email)
             ->has('projects', 0));
+    }
+
+    public function test_dashboard_design_system_landmarks_render_for_an_administrator(): void
+    {
+        $admin = User::factory()->create(['is_administrator' => true]);
+
+        $this->actingAs($admin)
+            ->withSession(['auth_version' => $admin->auth_version])
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Dashboard'));
     }
 }
