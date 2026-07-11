@@ -1,39 +1,72 @@
 # Portfolio Platform v2
 
-Portfolio Platform v2 is being rebuilt from zero as a Laravel 13 modular monolith.
+Portfolio Platform v2 is a clean Laravel 13 modular monolith.
 
 ## Repository state
 
-The `main` branch intentionally contains only:
+PORT-002 introduces the foundation without reusing legacy application code. The application
+provides a server-rendered public page, an authenticated Inertia/Vue administrator shell,
+and an optional lazy-loaded Three.js placeholder.
 
-- product and architecture documentation;
-- Codex and multi-agent configuration;
-- GitHub issue/PR templates;
-- coordination and readiness files.
-
-No legacy application code is reused automatically.
-
-Historical versions remain available on:
-
-- `release/v1.0.0` — original portfolio;
-- `archive/react-v2-prototype-2026-07-11` — archived React/TypeScript/Three.js prototype and repository state before the clean start.
+Historical versions remain available on their release/archive branches for reference only.
+They are not a source for this scaffold.
 
 ## Approved stack
 
 - Laravel 13 / PHP 8.3+
-- PostgreSQL
-- Redis
+- PostgreSQL and Redis
 - Blade SSR
 - Vue 3 + TypeScript + Inertia
 - vanilla Three.js + TypeScript
-- npm
-- PHPUnit
-- Docker Compose
-- OVH VPS + Docker
+- npm and Vite
+- PHPUnit, Pint and Larastan
+- Docker Compose, Nginx and Mailpit
+- OVH VPS + Docker as the future production target
 
-## Next milestone
+## Local setup
 
-`PORT-002` — scaffold the clean Laravel 13 modular foundation.
+Requirements: Docker Desktop with Linux containers and Docker Compose.
+
+```bash
+cp .env.example .env
+docker compose build app
+docker compose up -d --wait
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan admin:provision
+```
+
+The public application is available at `http://localhost:8080`, Mailpit at
+`http://localhost:8025`, liveness at `/up`, and PostgreSQL/Redis readiness at `/ready`.
+The administrator command prompts for credentials and no default password is committed.
+Public registration is disabled.
+
+## Architecture conventions
+
+- `app/Core/` contains application-wide infrastructure.
+- `Modules/*/module.json` declares enabled module providers; discovery is deterministic and validated.
+- Each module provider owns its routes, views, migrations, configuration and commands.
+- Public content remains Blade SSR; Inertia/Vue is restricted to the authenticated dashboard.
+- `resources/js/three-preview/` is a separate vanilla Three.js entry loaded dynamically with a static HTML/CSS fallback.
+
+## Quality checks
+
+```bash
+docker compose exec app php artisan test
+docker compose exec app vendor/bin/pint --test
+docker compose exec app vendor/bin/phpstan analyse --no-progress
+docker compose exec app npm run lint
+docker compose exec app npm run stylelint
+docker compose exec app npm run build
+docker compose config --quiet
+```
+
+GitHub Actions repeats the backend, frontend and container gates. Production deployment is
+not part of PORT-002.
+
+## Current milestone
+
+`PORT-002` — Laravel 13 modular foundation implemented and under review in GitHub issue #6.
 
 Read before contributing:
 

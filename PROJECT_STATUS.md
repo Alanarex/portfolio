@@ -4,32 +4,41 @@
 
 - Product version: v2
 - Integration branch: `main`
+- Feature branch: `feature/PORT-002-laravel-foundation`
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PHASE 0 — CLEAN FOUNDATION READY FOR SCAFFOLDING**
+**PHASE 1 — PORT-002 FOUNDATION IN REVIEW**
 
-The repository has been cleaned. Legacy application files, React dependencies and temporary 3D assets are no longer present on `main`.
+The clean Laravel 13 modular foundation is implemented on the feature branch. Legacy
+application files, React dependencies and temporary 3D assets remain excluded.
 
-## Approved baseline
+## Implemented baseline
 
-- Laravel 13 / PHP 8.3+
-- PostgreSQL
-- Redis
-- Blade SSR public portfolio
-- Vue 3 + TypeScript + Inertia private dashboard
-- vanilla Three.js + TypeScript preview/fullscreen module
-- npm
-- PHPUnit
-- single private administrator initially
-- Docker Compose locally
-- OVH VPS + Docker in production
+- Laravel 13 / PHP 8.3+ modular monolith
+- PostgreSQL, Redis cache/queues and single-administrator boundary
+- Blade SSR public page
+- Vue 3 + TypeScript + Inertia private dashboard shell
+- isolated lazy-loaded vanilla Three.js placeholder with static fallback
+- Docker Compose with Nginx, PHP-FPM, worker, scheduler and Mailpit
+- PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite and GitHub Actions
+- request-ID propagation, structured JSON logging, liveness and readiness checks
 
 ## Current objective
 
-Complete `PORT-002`: scaffold and validate the new Laravel 13 modular foundation from zero while preserving the documentation and agent configuration already present.
+Review and merge PORT-002 after GitHub Actions confirms the locally validated scaffold.
+
+## PORT-002 validation evidence
+
+- Docker Compose stack healthy: Nginx, PHP-FPM, PostgreSQL, Redis, queue worker, scheduler and Mailpit.
+- PostgreSQL migrations, rollback and re-application completed successfully.
+- Redis returned `PONG`; `/up` and `/ready` returned HTTP 200.
+- PHPUnit: 9 tests, 40 assertions passed.
+- Pint and Larastan/PHPStan level 6 passed.
+- ESLint, Stylelint and the Vite production build passed.
+- Three.js is emitted as a separate lazy chunk; no GLB, avatar or final scene is included.
 
 ## Source of truth
 
@@ -47,12 +56,10 @@ Complete `PORT-002`: scaffold and validate the new Laravel 13 modular foundation
 
 ## Immediate next steps
 
-1. Start PORT-002 on a dedicated branch from clean `main`.
-2. Scaffold Laravel 13 without deleting documentation or agent files.
-3. Configure Docker, PostgreSQL, Redis, Nginx, workers, scheduler and Mailpit.
-4. Configure Blade, Vue/Inertia and an isolated Three.js placeholder entry.
-5. Configure tests, analysis, linting, build and GitHub Actions.
-6. Open a draft PR with reproducible evidence.
+1. Review the PORT-002 draft pull request and CI results.
+2. Merge PORT-002 after required checks pass.
+3. Configure branch protection using the new CI checks.
+4. Select the next scoped product issue; final visual design and 3D assets remain separate work.
 
 ## Parallel non-blocking work
 
