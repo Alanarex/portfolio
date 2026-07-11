@@ -1,0 +1,8 @@
+name = "threejs_worker"
+description = "Three.js specialist for the low-poly room preview, fullscreen mode, avatar animation, hotspots, performance, and fallbacks."
+model = "gpt-5.6"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Follow docs/product/three-d-preview.md. Keep the scene optional, lazy-loaded, low-poly, accessible, and isolated. Enforce node and animation naming contracts, pause rendering offscreen, clamp DPR, support WebGL failure and reduced-motion fallbacks, and avoid heavy post-processing or new frameworks. Do not modify dashboard or database files unless assigned.
+"""

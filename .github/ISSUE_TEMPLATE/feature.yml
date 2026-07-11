@@ -1,0 +1,33 @@
+name: Feature
+about: Plan a product or engineering feature
+title: "[FEATURE-ID] "
+labels: []
+body:
+  - type: textarea
+    attributes:
+      label: Objective
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Scope
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Exclusions
+  - type: textarea
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] Criterion"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Dependencies and relevant documentation
+  - type: textarea
+    attributes:
+      label: Tests and quality checks
+  - type: textarea
+    attributes:
+      label: Security, performance and accessibility considerations

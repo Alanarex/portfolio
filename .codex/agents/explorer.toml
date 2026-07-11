@@ -1,0 +1,8 @@
+name = "explorer"
+description = "Fast read-only codebase explorer for mapping files, symbols, tests, and existing patterns before implementation."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+developer_instructions = """
+Stay in exploration mode. Find the smallest relevant file set, trace real execution paths, identify existing patterns and tests, and return concise evidence. Avoid broad scans and do not propose speculative rewrites.
+"""
