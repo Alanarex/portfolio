@@ -1,32 +1,24 @@
 # Current Repository State
 
-## Branches
+## Main branch
 
-- `main`: historical v1 until v2 preparation is promoted;
-- `release/v1.0.0`: preserved historical portfolio;
-- `release/v2.0.0/main`: current React + TypeScript + Vite v2 prototype and preparation branch.
+`main` is the clean Portfolio Platform v2 preparation branch. It contains documentation, agent configuration, skills, issue templates and readiness material only.
 
-## Existing v2 prototype
+It intentionally contains no application implementation, package manifest, React source, generated frontend bundle or temporary 3D model.
 
-The v2 branch currently contains:
+## Historical branches
 
-- React;
-- TypeScript;
-- Vite;
-- Tailwind configuration;
-- a hero section;
-- particle effects;
-- a Three.js/React-based laptop component;
-- GLB laptop models and textures.
+- `release/v1.0.0`: original static portfolio.
+- `archive/react-v2-prototype-2026-07-11`: React/TypeScript/Vite/Tailwind/Three.js prototype and pre-clean state.
 
-## Mandatory audit before scaffolding
+Historical branches are read-only references. Their files must not be copied into v2 without an explicit issue.
 
-Classify each existing v2 file as:
+## Active work
 
-- retain;
-- adapt;
-- migrate;
-- archive;
-- remove.
+- PORT-001: completed.
+- PORT-000: cancelled because the product owner selected a clean start.
+- PORT-002: next active milestone.
 
-Do not delete the prototype without recording why and preserving useful visual or 3D assets.
+## Start condition
+
+Codex must branch from current `main`, preserve documentation/configuration, and scaffold Laravel 13 from zero.
