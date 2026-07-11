@@ -2,14 +2,15 @@
 
 ## Purpose
 
-This document defines how Codex selects, delivers, validates, publishes, merges, closes and advances through the ordered PORT issues.
+Define how Codex continuously selects, delivers, validates, publishes, merges, closes and advances through the ordered PORT issues.
 
 ## Controller
 
 - GitHub controller issue: `#17`
 - Integration branch: `main`
-- One feature issue = one branch = one pull request
-- Current sequence: PORT-002 through PORT-011
+- One issue = one branch = one pull request
+- Autonomous sequence: PORT-003 through PORT-011
+- Governing decision: `docs/architecture/decisions/ADR-007-autonomous-continuous-delivery.md`
 
 ## Required local tooling
 
@@ -19,47 +20,30 @@ gh auth login
 gh auth status
 ```
 
-Codex must stop before publication if `gh auth status` fails and no equivalent GitHub connector is available.
+Codex may use an equivalent authenticated GitHub connector. Publication and merge access must work before the chain starts.
 
-## Selecting the next feature
+## Continuous selection
 
-1. Read `AGENTS.md`, `PROJECT_STATUS.md`, this document and `docs/tracking/execution-queue.md`.
+1. Read `AGENTS.md`, `PROJECT_STATUS.md`, ADR-007, this document and `docs/tracking/execution-queue.md`.
 2. Read controller issue `#17`.
-3. Inspect the ordered queue.
-4. Select the first open issue whose dependency issue is closed as completed and whose merge is present on `main`.
-5. Read the complete issue body, comments, acceptance criteria, branch name, exclusions and merge contract.
-6. Do not skip issues or invent a different scope.
-
-Useful commands:
-
-```powershell
-git checkout main
-git pull --ff-only origin main
-gh issue view 17 --repo Alanarex/portfolio
-gh issue list --repo Alanarex/portfolio --state open --search 'in:title [PORT-'
-```
-
-## Execution-status markers
-
-Issue bodies use one of these markers:
-
-- `READY_AFTER: #N`: executable after issue `#N` is completed and merged.
-- `HUMAN_GATE_AFTER: #N`: work may produce a draft PR after `#N`, but merge and continuation require explicit product-owner approval.
-
-A human-gated issue must not be treated as approved merely because CI is green.
+3. Select the first open issue whose dependency is completed and whose merge exists on `main`.
+4. Read the complete issue, comments, exact branch, exclusions, acceptance criteria, agents and merge contract.
+5. Deliver only that issue.
+6. After successful merge and closure, immediately repeat from step 1 for the next issue.
+7. Do not wait for another prompt or a new task/thread between issues.
+8. Do not skip issues or invent a different scope.
 
 ## Start protocol
 
 Before writes:
 
-1. verify clean worktree;
-2. update `main` with fast-forward only;
-3. create the exact branch named in the issue;
-4. read relevant ADRs, product docs, module README files and tests;
-5. run read-only explorer/architect/QA analysis when the feature is non-trivial;
-6. define path ownership before starting write agents.
-
-Do not create a different branch name unless the issue is updated first.
+1. verify the main worktree is clean;
+2. `git checkout main`;
+3. `git pull --ff-only origin main`;
+4. create the exact issue branch;
+5. read relevant ADRs, product docs, module README files and tests;
+6. run read-only explorer/architect/QA analysis for non-trivial work;
+7. define path ownership before write agents start.
 
 ## Implementation protocol
 
@@ -68,15 +52,16 @@ Do not create a different branch name unless the issue is updated first.
 - Use isolated worktrees for concurrent writers.
 - One explicit owner per path.
 - Serialize root manifests, routes, migrations, design tokens and frontend entry points.
-- Implement only the issue scope.
+- Implement only the current issue scope.
 - Add tests and documentation in the same feature.
-- Record material architectural decisions in an ADR.
+- Record material architectural decisions in ADRs.
+- Use ADR-007 conservative defaults for ordinary visual, privacy and v1 3D decisions.
 
 ## Quality protocol
 
 Inspect actual scripts before assuming command names.
 
-At minimum, run all relevant equivalents of:
+Run every relevant equivalent of:
 
 ```powershell
 docker compose up -d
@@ -99,7 +84,8 @@ Also run when applicable:
 - queue and scheduler checks;
 - upload-security tests;
 - SEO validation;
-- Three.js asset and runtime budgets.
+- Three.js asset/runtime budgets;
+- secret and private-data scans.
 
 Never weaken a gate to obtain a green result.
 
@@ -111,33 +97,32 @@ After implementation and local validation:
 git status
 git diff --check
 git add -A
-git commit -m '<conventional commit message>'
+git commit -m '<conventional commit>'
 git push -u origin <issue-branch>
 gh pr create --draft --base main --head <issue-branch> --title '<title>' --body 'Closes #<issue-number>'
 ```
 
-The PR body must include:
+The PR must include:
 
-- completed acceptance criteria;
-- exact commands and results;
-- migrations and rollback result;
+- acceptance criteria status;
+- exact commands/results;
+- migrations and rollback evidence;
 - screenshots for visual changes;
-- security/accessibility/performance evidence where applicable;
+- security/accessibility/performance evidence;
 - risks and unresolved items.
 
 ## Merge protocol
 
-The orchestrator may merge only when all of the following are true:
+The orchestrator may mark ready and squash-merge only when:
 
-1. every acceptance criterion is complete or explicitly documented as blocked;
+1. every acceptance criterion is satisfied;
 2. all required checks are green;
-3. no unresolved QA or review finding remains;
+3. no unresolved QA/review finding remains;
 4. the branch is current with `main`;
-5. no secrets or unrelated changes are present;
-6. the issue merge contract permits automatic merge;
-7. any required human gate is explicitly approved.
-
-Preferred command:
+5. no secrets, private source code or unrelated changes exist;
+6. rollback is verified where applicable;
+7. ADR-007 permits any selected fallback;
+8. branch protection and required reviews permit merge.
 
 ```powershell
 gh pr ready <pr-number> --repo Alanarex/portfolio
@@ -145,11 +130,11 @@ gh pr checks <pr-number> --repo Alanarex/portfolio --watch
 gh pr merge <pr-number> --repo Alanarex/portfolio --squash --delete-branch
 ```
 
-If branch protection or review policy prevents merge, stop and report the exact blocker. Do not bypass protection.
+Never bypass branch protection.
 
-## Closure and continuation
+## Closure and immediate continuation
 
-A PR containing `Closes #N` should close the issue when merged. Verify it:
+After merge:
 
 ```powershell
 gh issue view <issue-number> --repo Alanarex/portfolio --json state,stateReason,url
@@ -159,29 +144,44 @@ git pull --ff-only origin main
 
 Then:
 
-1. update `PROJECT_STATUS.md` and `docs/tracking/execution-queue.md` in the feature before merge;
-2. update controller issue `#17` with the completed PR and checks;
-3. remove completed worktrees;
-4. select the next executable issue;
-5. create a new branch and new focused Codex task/thread for the next issue.
+1. verify issue closure;
+2. update controller issue `#17` with PR and checks;
+3. remove completed worktrees/branches;
+4. read the updated queue;
+5. create the next issue branch;
+6. immediately continue delivery in the same orchestration.
 
-Do not carry implementation context through uncommitted files between features.
+Do not carry uncommitted files between features.
 
-## Mandatory stop conditions
+## Autonomous decision defaults
 
-Stop, do not merge and do not continue when:
+Follow ADR-007:
 
-- tests or required checks fail;
-- security, privacy or data-loss ambiguity remains;
-- a migration is destructive or rollback is not verified;
-- production credentials or production deployment are involved;
-- the issue scope conflicts with an accepted ADR;
-- the next issue is human-gated and approval is missing;
-- visual approval is required;
-- final Blender assets, licensing or provenance are incomplete;
-- `main` changed in a way that invalidates the implementation;
-- a feature cannot be completed without inventing product requirements.
+- choose an accessible dark-first professional visual direction;
+- use conservative privacy defaults;
+- use original procedural or clearly licensed v1 3D assets;
+- use a generic stylized developer avatar when personal likeness references are absent;
+- do not pause for ordinary aesthetic preference selection.
 
-## End of initial sequence
+## Hard stop conditions
 
-PORT-011 is the final issue in this delivery sequence. After it is merged, close controller issue `#17` and create a separate release-planning issue. Do not invent PORT-012 automatically.
+Stop only when a blocker cannot be safely resolved after reasonable repair attempts:
+
+- tests/CI remain failing;
+- security, privacy, licensing or data-loss risk remains unresolved;
+- migration rollback cannot be verified;
+- production credentials or production deployment approval are required;
+- GitHub permission or branch protection blocks publication/merge;
+- an accepted ADR conflict requires a product-level reversal;
+- required external tooling/assets are unavailable and no allowed procedural/licensed fallback exists;
+- `main` changes invalidate the implementation.
+
+Record the exact blocker in the issue and controller before stopping.
+
+## End of sequence
+
+PORT-011 ends the initial delivery chain. After it merges:
+
+1. close controller issue `#17`;
+2. create a release-readiness issue for full regression, production configuration, deployment, backups, monitoring and rollback;
+3. do not invent PORT-012 automatically.
