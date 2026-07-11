@@ -10,13 +10,29 @@
 
 ## Current phase
 
-**PRE-DEVELOPMENT / PHASE 0**
+**PHASE 0 — AUDIT AND FOUNDATION PREPARATION**
 
-The product vision, architecture, content model, low-poly Three.js preview, quality strategy and controlled multi-agent workflow are documented.
+The product vision, architecture, content model, low-poly Three.js preview, quality strategy and controlled multi-agent workflow are documented. Scaffold decisions are accepted.
+
+## Approved technical baseline
+
+- Laravel 13 / PHP 8.3+
+- PostgreSQL
+- Redis
+- Blade SSR public portfolio
+- Vue 3 + TypeScript + Inertia dashboard
+- vanilla Three.js + TypeScript preview/fullscreen module
+- npm
+- PHPUnit
+- one private administrator initially
+- Docker Compose locally
+- OVH VPS + Docker for production
+
+See `docs/architecture/decisions/ADR-005-scaffold-baseline.md`.
 
 ## Current objective
 
-Prepare a verified Laravel 13 modular foundation without losing the existing React/TypeScript v2 prototype.
+Audit the existing React/TypeScript v2 prototype, then build a verified Laravel 13 modular foundation without losing useful frontend or 3D work.
 
 ## Source of truth
 
@@ -34,17 +50,20 @@ Prepare a verified Laravel 13 modular foundation without losing the existing Rea
 
 ## Immediate next steps
 
-1. Audit the existing v2 React/TypeScript prototype.
-2. Decide which prototype assets and interactions are retained.
-3. Scaffold the Laravel 13 modular application.
-4. Add Docker, MySQL, Redis and Nginx local services.
-5. Configure quality gates and CI.
-6. Implement private dashboard authentication.
-7. Implement the public portfolio CMS before the final Three.js room.
+1. Complete PORT-000: audit the existing React/TypeScript/Three.js prototype.
+2. Start PORT-002: scaffold Laravel 13 after the audit identifies retained/migrated prototype assets.
+3. Add Docker services: Nginx, PostgreSQL, Redis, queue worker, scheduler and Mailpit.
+4. Configure Pint, Larastan/PHPStan, PHPUnit, ESLint, Stylelint, build checks and CI.
+5. Implement the single-admin private authentication boundary.
+6. Implement the public portfolio CMS and HTML landing page.
+7. Integrate a temporary low-poly Three.js scene before final Blender assets.
 
-## Blocking decisions
+## Non-blocking parallel work
 
-See `docs/readiness/open-decisions.md`.
+- Blender/avatar reference preparation;
+- design references and captures;
+- deep analysis of featured project repositories;
+- confirmation of public contact/CV/activity visibility.
 
 ## Update rule
 
