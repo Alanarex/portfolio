@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Core\Security\SecurityAudit;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -22,28 +23,35 @@ final class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
-        if (! Auth::attempt($request->safe()->only(['email', 'password']), $request->boolean('remember'))) {
+        $credentials = $request->safe()->only(['email', 'password']);
+        $credentials['email'] = mb_strtolower(trim((string) $credentials['email']));
+        $credentials['is_administrator'] = true;
+
+        if (! Auth::attempt($credentials, false)) {
+            SecurityAudit::record('admin.login.failed', ['request_id' => $request->attributes->get('request_id')]);
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
         $request->session()->regenerate();
-
-        if ($request->user()?->is_administrator !== true) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            throw ValidationException::withMessages(['email' => __('auth.failed')]);
-        }
+        $request->session()->put('auth_version', $request->user()?->auth_version);
+        SecurityAudit::record('admin.login.succeeded', [
+            'request_id' => $request->attributes->get('request_id'),
+            'user_id' => $request->user()?->getKey(),
+        ]);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
     public function destroy(Request $request): RedirectResponse
     {
+        $userId = $request->user()?->getKey();
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        SecurityAudit::record('admin.logout', [
+            'request_id' => $request->attributes->get('request_id'),
+            'user_id' => $userId,
+        ]);
 
         return redirect()->route('home');
     }

@@ -6,13 +6,23 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 final class EnsureAdministrator
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless($request->user()?->is_administrator === true, 403);
+        $user = $request->user();
+        abort_unless($user?->isAdministrator() === true, 403);
+
+        if ($request->session()->get('auth_version') !== $user->auth_version) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login');
+        }
 
         return $next($request);
     }
