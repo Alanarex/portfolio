@@ -38,15 +38,15 @@
 
 ## Development environment — PORT-002
 
-- [ ] Laravel 13 scaffold.
-- [ ] Docker Compose.
-- [ ] PostgreSQL and Redis.
-- [ ] Nginx local configuration.
-- [ ] Queue worker and scheduler services.
-- [ ] Mailpit.
-- [ ] `.env.example`.
-- [ ] quality scripts.
-- [ ] GitHub Actions CI.
+- [x] Laravel 13 scaffold.
+- [x] Docker Compose.
+- [x] PostgreSQL and Redis.
+- [x] Nginx local configuration.
+- [x] Queue worker and scheduler services.
+- [x] Mailpit.
+- [x] `.env.example`.
+- [x] quality scripts.
+- [x] GitHub Actions CI.
 - [ ] branch protection and required checks.
 
 ## 3D preparation

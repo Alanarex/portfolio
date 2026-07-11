@@ -10,6 +10,7 @@ x-app: &app
       required: false
   environment:
     APP_ENV: local
+    APP_KEY: ${APP_KEY:-base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}
     APP_DEBUG: "true"
     APP_URL: http://localhost:8080
     LOG_CHANNEL: stderr
@@ -61,7 +62,7 @@ services:
       app:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/up || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 6
