@@ -13,6 +13,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        config()->set('inertia.pages.paths', [resource_path('js/Pages')]);
         $this->withoutMiddleware(PreventRequestForgery::class);
         $this->withoutVite();
     }
