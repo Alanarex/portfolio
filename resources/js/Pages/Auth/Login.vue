@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-const form = useForm({ email: '', password: '', remember: false });
+const form = useForm({ email: '', password: '' });
 const submit = () => form.post('/login', { onFinish: () => form.reset('password') });
 </script>
 
@@ -51,10 +51,6 @@ const submit = () => form.post('/login', { onFinish: () => form.reset('password'
         >
           {{ form.errors.password }}
         </p>
-        <label class="check"><input
-          v-model="form.remember"
-          type="checkbox"
-        > Rester connecté</label>
         <button
           type="submit"
           :disabled="form.processing"

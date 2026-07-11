@@ -11,7 +11,7 @@ Route::view('/', 'home')->name('home');
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:5,1')
+        ->middleware('throttle:admin-login')
         ->name('login.store');
 });
 

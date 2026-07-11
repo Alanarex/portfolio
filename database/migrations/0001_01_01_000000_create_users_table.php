@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->boolean('is_administrator')->default(false)->index();
+            $table->unsignedBigInteger('auth_version')->default(1);
             $table->timestamps();
         });
 

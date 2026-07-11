@@ -4,7 +4,7 @@ Portfolio Platform v2 is a clean Laravel 13 modular monolith.
 
 ## Repository state
 
-PORT-002 introduces the foundation without reusing legacy application code. The application
+PORT-003 hardens the foundation without reusing legacy application code. The application
 provides a server-rendered public page, an authenticated Inertia/Vue administrator shell,
 and an optional lazy-loaded Three.js placeholder.
 
@@ -39,7 +39,19 @@ docker compose exec app php artisan admin:provision
 The public application is available at `http://localhost:8080`, Mailpit at
 `http://localhost:8025`, liveness at `/up`, and PostgreSQL/Redis readiness at `/ready`.
 The administrator command prompts for credentials and no default password is committed.
-Public registration is disabled.
+Use `php artisan admin:reset-password` for an interactive password rotation; it revokes
+legacy remember-me credentials and every active authenticated session. Passwords are never accepted as command
+arguments or options, so they do not leak through shell history or process listings.
+
+Public registration and web password reset routes are disabled. Login attempts are limited to
+five per minute for each normalized email and IP pair. Persistent remember-me sessions are
+disabled for the private administrator boundary. Authentication and
+administrator lifecycle events are written as structured audit logs without passwords, tokens,
+session identifiers or raw email addresses.
+
+For production HTTPS, set `SESSION_SECURE_COOKIE=true`, keep `SESSION_HTTP_ONLY=true` and retain
+`SESSION_SAME_SITE=lax` unless a reviewed integration requires a stricter setting. Local HTTP uses
+`SESSION_SECURE_COOKIE=false` so development remains usable.
 
 ## Architecture conventions
 
@@ -66,7 +78,7 @@ not part of PORT-002.
 
 ## Current milestone
 
-`PORT-002` — Laravel 13 modular foundation implemented and under review in GitHub issue #6.
+`PORT-003` — secure single-administrator authentication in review in GitHub issue #8.
 
 Read before contributing:
 

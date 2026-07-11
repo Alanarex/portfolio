@@ -5,14 +5,14 @@
 - Product version: v2
 - Integration branch: `main`
 - Current feature: `PORT-003`
-- Planned branch: `feature/PORT-003-admin-auth`
+- Feature branch: `feature/PORT-003-admin-auth`
 - Delivery mode: autonomous continuous PORT chain
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PHASE 1 — AUTONOMOUS DELIVERY: PORT-003 READY**
+**PHASE 1 — AUTONOMOUS DELIVERY: PORT-003 IN REVIEW**
 
 PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundation is active on `main`. ADR-007 authorizes Codex to deliver PORT-003 through PORT-011 continuously without waiting for a new prompt between features.
 
@@ -35,9 +35,18 @@ PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundatio
 - Docker Compose stack, PostgreSQL migrations and rollback, Redis, `/up`, `/ready`, PHPUnit, Pint, Larastan, ESLint, Stylelint and Vite build were validated.
 - No historical application files or archived 3D assets were restored.
 
+## PORT-003 implementation
+
+- single-administrator login/logout boundary with session regeneration and invalidation;
+- normalized email/IP login throttling and generic authentication failures;
+- interactive provisioning and password-reset commands without command-line secrets;
+- remember-me disabled; administrative reset revokes every active session through an auth version;
+- structured authentication audit events without credentials, tokens, session IDs or raw emails;
+- dedicated feature tests for access, throttling, session lifecycle, audit and commands.
+
 ## Current objective
 
-Start issue #8 / PORT-003 and continue automatically through every remaining executable PORT issue up to PORT-011. Each feature retains its own branch, PR, tests, merge and issue closure.
+Validate and merge issue #8 / PORT-003, then continue automatically through every remaining executable PORT issue up to PORT-011. Each feature retains its own branch, PR, tests, merge and issue closure.
 
 ## Autonomous defaults
 
@@ -64,12 +73,11 @@ Start issue #8 / PORT-003 and continue automatically through every remaining exe
 
 ## Immediate next steps
 
-1. Start issue #8 on `feature/PORT-003-admin-auth` from current `main`.
-2. Complete all issue criteria and quality gates.
-3. Publish, review, squash-merge and verify issue closure.
-4. Update issue #17 and the execution queue.
-5. Immediately start PORT-004, then repeat through PORT-011.
-6. After PORT-011, create a release-readiness issue rather than PORT-012.
+1. Complete PORT-003 local quality gates and migration rollback verification.
+2. Publish, review, squash-merge and verify issue #8 closure.
+3. Update issue #17 and immediately start PORT-004.
+4. Repeat through PORT-011.
+5. After PORT-011, create a release-readiness issue rather than PORT-012.
 
 ## Update rule
 

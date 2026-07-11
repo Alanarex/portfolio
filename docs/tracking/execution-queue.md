@@ -23,7 +23,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 | Order | Feature | Issue | Branch | Dependency | Gate | State |
 |---:|---|---:|---|---|---|---|
 | 1 | PORT-002 — Laravel modular foundation | #6 | `feature/PORT-002-laravel-foundation` | PORT-001 | Automatic if green | Done |
-| 2 | PORT-003 — Secure admin authentication | #8 | `feature/PORT-003-admin-auth` | #6 | Automatic if green | Ready |
+| 2 | PORT-003 — Secure admin authentication | #8 | `feature/PORT-003-admin-auth` | #6 | Automatic if green | Review |
 | 3 | PORT-004 — Design system and layouts | #9 | `feature/PORT-004-design-system` | #8 | ADR-007 visual defaults | Planned |
 | 4 | PORT-005 — Profile and settings CMS | #10 | `feature/PORT-005-profile-settings` | #9 | Automatic if green | Planned |
 | 5 | PORT-006 — Career, education and skills CMS | #11 | `feature/PORT-006-career-skills` | #10 | Automatic if green | Planned |
