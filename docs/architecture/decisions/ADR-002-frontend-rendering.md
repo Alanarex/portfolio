@@ -2,24 +2,28 @@
 
 ## Status
 
-Proposed — requires final confirmation before scaffolding
+Accepted
 
 ## Context
 
-The public portfolio needs SEO, accessibility and fast first render. The dashboard needs a richer application interface. The 3D section requires Three.js but should not dictate the whole frontend stack.
+The public portfolio needs SEO, accessibility and a fast first render. The private dashboard needs a richer application interface. The 3D section requires Three.js but must not dictate the whole frontend stack.
 
 ## Decision
 
-Recommended approach:
+Use:
 
-- Laravel SSR/Blade for the public landing page and case-study content;
-- Vue 3 + TypeScript for dashboard-rich interactions, either through Inertia or a clearly isolated SPA area;
-- vanilla Three.js + TypeScript mounted as an isolated public-page module;
-- Vite for bundling and code splitting.
+- Laravel Blade/server-rendered HTML for the public landing page, case studies and essential portfolio content;
+- Vue 3 + TypeScript with Inertia for the private dashboard and rich authenticated interactions;
+- vanilla Three.js + TypeScript mounted as an isolated, lazy-loaded public-page module;
+- Vite for bundling, code splitting and shared frontend assets;
+- shared design tokens across Blade, Vue and Three.js overlays.
+
+The existing React/TypeScript prototype must be audited before useful UI or Three.js work is migrated. React is not retained as a platform dependency unless PORT-000 identifies a specific isolated component whose migration cost is unjustified.
 
 ## Consequences
 
-- public content remains indexable;
-- Three.js loads independently;
-- dashboard can use a component architecture;
-- the project must define shared design tokens across Blade and Vue.
+- public content remains indexable and accessible;
+- the dashboard keeps a component-based frontend without requiring a separate SPA deployment;
+- Three.js loads independently and can fail without breaking core content;
+- shared design tokens and API contracts must be maintained across Blade and Vue;
+- the React prototype will be classified and migrated deliberately rather than deleted blindly.

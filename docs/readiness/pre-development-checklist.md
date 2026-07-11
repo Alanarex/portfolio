@@ -8,7 +8,7 @@
 - [x] Codex agent configuration prepared.
 - [x] Multi-agent workflow prepared.
 - [x] GitHub issue and PR templates prepared.
-- [ ] Promote prepared v2 commit to `main`.
+- [x] Prepared v2 commit promoted to `main`.
 - [ ] Configure branch protection for `main`.
 
 ## Product
@@ -22,11 +22,13 @@
 
 ## Architecture
 
-- [x] Modular-monolith proposal documented.
-- [x] Frontend-rendering proposal documented.
+- [x] Modular monolith accepted.
+- [x] Blade + Vue/Inertia + vanilla Three.js frontend strategy accepted.
+- [x] PostgreSQL, npm, PHPUnit, single-admin and OVH/Docker baseline accepted.
 - [x] Three.js boundary accepted.
 - [x] 3D asset handoff documented.
-- [ ] Resolve blocking scaffold decisions.
+- [x] Controlled multi-agent delivery accepted.
+- [ ] Complete PORT-000 prototype audit.
 
 ## Content
 
@@ -40,12 +42,14 @@
 
 - [ ] Laravel 13 scaffold.
 - [ ] Docker Compose.
-- [ ] Database and Redis.
+- [ ] PostgreSQL and Redis.
 - [ ] Nginx local configuration.
+- [ ] Queue worker and scheduler services.
 - [ ] Mailpit.
 - [ ] `.env.example`.
 - [ ] quality scripts.
 - [ ] CI workflow.
+- [ ] branch protection and required checks.
 
 ## 3D preparation
 
@@ -55,3 +59,4 @@
 - [ ] Low-poly style approved.
 - [ ] Room blockout approved.
 - [ ] Temporary GLB integrated and profiled.
+- [ ] Final Blender asset handoff validated.
