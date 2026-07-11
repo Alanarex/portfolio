@@ -29,12 +29,66 @@ Before non-trivial work, read:
 
 1. `PROJECT_STATUS.md`
 2. the linked GitHub Issue
-3. relevant ADRs in `docs/architecture/decisions/`
-4. relevant product documentation
-5. `docs/agents/multi-agent-workflow.md`
-6. `docs/coordination/communication-protocol.md`
+3. `docs/tracking/execution-queue.md`
+4. `docs/agents/sequential-feature-delivery.md`
+5. relevant ADRs in `docs/architecture/decisions/`
+6. relevant product documentation
+7. `docs/agents/multi-agent-workflow.md`
+8. `docs/coordination/communication-protocol.md`
 
 GitHub Issues define scope and acceptance criteria. Pull Requests contain implementation evidence. Chat messages are not the durable source of truth.
+
+## Sequential PORT delivery
+
+The initial ordered delivery sequence is controlled by GitHub issue `#17` and `docs/tracking/execution-queue.md`.
+
+Rules:
+
+1. Deliver one integrated PORT issue at a time.
+2. Select only the first open issue whose dependency is closed as completed and merged into `main`.
+3. Read the full issue body, comments, branch name, exclusions, acceptance criteria, agents and merge contract.
+4. Use the exact branch named in the issue.
+5. One issue equals one branch and one pull request.
+6. Use the `feature-delivery` skill for all non-trivial PORT issues.
+7. Update `PROJECT_STATUS.md` and the execution queue inside the feature PR.
+8. The PR body must contain `Closes #<issue-number>`.
+9. After merge, verify issue closure, pull updated `main`, update controller issue `#17`, remove completed worktrees and start a new focused task/thread for the next executable issue.
+10. Do not skip an issue, silently broaden scope or invent the next feature.
+11. After PORT-011, stop and create release planning. Do not automatically invent PORT-012.
+
+Issue execution markers:
+
+- `READY_AFTER: #N`: executable after issue `#N` is completed and merged.
+- `HUMAN_GATE_AFTER: #N`: a draft PR may be prepared after `#N`, but merge and continuation require explicit product-owner approval.
+
+Read `docs/agents/sequential-feature-delivery.md` for exact start, publication, merge, closure and continuation commands.
+
+## Automated merge boundary
+
+The orchestrator may squash-merge and continue only when:
+
+- all acceptance criteria are satisfied;
+- every required CI and local quality gate is green;
+- no unresolved QA or review finding remains;
+- the branch is current with `main`;
+- no secrets or unrelated changes exist;
+- migration rollback is verified where applicable;
+- the issue merge contract permits automatic merge;
+- every required human gate is explicitly approved.
+
+Never bypass branch protection or required reviews.
+
+Mandatory stop conditions include:
+
+- failing tests or checks;
+- security, privacy or data-loss ambiguity;
+- destructive or unverified migrations;
+- production credentials or production deployment;
+- conflict with an accepted ADR;
+- missing visual approval;
+- missing Blender asset approval, licensing or provenance;
+- changed `main` that invalidates the feature;
+- requirements that would need to be invented.
 
 ## Clean-start rule
 
@@ -49,7 +103,7 @@ GitHub Issues define scope and acceptance criteria. Pull Requests contain implem
 - `main`: clean v2 integration branch.
 - `release/v1.0.0`: historical original portfolio.
 - `archive/react-v2-prototype-2026-07-11`: archived React/TypeScript/Three.js prototype and pre-clean repository state.
-- feature branches: one issue per branch.
+- feature branches: one issue per branch, using the exact name recorded in the issue and execution queue.
 
 Never commit application work directly to `main`.
 
@@ -204,7 +258,11 @@ A task is complete only when applicable criteria are satisfied:
 - frontend lint/build passing;
 - accessibility/performance validated where relevant;
 - migration rollback checked;
-- documentation and `PROJECT_STATUS.md` updated;
+- documentation, `PROJECT_STATUS.md` and the execution queue updated;
 - no secrets committed;
 - no unrelated files changed;
-- PR contains exact commands, results, risks and unresolved items.
+- PR contains exact commands, results, risks and unresolved items;
+- PR is merged according to the issue contract;
+- issue closure is verified;
+- controller issue `#17` is updated;
+- the next issue is started only when its dependency and gates are satisfied.
