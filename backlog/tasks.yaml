@@ -1,0 +1,725 @@
+schemaVersion: 1
+tasks:
+  - id: FAEL-001
+    milestone: M04
+    title: French and English localized public content with French as the default
+      locale
+    objective: Implement French and English localized public content with French as
+      the default locale as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - French and English localized public content with French as the default
+        locale is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: French and English localized public content with French as the
+      default locale
+  - id: DALT-001
+    milestone: M04
+    title: Dark and light themes using the supplied theme-specific logos and
+      personal profile photo
+    objective: Implement Dark and light themes using the supplied theme-specific
+      logos and personal profile photo as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Dark and light themes using the supplied theme-specific logos and
+        personal profile photo is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Dark and light themes using the supplied theme-specific logos and
+      personal profile photo
+  - id: RPSW-001
+    milestone: M01
+    title: Responsive public site with semantic server-rendered Blade content and
+      progressive enhancement
+    objective: Implement Responsive public site with semantic server-rendered Blade
+      content and progressive enhancement as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Responsive public site with semantic server-rendered Blade content and
+        progressive enhancement is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: infrastructure
+    priority: 40
+    resources:
+      - infrastructure
+    status: ready
+    sourceFeature: Responsive public site with semantic server-rendered Blade
+      content and progressive enhancement
+  - id: SMSE-001
+    milestone: M04
+    title: Social-media-style event feed for professional experiences, education,
+      certifications, projects, releases, milestones, achievements, and personal
+      interests
+    objective: Implement Social-media-style event feed for professional experiences,
+      education, certifications, projects, releases, milestones, achievements,
+      and personal interests as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Social-media-style event feed for professional experiences, education,
+        certifications, projects, releases, milestones, achievements, and
+        personal interests is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Social-media-style event feed for professional experiences,
+      education, certifications, projects, releases, milestones, achievements,
+      and personal interests
+  - id: LDSB-001
+    milestone: M04
+    title: Latest-date sorting by default with an optional relevance-based sort
+    objective: Implement Latest-date sorting by default with an optional
+      relevance-based sort as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Latest-date sorting by default with an optional relevance-based sort is
+        implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Latest-date sorting by default with an optional relevance-based sort
+  - id: POIL-001
+    milestone: M04
+    title: Pagination or incremental loading so the complete feed is never loaded at
+      once
+    objective: Implement Pagination or incremental loading so the complete feed is
+      never loaded at once as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Pagination or incremental loading so the complete feed is never loaded
+        at once is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Pagination or incremental loading so the complete feed is never
+      loaded at once
+  - id: RBCA-001
+    milestone: M04
+    title: Redis-backed caching and cache invalidation for public content,
+      integrations, settings, and feed queries
+    objective: Implement Redis-backed caching and cache invalidation for public
+      content, integrations, settings, and feed queries as a bounded, verifiable
+      project capability.
+    acceptanceCriteria:
+      - Redis-backed caching and cache invalidation for public content,
+        integrations, settings, and feed queries is implemented according to the
+        project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: medium
+    approval: review
+    verificationProfile: backend
+    priority: 55
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Redis-backed caching and cache invalidation for public content,
+      integrations, settings, and feed queries
+  - id: DSGS-001
+    milestone: M04
+    title: Daily scheduled GitHub synchronization that creates or updates verified
+      posts without duplicates
+    objective: Implement Daily scheduled GitHub synchronization that creates or
+      updates verified posts without duplicates as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Daily scheduled GitHub synchronization that creates or updates verified
+        posts without duplicates is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Daily scheduled GitHub synchronization that creates or updates
+      verified posts without duplicates
+  - id: GASA-001
+    milestone: M04
+    title: GitLab activity synchronization and public contribution-grid support with
+      private activity excluded
+    objective: Implement GitLab activity synchronization and public
+      contribution-grid support with private activity excluded as a bounded,
+      verifiable project capability.
+    acceptanceCriteria:
+      - GitLab activity synchronization and public contribution-grid support
+        with private activity excluded is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: GitLab activity synchronization and public contribution-grid
+      support with private activity excluded
+  - id: LAIO-001
+    milestone: M02
+    title: LinkedIn activity import or synchronization when permitted by LinkedIn
+      APIs and account permissions
+    objective: Implement LinkedIn activity import or synchronization when permitted
+      by LinkedIn APIs and account permissions as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - LinkedIn activity import or synchronization when permitted by LinkedIn
+        APIs and account permissions is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: high
+    approval: human
+    verificationProfile: backend
+    priority: 70
+    resources:
+      - backend
+    status: ready
+    sourceFeature: LinkedIn activity import or synchronization when permitted by
+      LinkedIn APIs and account permissions
+  - id: DIFE-001
+    milestone: M04
+    title: Default images for every event type with event-specific media preferred
+      when verified and available
+    objective: Implement Default images for every event type with event-specific
+      media preferred when verified and available as a bounded, verifiable
+      project capability.
+    acceptanceCriteria:
+      - Default images for every event type with event-specific media preferred
+        when verified and available is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Default images for every event type with event-specific media
+      preferred when verified and available
+  - id: PPTP-001
+    milestone: M04
+    title: Profile, professional titles, positioning, summary, biography, location,
+      availability, social links, and visibility settings
+    objective: Implement Profile, professional titles, positioning, summary,
+      biography, location, availability, social links, and visibility settings
+      as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Profile, professional titles, positioning, summary, biography, location,
+        availability, social links, and visibility settings is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Profile, professional titles, positioning, summary, biography,
+      location, availability, social links, and visibility settings
+  - id: CEMW-001
+    milestone: M04
+    title: Career experience management with quantified achievements restricted to
+      verified values
+    objective: Implement Career experience management with quantified achievements
+      restricted to verified values as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Career experience management with quantified achievements restricted to
+        verified values is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Career experience management with quantified achievements
+      restricted to verified values
+  - id: ECLP-001
+    milestone: M04
+    title: Education, certification, language-proficiency, and publication-status
+      management
+    objective: Implement Education, certification, language-proficiency, and
+      publication-status management as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Education, certification, language-proficiency, and publication-status
+        management is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Education, certification, language-proficiency, and
+      publication-status management
+  - id: STWC-001
+    milestone: M04
+    title: Skills taxonomy with categories, icons, ordering, visibility, related
+      projects, related events, and a dedicated Skills Explorer
+    objective: Implement Skills taxonomy with categories, icons, ordering,
+      visibility, related projects, related events, and a dedicated Skills
+      Explorer as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Skills taxonomy with categories, icons, ordering, visibility, related
+        projects, related events, and a dedicated Skills Explorer is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Skills taxonomy with categories, icons, ordering, visibility,
+      related projects, related events, and a dedicated Skills Explorer
+  - id: PACS-001
+    milestone: M04
+    title: Project and case-study management with stable slugs, role, dates,
+      technologies, architecture, contribution, results, metrics, lessons,
+      repository visibility, demo links, and featured ordering
+    objective: Implement Project and case-study management with stable slugs, role,
+      dates, technologies, architecture, contribution, results, metrics,
+      lessons, repository visibility, demo links, and featured ordering as a
+      bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Project and case-study management with stable slugs, role, dates,
+        technologies, architecture, contribution, results, metrics, lessons,
+        repository visibility, demo links, and featured ordering is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Project and case-study management with stable slugs, role, dates,
+      technologies, architecture, contribution, results, metrics, lessons,
+      repository visibility, demo links, and featured ordering
+  - id: MMFI-001
+    milestone: M03
+    title: Media management for images, screenshots, posters, documents, CV files,
+      social previews, and 3D assets with alt text and metadata
+    objective: Implement Media management for images, screenshots, posters,
+      documents, CV files, social previews, and 3D assets with alt text and
+      metadata as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Media management for images, screenshots, posters, documents, CV files,
+        social previews, and 3D assets with alt text and metadata is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Media management for images, screenshots, posters, documents, CV
+      files, social previews, and 3D assets with alt text and metadata
+  - id: HADW-001
+    milestone: M02
+    title: Hidden authenticated dashboard with CRUD, filters, ordering, publication
+      controls, preview, empty states, and audit events
+    objective: Implement Hidden authenticated dashboard with CRUD, filters,
+      ordering, publication controls, preview, empty states, and audit events as
+      a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Hidden authenticated dashboard with CRUD, filters, ordering, publication
+        controls, preview, empty states, and audit events is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: high
+    approval: human
+    verificationProfile: backend
+    priority: 70
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Hidden authenticated dashboard with CRUD, filters, ordering,
+      publication controls, preview, empty states, and audit events
+  - id: PEAD-001
+    milestone: M04
+    title: Project enable and disable controls plus public feature flags for
+      projects and demonstrations
+    objective: Implement Project enable and disable controls plus public feature
+      flags for projects and demonstrations as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Project enable and disable controls plus public feature flags for
+        projects and demonstrations is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Project enable and disable controls plus public feature flags for
+      projects and demonstrations
+  - id: PLPP-001
+    milestone: M03
+    title: Public landing page, project listing, project case-study pages, section
+      navigation, and accessible empty states
+    objective: Implement Public landing page, project listing, project case-study
+      pages, section navigation, and accessible empty states as a bounded,
+      verifiable project capability.
+    acceptanceCriteria:
+      - Public landing page, project listing, project case-study pages, section
+        navigation, and accessible empty states is implemented according to the
+        project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Public landing page, project listing, project case-study pages,
+      section navigation, and accessible empty states
+  - id: GAGA-001
+    milestone: M04
+    title: GitHub and GitLab activity presentation with placeholders or cached
+      fallback data when APIs are unavailable
+    objective: Implement GitHub and GitLab activity presentation with placeholders
+      or cached fallback data when APIs are unavailable as a bounded, verifiable
+      project capability.
+    acceptanceCriteria:
+      - GitHub and GitLab activity presentation with placeholders or cached
+        fallback data when APIs are unavailable is implemented according to the
+        project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: medium
+    approval: review
+    verificationProfile: backend
+    priority: 55
+    resources:
+      - backend
+    status: ready
+    sourceFeature: GitHub and GitLab activity presentation with placeholders or
+      cached fallback data when APIs are unavailable
+  - id: SCFW-001
+    milestone: M04
+    title: Secure contact form with validation, CSRF protection, accessible
+      anti-spam controls, rate limiting, and queued email delivery
+    objective: Implement Secure contact form with validation, CSRF protection,
+      accessible anti-spam controls, rate limiting, and queued email delivery as
+      a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Secure contact form with validation, CSRF protection, accessible
+        anti-spam controls, rate limiting, and queued email delivery is
+        implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: medium
+    approval: review
+    verificationProfile: backend
+    priority: 55
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Secure contact form with validation, CSRF protection, accessible
+      anti-spam controls, rate limiting, and queued email delivery
+  - id: CEPL-001
+    milestone: M04
+    title: Configurable email, phone, location, social, WhatsApp, activity, CV, and
+      contact visibility controls
+    objective: Implement Configurable email, phone, location, social, WhatsApp,
+      activity, CV, and contact visibility controls as a bounded, verifiable
+      project capability.
+    acceptanceCriteria:
+      - Configurable email, phone, location, social, WhatsApp, activity, CV, and
+        contact visibility controls is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: medium
+    approval: review
+    verificationProfile: backend
+    priority: 55
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Configurable email, phone, location, social, WhatsApp, activity,
+      CV, and contact visibility controls
+  - id: VDCD-001
+    milestone: M04
+    title: Versioned downloadable CV delivery enabled only when a verified published
+      file exists
+    objective: Implement Versioned downloadable CV delivery enabled only when a
+      verified published file exists as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Versioned downloadable CV delivery enabled only when a verified
+        published file exists is implemented according to the project
+        requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Versioned downloadable CV delivery enabled only when a verified
+      published file exists
+  - id: TSWC-001
+    milestone: M03
+    title: Technical SEO with canonical URLs, metadata, Open Graph, social previews,
+      sitemap, robots configuration, and schema.org structured data
+    objective: Implement Technical SEO with canonical URLs, metadata, Open Graph,
+      social previews, sitemap, robots configuration, and schema.org structured
+      data as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Technical SEO with canonical URLs, metadata, Open Graph, social
+        previews, sitemap, robots configuration, and schema.org structured data
+        is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Technical SEO with canonical URLs, metadata, Open Graph, social
+      previews, sitemap, robots configuration, and schema.org structured data
+  - id: A4A5-001
+    milestone: M03
+    title: Accessible 404 and 500 error pages without internal information disclosure
+    objective: Implement Accessible 404 and 500 error pages without internal
+      information disclosure as a bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Accessible 404 and 500 error pages without internal information
+        disclosure is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Accessible 404 and 500 error pages without internal information disclosure
+  - id: PCAA-001
+    milestone: M03
+    title: Privacy-conscious analytics abstraction, SEO indexing monitoring, and
+      conversion-event tracking without invasive profiling
+    objective: Implement Privacy-conscious analytics abstraction, SEO indexing
+      monitoring, and conversion-event tracking without invasive profiling as a
+      bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Privacy-conscious analytics abstraction, SEO indexing monitoring, and
+        conversion-event tracking without invasive profiling is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Privacy-conscious analytics abstraction, SEO indexing monitoring,
+      and conversion-event tracking without invasive profiling
+  - id: SLRI-001
+    milestone: M04
+    title: Structured logs, request identifiers, liveness checks, readiness checks,
+      queue and scheduler monitoring, and error tracking
+    objective: Implement Structured logs, request identifiers, liveness checks,
+      readiness checks, queue and scheduler monitoring, and error tracking as a
+      bounded, verifiable project capability.
+    acceptanceCriteria:
+      - Structured logs, request identifiers, liveness checks, readiness checks,
+        queue and scheduler monitoring, and error tracking is implemented
+        according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: backend
+    priority: 40
+    resources:
+      - backend
+    status: ready
+    sourceFeature: Structured logs, request identifiers, liveness checks, readiness
+      checks, queue and scheduler monitoring, and error tracking
+  - id: OLLT-001
+    milestone: M03
+    title: Optional lazy-loaded Three.js portfolio room with fullscreen
+      presentation, hotspots, avatar states, posters, mobile fallback,
+      reduced-motion behavior, and HTML equivalents
+    objective: Implement Optional lazy-loaded Three.js portfolio room with
+      fullscreen presentation, hotspots, avatar states, posters, mobile
+      fallback, reduced-motion behavior, and HTML equivalents as a bounded,
+      verifiable project capability.
+    acceptanceCriteria:
+      - Optional lazy-loaded Three.js portfolio room with fullscreen
+        presentation, hotspots, avatar states, posters, mobile fallback,
+        reduced-motion behavior, and HTML equivalents is implemented according
+        to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: low
+    approval: none
+    verificationProfile: full-stack
+    priority: 40
+    resources:
+      - backend
+      - frontend
+    status: ready
+    sourceFeature: Optional lazy-loaded Three.js portfolio room with fullscreen
+      presentation, hotspots, avatar states, posters, mobile fallback,
+      reduced-motion behavior, and HTML equivalents
+  - id: LPRL-001
+    milestone: M01
+    title: Later-phase reusable Laravel or frontend module catalog, project setup
+      assistance, deployment assistance, Kanban, task manager, calendar, and
+      project statistics
+    objective: Implement Later-phase reusable Laravel or frontend module catalog,
+      project setup assistance, deployment assistance, Kanban, task manager,
+      calendar, and project statistics as a bounded, verifiable project
+      capability.
+    acceptanceCriteria:
+      - Later-phase reusable Laravel or frontend module catalog, project setup
+        assistance, deployment assistance, Kanban, task manager, calendar, and
+        project statistics is implemented according to the project requirements
+      - Relevant automated tests are added or updated
+      - The project verification command passes
+      - Documentation is updated when behaviour or setup changes
+    dependencies: []
+    risk: high
+    approval: production
+    verificationProfile: infrastructure
+    priority: 70
+    resources:
+      - infrastructure
+    status: ready
+    sourceFeature: Later-phase reusable Laravel or frontend module catalog, project
+      setup assistance, deployment assistance, Kanban, task manager, calendar,
+      and project statistics

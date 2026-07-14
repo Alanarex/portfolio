@@ -1,0 +1,22 @@
+schemaVersion: 1
+milestones:
+  - id: M01
+    title: Foundation and infrastructure
+    description: Generated from project features.
+    status: ready
+    dependencies: []
+  - id: M02
+    title: Core platform and security
+    description: Generated from project features.
+    status: ready
+    dependencies: []
+  - id: M03
+    title: User experience
+    description: Generated from project features.
+    status: ready
+    dependencies: []
+  - id: M04
+    title: Product capabilities
+    description: Generated from project features.
+    status: ready
+    dependencies: []

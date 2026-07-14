@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+composer validate --strict
+composer audit --no-interaction
+npm run lint --if-present
+npm run typecheck --if-present
+docker compose config --quiet

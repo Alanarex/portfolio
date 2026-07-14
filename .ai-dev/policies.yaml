@@ -1,0 +1,13 @@
+schemaVersion: 1
+task:
+  oneAtATime: true
+  maxRepairAttempts: 3
+git:
+  requireBranch: true
+  requirePullRequest: true
+  directMainWrites: false
+safety:
+  exposeSecrets: false
+  modifyProductionData: false
+  weakenQualityGates: false
+  productionDeployment: manual-approval

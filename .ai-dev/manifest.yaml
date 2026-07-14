@@ -1,0 +1,17 @@
+schemaVersion: 1
+generatedBy: aidev-cli
+generatedFiles:
+  - AGENTS.md
+  - .ai-dev/project.yaml
+  - .ai-dev/policies.yaml
+  - .ai-dev/manifest.yaml
+  - .ai-dev/bin/setup
+  - .ai-dev/bin/test
+  - .ai-dev/bin/lint
+  - .ai-dev/bin/build
+  - .ai-dev/bin/verify
+  - docs/product/overview.md
+  - docs/architecture/overview.md
+  - docs/progress/current-state.md
+  - backlog/milestones.yaml
+  - backlog/tasks.yaml
