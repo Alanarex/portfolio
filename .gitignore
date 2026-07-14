@@ -1,44 +1,27 @@
-# Environment and secrets
-.env
-.env.*
-!.env.example
-
-# PHP / Laravel
-/vendor/
-/storage/*.key
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/testing/*
-/storage/framework/views/*
-/storage/logs/*
-/bootstrap/cache/*.php
-.phpunit.result.cache
-.phpunit.cache/
-.phpstan.cache
-
-# JavaScript
-/node_modules/
-/public/build/
-/public/hot
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# IDE / OS
-.idea/
-.vscode/
+*.log
 .DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
 Thumbs.db
-
-# Local infrastructure
-/docker/data/
-coverage/
-playwright-report/
-test-results/
-
-# Large 3D sources
-*.blend
-*.blend1
-*.fbx
-*.obj

@@ -1,10 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use App\Core\Modules\ModuleDiscovery;
 use App\Providers\AppServiceProvider;
 
-return array_merge([
+return [
     AppServiceProvider::class,
-], ModuleDiscovery::providers(dirname(__DIR__)));
+];

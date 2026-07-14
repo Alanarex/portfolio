@@ -3,60 +3,40 @@
 ## Version and branches
 
 - Product version: v2
-- Integration branch: `main`
-- Current feature: `PORT-004`
-- Feature branch: `feature/PORT-004-design-system`
-- Delivery mode: autonomous continuous PORT chain
+- Integration branch: `release/v3.0.0/main`
+- Current feature: none
+- Feature branch: none
+- Delivery mode: manual reset requested by the repository owner
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PHASE 1 — AUTONOMOUS DELIVERY: PORT-004 IN REVIEW**
+**CLEAN LARAVEL RESET**
 
-PORT-002 is complete and merged through PR #19. The Laravel 13 modular foundation is active on `main`. ADR-007 authorizes Codex to deliver PORT-003 through PORT-011 continuously without waiting for a new prompt between features.
+The active application code has been reset to a fresh `laravel/laravel` 13.x skeleton while
+preserving Git history, `AGENTS.md`, `.agents/`, `.codex/`, `docs/`, `README.md` and this
+status file.
 
 ## Implemented baseline
 
-- Laravel 13 / PHP 8.3+ modular monolith
-- PostgreSQL, Redis cache/queues and single-administrator boundary
-- Blade SSR public page
-- Vue 3 + TypeScript + Inertia private dashboard shell
-- isolated lazy-loaded vanilla Three.js placeholder with static fallback
-- Docker Compose with Nginx, PHP-FPM, PostgreSQL, Redis, worker, scheduler and Mailpit
-- PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite and GitHub Actions
-- request-ID propagation, structured JSON logging, liveness and readiness checks
+- Laravel 13 / PHP 8.3+ application skeleton
+- default Laravel welcome page and routes
+- default migrations, factories and seeders
+- Vite frontend entrypoint
+- PHPUnit example tests
 
-## PORT-002 completion evidence
+## Reset evidence
 
-- PR #19 squash-merged into `main` as `40523ee15a28156a0c8279ea62bc015d6ac80f98`.
-- GitHub Actions backend, frontend and container jobs passed.
-- Issue #6 closed as completed.
-- Docker Compose stack, PostgreSQL migrations and rollback, Redis, `/up`, `/ready`, PHPUnit, Pint, Larastan, ESLint, Stylelint and Vite build were validated.
-- No historical application files or archived 3D assets were restored.
-
-## PORT-003 implementation
-
-- single-administrator login/logout boundary with session regeneration and invalidation;
-- normalized email/IP login throttling and generic authentication failures;
-- interactive provisioning and password-reset commands without command-line secrets;
-- remember-me disabled; administrative reset revokes every active session through an auth version;
-- structured authentication audit events without credentials, tokens, session IDs or raw emails;
-- dedicated feature tests for access, throttling, session lifecycle, audit and commands.
-
-PORT-003 was squash-merged through PR #21 as `9b98e36f1088b156caecb11e9c0ca0c82975c496`.
-
-## PORT-004 implementation
-
-- authoritative dark-first design tokens shared by Blade, Vue and the Three.js overlay;
-- responsive public and private layouts with header, footer, sidebar and page shells;
-- semantic button, field, alert, card, badge, table, empty, loading and error states;
-- visible keyboard focus, associated form errors and reduced-motion behavior;
-- representative desktop/mobile captures and documented QA direction.
+- Fresh skeleton generated with `composer create-project laravel/laravel /tmp/portfolio-clean 13.*`.
+- Generated Laravel package version: `laravel/laravel v13.8.0`.
+- Installed framework version in `composer.lock`: `laravel/framework v13.20.0`.
+- Historical app files, module code, Docker files, dashboard assets and built `dist/` assets were removed from the active tree.
+- No archived application code or archived 3D assets were restored.
 
 ## Current objective
 
-Validate and merge issue #9 / PORT-004, then continue automatically through every remaining executable PORT issue up to PORT-011. Each feature retains its own branch, PR, tests, merge and issue closure.
+Use the clean Laravel skeleton as the new starting point for future scoped work.
 
 ## Autonomous defaults
 
@@ -83,11 +63,9 @@ Validate and merge issue #9 / PORT-004, then continue automatically through ever
 
 ## Immediate next steps
 
-1. Complete PORT-004 visual QA, captures and quality gates.
-2. Publish, review, squash-merge and verify issue #9 closure.
-3. Update issue #17 and immediately start PORT-005.
-4. Repeat through PORT-011.
-5. After PORT-011, create a release-readiness issue rather than PORT-012.
+1. Decide whether the old PORT queue remains applicable after the reset.
+2. Create or update GitHub issues for the next scoped implementation.
+3. Reintroduce infrastructure, modules and dashboard features only through explicit issue scope.
 
 ## Update rule
 

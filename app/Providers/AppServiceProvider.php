@@ -1,14 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Providers;
 
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,10 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('admin-login', static function (Request $request): Limit {
-            $email = Str::lower(trim((string) $request->input('email')));
-
-            return Limit::perMinute(5)->by(hash('sha256', $email).'|'.$request->ip());
-        });
+        //
     }
 }
