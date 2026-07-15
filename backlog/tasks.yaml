@@ -616,7 +616,7 @@ tasks:
     resources:
       - backend
       - frontend
-    status: ready
+    status: completed
     sourceFeature: Accessible 404 and 500 error pages without internal information disclosure
   - id: PCAA-001
     milestone: M03
