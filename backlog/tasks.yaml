@@ -19,7 +19,7 @@ tasks:
     priority: 40
     resources:
       - backend
-    status: ready
+    status: completed
     sourceFeature: French and English localized public content with French as the
       default locale
   - id: DALT-001
