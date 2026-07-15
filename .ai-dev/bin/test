@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if composer run-script --list 2>/dev/null | grep -qE '^  test'; then composer test; else echo 'No Composer test script configured'; fi
 php artisan test
 npm test --if-present
