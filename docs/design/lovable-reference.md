@@ -26,10 +26,23 @@ left/right rails, mobile navigation, command palette, post cards, and footer.
 - Persisted audience, language, theme, and first-visit state.
 - Motion must respect `prefers-reduced-motion`.
 
-## Capture matrix
+## Visual-reference screenshots
 
-Each route must be captured after the Laravel implementation is runnable. Store captures under
-`docs/captures/lovable/` using `{route}-{language}-{theme}-{viewport}.png`.
+The canonical screenshot inventory and capture status live in
+`docs/design/screenshots/README.md`. Theme references belong in
+`docs/design/screenshots/light/` and `docs/design/screenshots/dark/` with stable route-derived
+filenames. Coding agents must inspect and compare both theme images for the affected route/state
+before completing UI work.
+
+The requested Lovable preview was rechecked on 2026-07-21. It redirects every tested application
+URL to Lovable authentication before the prototype renders, so no application screenshot can be
+truthfully captured from the public preview. A Lovable login screenshot is not an application
+visual reference and must not be committed as one.
+
+## Future capture matrix
+
+Once the preview is publicly reachable or the prototype is runnable locally, capture each route
+using the inventory procedure in `docs/design/screenshots/README.md`.
 
 Required dimensions:
 
@@ -43,8 +56,7 @@ Required dimensions:
 Minimum routes: splash, welcome, feed, profile, projects, project detail, skills, experience,
 education, certifications, media, activity, analytics, contact, and highlights.
 
-Do not commit a Lovable login screenshot as a design reference. Update this file with the
-exact capture command and verified route list when the local capture pass is complete.
+Do not mark a screenshot complete until the active theme is verified immediately before capture.
 
 ## Brand assets
 
