@@ -20,6 +20,7 @@ Before starting work, read:
 7. `docs/design/lovable-reference.md` when changing public UI
 8. `docs/readiness/v3-development-handoff.md`
 9. `docs/design/screenshots/README.md` and both referenced theme captures before changing UI
+10. `docs/design/lovable-code-integration.md` before changing the React/Laravel frontend boundary
 
 ## Execution rules
 
@@ -31,6 +32,8 @@ Before starting work, read:
 - Light and dark themes are separate designed themes, not automatic color inversion.
 - Use the supplied portrait and logos in `docs/assets/brand/`; never generate replacements.
 - Do not copy placeholder identity data from the Lovable prototype (for example “Alex Karim”).
+- Treat `resources/js/portfolio/data/portfolio.ts` as temporary visual fixtures; never persist or publish its unverified claims.
+- Preserve Laravel as the application backend. Port Lovable behavior inside `resources/js/portfolio/` and replace fixtures through typed Laravel APIs incrementally.
 - Treat screenshots as visual references, not acceptance criteria without an associated route/state entry.
 - For UI work, compare the matching light and dark full-page references for every affected
   audience mode before implementation and again before completion. If a state is documented as
