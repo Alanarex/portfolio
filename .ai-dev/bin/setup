@@ -2,4 +2,18 @@
 set -euo pipefail
 
 composer install --no-interaction --prefer-dist
-npm install
+
+if [[ -f artisan && -f .env.example && ! -f .env ]]; then
+  cp .env.example .env
+fi
+
+if [[ -f artisan && -f vendor/autoload.php && -f .env ]] &&
+   ! grep -qE '^APP_KEY=.+$' .env; then
+  php artisan key:generate --force --no-interaction
+fi
+
+if [[ -f package-lock.json ]]; then
+  npm ci
+else
+  npm install
+fi

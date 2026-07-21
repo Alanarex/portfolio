@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Star, Rocket, Briefcase, GraduationCap, Brain, Award, Image as ImageIcon, Activity, BarChart3, MessageSquare, User, Moon, Sun, Languages, Users, Circle } from "lucide-react";
+import { Home, Star, Rocket, Briefcase, GraduationCap, Brain, Award, Image as ImageIcon, Activity, BarChart3, MessageSquare, User, Moon, Sun, Languages, Users } from "lucide-react";
 import avatar from "@/assets/avatar.png";
 import { Logo } from "./logo";
 import { profile, stats } from "@/data/portfolio";

@@ -1,4 +1,4 @@
-import { Download, MessageSquare, Calendar, Github, ExternalLink, Activity, GitBranch, CheckCircle2 } from "lucide-react";
+import { Download, MessageSquare, Calendar, Github, ExternalLink, Activity, CheckCircle2 } from "lucide-react";
 import { usePreferences } from "@/hooks/use-preferences";
 import { profile, projects, experiences, services, testimonials, skills } from "@/data/portfolio";
 import { useT } from "@/lib/i18n";

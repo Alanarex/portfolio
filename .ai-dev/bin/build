@@ -2,4 +2,7 @@
 set -euo pipefail
 
 npm run build --if-present
-docker compose build
+
+if [[ -f compose.yaml || -f compose.yml || -f docker-compose.yaml || -f docker-compose.yml ]]; then
+  docker compose build
+fi

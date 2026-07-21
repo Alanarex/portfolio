@@ -42,8 +42,24 @@ Before starting work, read:
 - New feed endpoints must use cursor pagination and must never load the complete feed.
 - Public profile values must come from persistence/configuration, never component constants.
 - Run `.ai-dev/bin/verify` before completion.
-- Update documentation and project state when behaviour changes.
+- After every completed task, reconcile and update `PROJECT_STATUS.md`,
+  `docs/progress/current-state.md`, and `docs/tracking/execution-queue.md`. Record the
+  implementation status, related issue, tests run, remaining blockers, and next task in the
+  same pull request as the implementation.
 - Open a pull request for completed work.
+
+## Pull request and auto-merge policy
+
+- Codex may enable or perform auto-merge when the user has authorized autonomous development
+  or requested the pull request to be merged.
+- Auto-merge is gated: the pull request must be non-draft, current with its base branch,
+  mergeable, free of unresolved review threads, and all required CI checks must pass.
+- Never bypass branch protection, dismiss reviews, weaken tests or quality thresholds, or merge
+  with pending, skipped-required, cancelled, or failing checks.
+- Use squash merge unless the task or repository history requires another method. Delete the
+  feature branch after a successful merge when GitHub allows it.
+- If any gate cannot be verified, leave the pull request open and record the exact blocker in
+  the progress files and pull request.
 
 ## Safety boundaries
 

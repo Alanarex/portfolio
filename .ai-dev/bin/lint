@@ -5,4 +5,7 @@ composer validate --strict
 composer audit --no-interaction
 npm run lint --if-present
 npm run typecheck --if-present
-docker compose config --quiet
+
+if [[ -f compose.yaml || -f compose.yml || -f docker-compose.yaml || -f docker-compose.yml ]]; then
+  docker compose config --quiet
+fi
