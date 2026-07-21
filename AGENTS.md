@@ -32,7 +32,9 @@ Before starting work, read:
 - Use the supplied portrait and logos in `docs/assets/brand/`; never generate replacements.
 - Do not copy placeholder identity data from the Lovable prototype (for example “Alex Karim”).
 - Treat screenshots as visual references, not acceptance criteria without an associated route/state entry.
-- For UI work, compare the matching light and dark full-page references before implementation and again before completion. If a capture is marked blocked or missing, do not infer its appearance; record the gap and obtain a verified capture first.
+- For UI work, compare the matching light and dark full-page references for every affected
+  audience mode before implementation and again before completion. If a state is documented as
+  unavailable, do not infer its appearance; record the gap and obtain a verified capture first.
 - UI pull requests must name the screenshot routes/states used and include comparison evidence for both themes.
 - New feed endpoints must use cursor pagination and must never load the complete feed.
 - Public profile values must come from persistence/configuration, never component constants.

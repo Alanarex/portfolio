@@ -1,72 +1,69 @@
 # Lovable screenshot reference
 
-## Current result
+## Completed capture
 
-No application screenshots are present. On 2026-07-21, the preview URL and every tested
-application path redirected to Lovable's login bridge before application HTML rendered:
+Captured from the authenticated, time-limited Lovable preview on 2026-07-21. The canonical
+reference contains every reachable public route in both designed themes and all four audience
+modes: `general`, `recruiter`, `client`, and `technical`.
 
-`https://lovable.dev/login?redirect=...project_id=2942fa44-f9a2-4569-bb01-b386034b1fb6...`
+- 15 routes × 2 themes × 4 audience modes = **120 full-page JPEGs**.
+- Theme is explicitly selected and verified before every image (`dark` class absent/present).
+- Audience selector value is verified before every image.
+- Browser viewport remained fixed at 1363 × 954 CSS pixels. Full-page JPEG widths are 1348 px
+  on scrolling pages and 1363 px on pages without a vertical scrollbar.
+- All files are non-empty, readable JPEGs. Heights range from 936 px to 3850 px.
+- Eight byte-identical image groups were detected. These are retained intentionally: they show
+  routes whose rendered result is not audience-sensitive and prove that each matrix cell was
+  checked rather than inferred.
 
-This is an authentication blocker, not an application login route or application error state.
-The login page is therefore intentionally excluded from the visual reference set.
+## Directory convention
 
-## Capture contract
+```text
+docs/design/screenshots/
+├── light/{general,recruiter,client,technical}/<route>.jpg
+└── dark/{general,recruiter,client,technical}/<route>.jpg
+```
 
-- Desktop viewport: 1440 × 1024 CSS pixels.
-- Format: full-page JPEG, readable at native dimensions.
-- Destinations: `light/` and `dark/`.
-- Filename: stable route/state slug, identical in both theme directories.
-- Before every capture: set the requested theme explicitly, then verify the rendered theme from
-  the current document state. Never rely on a saved preference from a previous route.
-- Wait for navigation, `document.fonts.ready`, images, animations, lazy content, and theme
-  transitions. Respect reduced-motion behavior where available.
-- Validate every pair for dimensions, non-zero size, legibility, duplicates, unexpected redirects,
-  missing assets, and error content.
+For example, `/skills` in recruiter mode is:
 
-## Route and state inventory
+- `light/recruiter/skills.jpg`
+- `dark/recruiter/skills.jpg`
 
-The route list below is derived from prototype commit
-`321da07f85c62914ff029fdca2e1e047cd8ca2b7` and its TanStack file routes. Every entry is blocked by
-the same preview-level Lovable authentication redirect. Filenames are reserved now so later
-captures remain stable.
+## Route map
 
-| Route/state | Light screenshot | Dark screenshot | Status / blocker |
-|---|---|---|---|
-| `/` — feed/default | `light/home.jpg` | `dark/home.jpg` | Blocked by Lovable login redirect |
-| `/profile` | `light/profile.jpg` | `dark/profile.jpg` | Blocked by Lovable login redirect |
-| `/projects` | `light/projects.jpg` | `dark/projects.jpg` | Blocked by Lovable login redirect |
-| `/projects/:slug` — representative detail | `light/projects-detail.jpg` | `dark/projects-detail.jpg` | Blocked; seeded slug cannot be discovered in rendered UI |
-| `/skills` | `light/skills.jpg` | `dark/skills.jpg` | Blocked by Lovable login redirect |
-| `/experience` | `light/experience.jpg` | `dark/experience.jpg` | Blocked by Lovable login redirect |
-| `/education` | `light/education.jpg` | `dark/education.jpg` | Blocked by Lovable login redirect |
-| `/certifications` | `light/certifications.jpg` | `dark/certifications.jpg` | Blocked by Lovable login redirect |
-| `/media` | `light/media.jpg` | `dark/media.jpg` | Blocked by Lovable login redirect |
-| `/activity` | `light/activity.jpg` | `dark/activity.jpg` | Blocked by Lovable login redirect |
-| `/analytics` | `light/analytics.jpg` | `dark/analytics.jpg` | Blocked by Lovable login redirect |
-| `/contact` | `light/contact.jpg` | `dark/contact.jpg` | Blocked by Lovable login redirect |
-| `/highlights` | `light/highlights.jpg` | `dark/highlights.jpg` | Blocked by Lovable login redirect |
-| First visit — splash | `light/splash.jpg` | `dark/splash.jpg` | Client state blocked before render |
-| First visit — audience onboarding | `light/audience-onboarding.jpg` | `dark/audience-onboarding.jpg` | Client state blocked before render |
-| Empty state — feed/projects/skills as applicable | `light/empty-state.jpg` | `dark/empty-state.jpg` | No public state controls or rendered app access |
-| Loading state | `light/loading.jpg` | `dark/loading.jpg` | App bundle never renders before redirect |
-| Application 404/not-found | `light/not-found.jpg` | `dark/not-found.jpg` | Preview intercepts unknown paths with login redirect |
-| Application error state | `light/error.jpg` | `dark/error.jpg` | No public trigger or rendered app access |
-| Authentication state | — | — | No application auth route found; Lovable platform login excluded |
-| Edit/settings state | — | — | No corresponding prototype file route discovered at the reference commit |
+The filename below exists under every `<theme>/<audience>/` directory.
 
-## Completeness and validation record
+| Route | Stable filename | State |
+|---|---|---|
+| `/` | `feed.jpg` | Default feed |
+| `/highlights` | `highlights.jpg` | Highlighted posts |
+| `/projects` | `projects.jpg` | Project index |
+| `/projects/portfolio-platform` | `project-portfolio-platform.jpg` | Project detail |
+| `/projects/sprint-radar` | `project-sprint-radar.jpg` | Project detail |
+| `/projects/ledgerly` | `project-ledgerly.jpg` | Project detail |
+| `/experience` | `experience.jpg` | Experience timeline |
+| `/education` | `education.jpg` | Education timeline |
+| `/skills` | `skills.jpg` | Skills Explorer |
+| `/certifications` | `certifications.jpg` | Certification index |
+| `/media` | `media.jpg` | Media index |
+| `/activity` | `activity.jpg` | Development activity |
+| `/analytics` | `analytics.jpg` | Public analytics |
+| `/contact` | `contact.jpg` | Contact form |
+| `/profile` | `profile.jpg` | Profile/about |
 
-- Discovered application file routes: 13 concrete paths plus one dynamic project-detail route.
-- Captured application pages: 0.
-- Duplicate images: 0.
-- Dimension/readability checks: not applicable because no application images were capturable.
-- Redirect verification: root and route requests are intercepted before the application renders.
-- Missing routes/states: listed explicitly above; edit/settings/auth application routes were not
-  present in the prototype route tree found at the pinned commit.
+## States not represented as standalone pages
 
-## Unblocking requirement
+- Application authentication, edit, and settings routes are absent from the prototype route tree.
+- Empty and loading states are transient/component states with no stable public trigger in this
+  seeded preview; they must not be invented from unrelated screens.
+- First-visit splash/onboarding was already consumed in this preview session and has no public
+  reset control.
+- The preview host intercepts unknown paths, so it does not expose a stable application 404 page.
+- The Lovable editor/login/badge surfaces are platform chrome and are not application references.
 
-Provide either a preview that does not require Lovable authentication or a runnable checkout of
-the pinned prototype source. Then execute the complete matrix in one browser session, explicitly
-verify theme on every page, replace the blocked statuses with image dimensions and capture dates,
-and run byte-level and perceptual duplicate checks before committing the JPEG files.
+## Agent usage
+
+Before changing a public UI route, inspect the matching light and dark images for the relevant
+audience modes. Compare layout, hierarchy, spacing, typography, colors, responsive rails, and
+component states. Re-check both themes after implementation. Do not copy the placeholder identity
+“Alex Karim”; production content must remain CMS/configuration-backed.

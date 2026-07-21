@@ -5,8 +5,9 @@
 - Prototype repository: `Alanarex/profile-nexus-58` (private)
 - Reference commit: `321da07f85c62914ff029fdca2e1e047cd8ca2b7`
 - Prototype stack: TanStack Start, React 19, TypeScript, Tailwind CSS 4
-- Preview requested: `https://preview--profile-nexus-58.lovable.app/`
-- Inspection result on 2026-07-21: the preview redirects unauthenticated browsers to Lovable login.
+- Preview project: `profile-nexus-58`
+- Inspection result on 2026-07-21: an authenticated, time-limited Lovable preview rendered the
+  application successfully and supplied the canonical screenshot set.
 
 The prototype is the V3 interaction and visual reference. Its hardcoded placeholder identity
 (including “Alex Karim”) is invalid and must be replaced by CMS-backed Alaa Khalil content.
@@ -34,29 +35,12 @@ The canonical screenshot inventory and capture status live in
 filenames. Coding agents must inspect and compare both theme images for the affected route/state
 before completing UI work.
 
-The requested Lovable preview was rechecked on 2026-07-21. It redirects every tested application
-URL to Lovable authentication before the prototype renders, so no application screenshot can be
-truthfully captured from the public preview. A Lovable login screenshot is not an application
-visual reference and must not be committed as one.
+The completed reference contains 120 full-page desktop JPEGs: 15 reachable routes in light and
+dark mode for general, recruiter, client, and technical audiences. See
+`docs/design/screenshots/README.md` for the route map, capture validation, and unavailable states.
 
-## Future capture matrix
-
-Once the preview is publicly reachable or the prototype is runnable locally, capture each route
-using the inventory procedure in `docs/design/screenshots/README.md`.
-
-Required dimensions:
-
-| State | Values |
-|---|---|
-| Language | `fr`, `en` |
-| Theme | `light`, `dark` |
-| Viewport | desktop 1440×1024, mobile 390×844 |
-| Audience-sensitive pages | recruiter, client, technical, general |
-
-Minimum routes: splash, welcome, feed, profile, projects, project detail, skills, experience,
-education, certifications, media, activity, analytics, contact, and highlights.
-
-Do not mark a screenshot complete until the active theme is verified immediately before capture.
+The canonical set records the French-default preview. English and mobile captures remain a future
+extension and must use the same explicit state-verification procedure if added.
 
 ## Brand assets
 
