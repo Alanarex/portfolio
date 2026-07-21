@@ -18,7 +18,8 @@
 - [x] Dashboard structure documented.
 - [x] 3D preview direction documented.
 - [x] Personal interests documented.
-- [ ] Final visual direction approved.
+- [x] Lovable V3 visual direction recorded.
+- [x] V3 social-portfolio specification normalized.
 
 ## Architecture
 
@@ -39,11 +40,11 @@
 ## Development environment — PORT-002
 
 - [x] Laravel 13 scaffold.
-- [x] Docker Compose.
+- [ ] Docker Compose (documentation claimed it previously, but no Compose file exists after reset).
 - [x] PostgreSQL and Redis.
-- [x] Nginx local configuration.
-- [x] Queue worker and scheduler services.
-- [x] Mailpit.
+- [ ] Nginx local configuration after reset.
+- [ ] Queue worker and scheduler services after reset.
+- [ ] Mailpit after reset.
 - [x] `.env.example`.
 - [x] quality scripts.
 - [x] GitHub Actions CI.
@@ -53,7 +54,7 @@
 
 - [x] Preview/fullscreen behavior specified.
 - [x] Node and animation naming contract specified.
-- [ ] Avatar references supplied.
+- [x] Portrait and four logo references supplied.
 - [ ] Low-poly style approved.
 - [ ] Room blockout approved.
 - [ ] Placeholder GLB integrated and profiled.

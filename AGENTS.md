@@ -1,5 +1,12 @@
 # Agent operating instructions
 
+## V3 mission
+
+Build the Laravel 13 modular-monolith implementation of the social portfolio described in
+`docs/product/v3-social-portfolio-spec.md`. The Lovable application is a UI/UX prototype,
+not the production architecture. Preserve its interaction and visual intent while moving
+data, authentication, integrations, caching, queues, and administration into Laravel.
+
 ## Required context
 
 Before starting work, read:
@@ -10,6 +17,8 @@ Before starting work, read:
 4. `docs/architecture/overview.md`
 5. `docs/progress/current-state.md`
 6. The assigned backlog task
+7. `docs/design/lovable-reference.md` when changing public UI
+8. `docs/readiness/v3-development-handoff.md`
 
 ## Execution rules
 
@@ -17,6 +26,13 @@ Before starting work, read:
 - Use an isolated branch or worktree.
 - Do not modify unrelated functionality.
 - Do not invent product requirements.
+- French is the default language; every public feature must support English.
+- Light and dark themes are separate designed themes, not automatic color inversion.
+- Use the supplied portrait and logos in `docs/assets/brand/`; never generate replacements.
+- Do not copy placeholder identity data from the Lovable prototype (for example “Alex Karim”).
+- Treat screenshots as visual references, not acceptance criteria without an associated route/state entry.
+- New feed endpoints must use cursor pagination and must never load the complete feed.
+- Public profile values must come from persistence/configuration, never component constants.
 - Run `.ai-dev/bin/verify` before completion.
 - Update documentation and project state when behaviour changes.
 - Open a pull request for completed work.
