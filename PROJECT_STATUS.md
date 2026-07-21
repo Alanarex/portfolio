@@ -2,7 +2,7 @@
 
 ## Version and branches
 
-- Product version: v2
+- Product version: v3
 - Integration branch: `release/v3.0.0/main`
 - Current feature: none
 - Feature branch: none
@@ -12,7 +12,7 @@
 
 ## Current phase
 
-**CLEAN LARAVEL RESET**
+**V3 READY FOR SCOPED DEVELOPMENT**
 
 The active application code has been reset to a fresh `laravel/laravel` 13.x skeleton while
 preserving Git history, `AGENTS.md`, `.agents/`, `.codex/`, `docs/`, `README.md` and this
@@ -36,7 +36,9 @@ status file.
 
 ## Current objective
 
-Use the clean Laravel skeleton as the new starting point for future scoped work.
+Use the clean Laravel skeleton to port the Lovable V3 interaction model feature-by-feature.
+The normalized product specification, prototype provenance, capture matrix, supplied brand
+assets, and development handoff now live in the repository.
 
 ## Autonomous defaults
 
@@ -63,9 +65,10 @@ Use the clean Laravel skeleton as the new starting point for future scoped work.
 
 ## Immediate next steps
 
-1. Decide whether the old PORT queue remains applicable after the reset.
-2. Create or update GitHub issues for the next scoped implementation.
-3. Reintroduce infrastructure, modules and dashboard features only through explicit issue scope.
+1. Reconcile the old PORT queue against `docs/product/v3-social-portfolio-spec.md`.
+2. Start the V3 UI foundation from `docs/readiness/v3-development-handoff.md`.
+3. Capture every implemented public route in FR/EN, light/dark, desktop/mobile.
+4. Reintroduce infrastructure, modules and dashboard features through explicit issue scope.
 
 ## Update rule
 
