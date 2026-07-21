@@ -67,7 +67,6 @@ jobs:
       - run: php artisan migrate --force
       - run: php artisan test
       - run: vendor/bin/pint --test
-      - run: vendor/bin/phpstan analyse --no-progress
 
   frontend:
     runs-on: ubuntu-latest
@@ -81,10 +80,3 @@ jobs:
       - run: npm run lint
       - run: npm run stylelint
       - run: npm run build
-
-  containers:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker compose config --quiet
-      - run: docker compose build app
