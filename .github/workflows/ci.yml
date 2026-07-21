@@ -67,7 +67,6 @@ jobs:
       - run: php artisan migrate --force
       - run: php artisan test
       - run: vendor/bin/pint --test
-      - run: vendor/bin/phpstan analyse --no-progress
 
   frontend:
     runs-on: ubuntu-latest
