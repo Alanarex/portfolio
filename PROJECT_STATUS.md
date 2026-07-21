@@ -4,27 +4,27 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: none
-- Feature branch: none
-- Delivery mode: manual reset requested by the repository owner
+- Current feature: Lovable React frontend integration (PR #23)
+- Feature branch: `feature/port-frontend-lovable-import`
+- Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**V3 READY FOR SCOPED DEVELOPMENT**
+**V3 LOVABLE FRONTEND INTEGRATED — PR #23 READY TO MERGE**
 
-The active application code has been reset to a fresh `laravel/laravel` 13.x skeleton while
-preserving Git history, `AGENTS.md`, `.agents/`, `.codex/`, `docs/`, `README.md` and this
-status file.
+Laravel remains the backend and HTTP entry point. The Lovable React/TanStack interface is now
+mounted through Laravel Vite and retains its routes, audience modes, themes, navigation and
+animations.
 
 ## Implemented baseline
 
 - Laravel 13 / PHP 8.3+ application skeleton
-- default Laravel welcome page and routes
-- default migrations, factories and seeders
-- Vite frontend entrypoint
-- PHPUnit example tests
+- React 19 and TanStack Router public frontend mounted through Laravel Vite
+- light/dark themes, French/English preferences and four audience modes
+- supplied portrait and theme-specific logo assets
+- ESLint, Stylelint, Vite build, PHPUnit and Pint CI checks
 
 ## Reset evidence
 
@@ -65,10 +65,10 @@ assets, and development handoff now live in the repository.
 
 ## Immediate next steps
 
-1. Reconcile the old PORT queue against `docs/product/v3-social-portfolio-spec.md`.
-2. Start the V3 UI foundation from `docs/readiness/v3-development-handoff.md`.
-3. Capture every implemented public route in FR/EN, light/dark, desktop/mobile.
-4. Reintroduce infrastructure, modules and dashboard features through explicit issue scope.
+1. Merge PR #23 after all required checks pass.
+2. Start issue #10 (PORT-005 profile and settings CMS).
+3. Replace visual fixture data through typed Laravel APIs incrementally.
+4. Reintroduce Docker and static analysis through explicit, configured issue scope.
 
 ## Update rule
 
