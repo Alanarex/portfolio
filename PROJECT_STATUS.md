@@ -4,19 +4,19 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: Lovable React frontend integration (PR #23)
-- Feature branch: `feature/port-frontend-lovable-import`
+- Current feature: PORT-005 profile and settings CMS (issue #10)
+- Feature branch: `feature/PORT-005-profile-settings`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**V3 LOVABLE FRONTEND INTEGRATED — PR #23 READY TO MERGE**
+**PORT-005 IMPLEMENTED — LOCAL QUALITY GATES GREEN**
 
-Laravel remains the backend and HTTP entry point. The Lovable React/TanStack interface is now
-mounted through Laravel Vite and retains its routes, audience modes, themes, navigation and
-animations.
+Laravel now owns persisted professional identity and settings behind an authenticated private
+dashboard. The public React/TanStack interface remains visually unchanged and can replace its
+temporary fixtures through the new typed public readers in a later public-delivery slice.
 
 ## Implemented baseline
 
@@ -24,7 +24,14 @@ animations.
 - React 19 and TanStack Router public frontend mounted through Laravel Vite
 - light/dark themes, French/English preferences and four audience modes
 - supplied portrait and theme-specific logo assets
-- ESLint, Stylelint, Vite build, PHPUnit and Pint CI checks
+- restored single-administrator authentication and session-revocation boundary
+- explicit `Profile`, `Settings` and `ActivityLog` modules with module-owned migrations
+- localized profile content for FR/EN plus non-public Arabic readiness records
+- encrypted private contact/social values and private-by-default visibility controls
+- metadata-only CV versions with no upload or public download route
+- redacted audit events and deterministic public-read cache invalidation
+- Vue 3/Inertia private CMS forms isolated from the public React application
+- PHPUnit, Pint, Larastan level 6, ESLint, Stylelint, Vite build and Composer audit gates
 
 ## Reset evidence
 
@@ -36,9 +43,7 @@ animations.
 
 ## Current objective
 
-Use the clean Laravel skeleton to port the Lovable V3 interaction model feature-by-feature.
-The normalized product specification, prototype provenance, capture matrix, supplied brand
-assets, and development handoff now live in the repository.
+Complete review and CI for issue #10, then continue with PORT-006 career, education and skills CMS.
 
 ## Autonomous defaults
 
@@ -65,10 +70,10 @@ assets, and development handoff now live in the repository.
 
 ## Immediate next steps
 
-1. Merge PR #23 after all required checks pass.
-2. Start issue #10 (PORT-005 profile and settings CMS).
-3. Replace visual fixture data through typed Laravel APIs incrementally.
-4. Reintroduce Docker and static analysis through explicit, configured issue scope.
+1. Publish the PORT-005 draft pull request against `release/v3.0.0/main`.
+2. Verify PostgreSQL CI, privacy/authorization review and migration rollback evidence.
+3. Squash-merge issue #10 when every gate is green.
+4. Start issue #11 (PORT-006 career, education and skills CMS).
 
 ## Update rule
 
