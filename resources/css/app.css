@@ -1,5 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../js/portfolio";
+@source "../js/Pages";
+@source "../js/Layouts";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -141,6 +143,47 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .admin-input {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-input);
+    background: var(--color-surface);
+    padding: 0.65rem 0.8rem;
+    color: var(--color-foreground);
+  }
+
+  .admin-input:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--color-ring) 35%, transparent);
+    outline-offset: 2px;
+  }
+
+  .admin-input[aria-invalid="true"] {
+    border-color: var(--color-destructive);
+  }
+
+  .admin-button {
+    min-height: 2.75rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    padding: 0.65rem 1rem;
+    color: var(--color-primary-foreground);
+    font-weight: 700;
+  }
+
+  .admin-button:focus-visible,
+  .admin-link:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--color-ring) 35%, transparent);
+    outline-offset: 3px;
+  }
+
+  .admin-button:disabled {
+    cursor: wait;
+    opacity: 0.55;
   }
 }
 

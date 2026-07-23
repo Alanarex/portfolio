@@ -1,0 +1,5 @@
+{
+  "name": "Profile",
+  "description": "Localized professional identity and private CV metadata",
+  "provider": "Modules\\Profile\\Providers\\ProfileServiceProvider"
+}

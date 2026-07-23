@@ -65,8 +65,11 @@ jobs:
           restore-keys: composer-${{ runner.os }}-
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: php artisan migrate --force
+      - run: php artisan migrate:rollback --force
+      - run: php artisan migrate --force
       - run: php artisan test
       - run: vendor/bin/pint --test
+      - run: composer analyse
 
   frontend:
     runs-on: ubuntu-latest

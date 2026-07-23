@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Portfolio social de Badre — développeur PHP et Laravel.">
+    <meta name="description" content="Portfolio professionnel social.">
     <title>{{ config('app.name', 'Portfolio') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
 </head>

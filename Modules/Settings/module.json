@@ -1,0 +1,5 @@
+{
+  "name": "Settings",
+  "description": "Site identity, locales, contact visibility, social links and feature flags",
+  "provider": "Modules\\Settings\\Providers\\SettingsServiceProvider"
+}

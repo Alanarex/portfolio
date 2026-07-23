@@ -1,0 +1,5 @@
+{
+  "name": "ActivityLog",
+  "description": "Redacted business audit trail",
+  "provider": "Modules\\ActivityLog\\Providers\\ActivityLogServiceProvider"
+}

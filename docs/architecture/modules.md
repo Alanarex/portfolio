@@ -5,6 +5,7 @@
 | Module | Responsibility |
 |---|---|
 | Auth | Dashboard authentication and security |
+| Profile | Localized professional identity and private CV-version metadata |
 | Portfolio | Public content, sections, SEO and publication |
 | Media | Images, documents, posters and versioned public assets |
 | Projects | Project catalogue and case studies |
