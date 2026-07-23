@@ -14,4 +14,5 @@
   so the private CMS reuses semantic tokens without claiming visual parity.
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
-- Next gate: publish and merge issue #10, then advance to issue #11 (PORT-006).
+- PR #24 merged PORT-005 into `release/v3.0.0/main`; issue #10 is closed as completed.
+- Next ready item: issue #11 / PORT-006. No implementation branch or PR has been started.

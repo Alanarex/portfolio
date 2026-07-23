@@ -12,9 +12,9 @@ Codex selects the first issue in this table that:
 
 1. remains open;
 2. has its dependency issue closed as completed;
-3. has the dependency PR merged into `main`.
+3. has the dependency PR merged into the active integration branch.
 
-After each successful merge, Codex immediately starts the next executable issue without waiting for another prompt.
+Each `next issue` chat selects and delivers one executable issue. Start a fresh chat after handoff or merge.
 
 Do not change order without updating this file, issue `#17` and affected issue dependencies.
 
@@ -25,8 +25,8 @@ Do not change order without updating this file, issue `#17` and affected issue d
 | 1 | PORT-002 — Laravel modular foundation | #6 | `feature/PORT-002-laravel-foundation` | PORT-001 | Automatic if green | Done |
 | 2 | PORT-003 — Secure admin authentication | #8 | `feature/PORT-003-admin-auth` | #6 | Automatic if green | Done |
 | 3 | PORT-004 — Design system and layouts | #9 | `feature/PORT-004-design-system` | #8 | ADR-007 visual defaults | Done |
-| 4 | PORT-005 — Profile and settings CMS | #10 | `feature/PORT-005-profile-settings` | #9 | Automatic if green | Review |
-| 5 | PORT-006 — Career, education and skills CMS | #11 | `feature/PORT-006-career-skills` | #10 | Automatic if green | Planned |
+| 4 | PORT-005 — Profile and settings CMS | #10 | `feature/PORT-005-profile-settings` | #9 | Automatic if green | Done |
+| 5 | PORT-006 — Career, education and skills CMS | #11 | `feature/PORT-006-career-skills` | #10 | Automatic if green | Ready |
 | 6 | PORT-007 — Projects, case studies and media | #12 | `feature/PORT-007-projects-media` | #11 | Automatic if green | Planned |
 | 7 | PORT-008 — Public portfolio and case studies | #13 | `feature/PORT-008-public-portfolio` | #12 | Screenshots + QA, no manual gate | Planned |
 | 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | Planned |
@@ -44,7 +44,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 
 ## Update responsibility
 
-The orchestrator updates this table inside each feature PR when a feature moves to `Review` or `Done`. After merge it immediately advances the next issue to `Ready` and starts it.
+The coordinator updates this table when a feature moves to `Review` or `Done`. After merge it advances the next eligible issue to `Ready`; a fresh `next issue` chat starts it.
 
 ## Autonomous defaults
 

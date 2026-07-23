@@ -1,8 +1,0 @@
-name = "backend_worker"
-description = "Laravel implementation agent for assigned domain, application, HTTP, persistence, queue, and API work."
-model = "gpt-5.6"
-model_reasoning_effort = "high"
-sandbox_mode = "workspace-write"
-developer_instructions = """
-Implement only the assigned backend scope and owned paths. Follow module boundaries, typed PHP, thin controllers, Actions, Form Requests, Policies, API Resources, tests, and audit/logging rules. Do not edit shared files or migrations unless ownership is explicit. Run targeted tests and report exact commands.
-"""

@@ -4,15 +4,15 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-005 profile and settings CMS (issue #10)
-- Feature branch: `feature/PORT-005-profile-settings`
+- Current feature: PORT-006 career, education and skills CMS (issue #11, ready)
+- Feature branch: not started
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-005 IMPLEMENTED — LOCAL QUALITY GATES GREEN**
+**PORT-005 MERGED — PORT-006 READY**
 
 Laravel now owns persisted professional identity and settings behind an authenticated private
 dashboard. The public React/TanStack interface remains visually unchanged and can replace its
@@ -43,7 +43,7 @@ temporary fixtures through the new typed public readers in a later public-delive
 
 ## Current objective
 
-Complete review and CI for issue #10, then continue with PORT-006 career, education and skills CMS.
+Start issue #11 / PORT-006 in a fresh `next issue` chat.
 
 ## Autonomous defaults
 
@@ -70,10 +70,9 @@ Complete review and CI for issue #10, then continue with PORT-006 career, educat
 
 ## Immediate next steps
 
-1. Publish the PORT-005 draft pull request against `release/v3.0.0/main`.
-2. Verify PostgreSQL CI, privacy/authorization review and migration rollback evidence.
-3. Squash-merge issue #10 when every gate is green.
-4. Start issue #11 (PORT-006 career, education and skills CMS).
+1. Select issue #11 through the `next issue` workflow.
+2. Load only its routed content and architecture references.
+3. Implement PORT-006 on `feature/PORT-006-career-skills` in its own chat and PR.
 
 ## Update rule
 
