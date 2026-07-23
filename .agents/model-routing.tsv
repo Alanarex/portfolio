@@ -1,0 +1,11 @@
+# ID<TAB>class<TAB>route<TAB>reason
+PORT-002	critical	review-high	Repository-wide foundation, infrastructure and shared contracts
+PORT-003	critical	review-high	Authentication, authorization and session security
+PORT-004	standard	direct	Bounded visual foundation with local accessibility validation
+PORT-005	critical	review-high	Personal data, privacy controls, persistence and migrations
+PORT-006	critical	review-high	Verified personal content, authorization, persistence and migrations
+PORT-007	critical	review-high	Uploads, private repository metadata, storage and migrations
+PORT-008	complex	direct	Cross-module public composition, caching, accessibility and SEO structure
+PORT-009	critical	review-high	Contact abuse controls, privacy, CV delivery and public metadata
+PORT-010	complex	direct	Cross-stack configuration, accessibility and Three.js performance
+PORT-011	critical	review-high	Asset licensing, integrity, rollback, accessibility and runtime budgets
