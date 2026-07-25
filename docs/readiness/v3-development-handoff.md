@@ -9,7 +9,13 @@ cp .env.example .env
 composer install
 npm ci
 php artisan key:generate
-.ai-dev/bin/verify
+composer validate --strict
+composer audit --no-interaction
+composer analyse
+php artisan test
+npm run lint
+npm run stylelint
+npm run build
 ```
 
 Use the environment-specific Docker workflow when it is reintroduced; the current branch is a
