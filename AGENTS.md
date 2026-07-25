@@ -50,7 +50,7 @@ Detailed product, architecture, design, content, testing and deployment document
 ## Completion
 
 - Preserve unrelated user changes and use the issue's exact branch/base.
-- Run targeted checks, then `.ai-dev/bin/verify`; add migration rollback, browser/accessibility, security, visual or 3D checks when applicable.
+- Run targeted checks, then the applicable Composer and npm validation scripts; add migration rollback, browser/accessibility, security, visual or 3D checks when applicable.
 - Do not weaken tests or quality thresholds.
 - Update `PROJECT_STATUS.md`, `docs/progress/current-state.md` and the queue only when their facts change.
 - Use Conventional Commits. PRs must include `Closes #N`, exact validation evidence, risks and relevant screenshots.
