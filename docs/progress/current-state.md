@@ -3,15 +3,24 @@
 - Laravel 13 remains the backend and HTTP entry point.
 - Lovable's React 19/TanStack frontend is integrated through Vite after PR #23.
 - Public routes, light/dark themes, French/English preferences and four audience modes compile successfully.
-- PORT-005 / issue #10 is implemented on `feature/PORT-005-profile-settings` with Profile,
-  Settings and ActivityLog module boundaries, authenticated Vue/Inertia CMS forms, FR/EN
-  profile records, Arabic readiness, encrypted contact/social values, privacy-safe public
-  readers, CV metadata and redacted audit events.
-- Local verification: 12 PHPUnit tests / 107 assertions, Pint, Larastan level 6, ESLint,
-  Stylelint, production Vite build, Composer audit and isolated SQLite migrate/rollback/re-migrate.
-- The public `/profile` light and dark general-audience references were reviewed; PORT-005 does
-  not change the public route. Lovable contains no authentication/edit/settings reference state,
-  so the private CMS reuses semantic tokens without claiming visual parity.
+- PORT-005 / issue #10 is merged through PR #24.
+- PORT-006 / issue #11 is implemented on `feature/PORT-006-career-skills` with separate Career
+  and Skills module boundaries, authenticated Vue/Inertia aggregate CRUD and keyboard ordering,
+  localized publication controls, verified achievement filtering, allowlisted public readers,
+  deterministic cache invalidation and redacted audit events.
+- Initial content imports exactly the verified career, education, TOEIC, spoken-language and
+  59-skill taxonomy facts from `docs/content/`. Records remain drafts because verified English
+  translations are unavailable; no prototype claims or Handicapacité project metrics are seeded.
+- Local verification: 18 PHPUnit tests / 182 assertions, Pint, Larastan level 6, ESLint,
+  Stylelint, production Vite build, Composer audit and isolated SQLite migrate/rollback-two/
+  re-migrate/seed.
+- Remaining blocker: no local implementation blocker; GitHub CI and merge gates remain pending
+  until issue #11 is published as a pull request.
+- Final read-only QA re-review reports no remaining blocking, high or medium finding.
+- PORT-006 changes no public route or React/Laravel frontend boundary. Lovable contains no
+  authentication/edit/settings reference state, so the private CMS reuses semantic tokens without
+  claiming visual parity; public `/experience`, `/education`, `/skills` and `/certifications`
+  composition remains assigned to PORT-008.
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
-- Next gate: publish and merge issue #10, then advance to issue #11 (PORT-006).
+- Next gate: publish and merge issue #11, then advance to issue #12 (PORT-007).

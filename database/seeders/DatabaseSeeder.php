@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Modules\Career\Database\Seeders\CareerDatabaseSeeder;
 use Modules\Settings\Database\Seeders\SettingsDatabaseSeeder;
+use Modules\Skills\Database\Seeders\SkillsDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,5 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(SettingsDatabaseSeeder::class);
+        $this->call(CareerDatabaseSeeder::class);
+        $this->call(SkillsDatabaseSeeder::class);
     }
 }

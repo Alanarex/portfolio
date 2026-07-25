@@ -4,19 +4,20 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-005 profile and settings CMS (issue #10)
-- Feature branch: `feature/PORT-005-profile-settings`
+- Current feature: PORT-006 career, education and skills CMS (issue #11)
+- Feature branch: `feature/PORT-006-career-skills`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-005 IMPLEMENTED — LOCAL QUALITY GATES GREEN**
+**PORT-006 IMPLEMENTED — LOCAL QUALITY GATES GREEN**
 
-Laravel now owns persisted professional identity and settings behind an authenticated private
-dashboard. The public React/TanStack interface remains visually unchanged and can replace its
-temporary fixtures through the new typed public readers in a later public-delivery slice.
+Laravel now owns structured career, education, certification, spoken-language and skills content
+behind authenticated private dashboard editors. Explicit public reader contracts expose only
+published, locale-complete and allowlisted records; the public React/TanStack interface remains
+visually unchanged until the later public-delivery slice.
 
 ## Implemented baseline
 
@@ -31,6 +32,12 @@ temporary fixtures through the new typed public readers in a later public-delive
 - metadata-only CV versions with no upload or public download route
 - redacted audit events and deterministic public-read cache invalidation
 - Vue 3/Inertia private CMS forms isolated from the public React application
+- explicit `Career` and `Skills` modules with module-owned reversible migrations
+- localized experiences, verified achievements, education, certifications and spoken languages
+- ordered skill categories and skills with independent publication and visibility controls
+- draft-only, idempotent import of verified `docs/content/` facts without invented English copy
+- typed FR/EN public readers with no locale fallback or unverified metric exposure
+- keyboard-operable dashboard ordering, validation, authorization, audit and cache invalidation
 - PHPUnit, Pint, Larastan level 6, ESLint, Stylelint, Vite build and Composer audit gates
 
 ## Reset evidence
@@ -43,7 +50,20 @@ temporary fixtures through the new typed public readers in a later public-delive
 
 ## Current objective
 
-Complete review and CI for issue #10, then continue with PORT-006 career, education and skills CMS.
+Complete review and CI for issue #11, then continue with PORT-007 projects, case studies and media.
+
+## PORT-006 verification
+
+- Related issue: #11.
+- Tests: 18 PHPUnit tests / 182 assertions.
+- Quality: Pint check, Larastan level 6, ESLint, Stylelint, Vite production build and Composer
+  audit pass.
+- Migrations: isolated SQLite fresh migrate, rollback of both PORT-006 migrations, re-migrate and
+  idempotent seed pass.
+- QA: final authorization, data-accuracy, privacy and accessibility re-review has no remaining
+  blocking, high or medium finding.
+- Remaining blocker: GitHub CI and merge gates are pending after pull-request publication.
+- Next task after merge: issue #12, PORT-007 projects, case studies and media.
 
 ## Autonomous defaults
 
@@ -70,10 +90,10 @@ Complete review and CI for issue #10, then continue with PORT-006 career, educat
 
 ## Immediate next steps
 
-1. Publish the PORT-005 draft pull request against `release/v3.0.0/main`.
-2. Verify PostgreSQL CI, privacy/authorization review and migration rollback evidence.
-3. Squash-merge issue #10 when every gate is green.
-4. Start issue #11 (PORT-006 career, education and skills CMS).
+1. Publish the PORT-006 draft pull request against `release/v3.0.0/main`.
+2. Verify PostgreSQL CI, authorization/data-accuracy review and migration rollback evidence.
+3. Squash-merge issue #11 when every gate is green.
+4. Start issue #12 (PORT-007 projects, case studies and media).
 
 ## Update rule
 

@@ -1,0 +1,5 @@
+{
+  "name": "Skills",
+  "description": "Ordered and localized skills taxonomy",
+  "provider": "Modules\\Skills\\Providers\\SkillsServiceProvider"
+}
