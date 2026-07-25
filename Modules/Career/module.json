@@ -1,0 +1,5 @@
+{
+  "name": "Career",
+  "description": "Career, education, certification and spoken-language content",
+  "provider": "Modules\\Career\\Providers\\CareerServiceProvider"
+}
