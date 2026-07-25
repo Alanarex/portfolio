@@ -12,9 +12,9 @@ Codex selects the first issue in this table that:
 
 1. remains open;
 2. has its dependency issue closed as completed;
-3. has the dependency PR merged into `main`.
+3. has the dependency PR merged into the active integration branch.
 
-After each successful merge, Codex immediately starts the next executable issue without waiting for another prompt.
+Each `next issue` chat selects and delivers one executable issue. Start a fresh chat after handoff or merge.
 
 Do not change order without updating this file, issue `#17` and affected issue dependencies.
 
@@ -39,8 +39,9 @@ Do not change order without updating this file, issue `#17` and affected issue d
 - Local gates: 18 PHPUnit tests / 182 assertions, Pint, Larastan level 6, ESLint, Stylelint,
   production build, Composer audit and isolated migrate/rollback/re-migrate/seed pass.
 - Final QA: no remaining blocking, high or medium finding.
-- Remaining blocker: GitHub CI and merge gates are pending after pull-request publication.
-- Next task after merge: PORT-007 / issue #12.
+- Pull request: #27.
+- Remaining blocker: GitHub CI and merge gates are pending.
+- Next queue item after merge: PORT-007 / issue #12 in a fresh `next issue` chat.
 
 ## State values
 
@@ -53,7 +54,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 
 ## Update responsibility
 
-The orchestrator updates this table inside each feature PR when a feature moves to `Review` or `Done`. After merge it immediately advances the next issue to `Ready` and starts it.
+The coordinator updates this table when a feature moves to `Review` or `Done`. After merge it advances the next eligible issue to `Ready`; a fresh `next issue` chat starts it.
 
 ## Autonomous defaults
 

@@ -14,8 +14,8 @@
 - Local verification: 18 PHPUnit tests / 182 assertions, Pint, Larastan level 6, ESLint,
   Stylelint, production Vite build, Composer audit and isolated SQLite migrate/rollback-two/
   re-migrate/seed.
-- Remaining blocker: no local implementation blocker; GitHub CI and merge gates remain pending
-  until issue #11 is published as a pull request.
+- Remaining blocker: no local implementation blocker; GitHub CI and merge gates remain pending on
+  PR #27.
 - Final read-only QA re-review reports no remaining blocking, high or medium finding.
 - PORT-006 changes no public route or React/Laravel frontend boundary. Lovable contains no
   authentication/edit/settings reference state, so the private CMS reuses semantic tokens without
@@ -23,4 +23,6 @@
   composition remains assigned to PORT-008.
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
-- Next gate: publish and merge issue #11, then advance to issue #12 (PORT-007).
+- PR #24 merged PORT-005 into `release/v3.0.0/main`; issue #10 is closed as completed.
+- Next gate: complete and merge PR #27 for issue #11, then end this issue handoff.
+- After merge, issue #12 / PORT-007 is the next queue item for a fresh `next issue` chat.

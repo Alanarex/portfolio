@@ -1,0 +1,11 @@
+# issue-id<TAB>additional context paths (space separated)
+PORT-002	docs/architecture/overview.md docs/architecture/modular-architecture.md docs/readiness/v3-development-handoff.md
+PORT-003	docs/architecture/system-architecture.md docs/architecture/decisions/ADR-001-modular-monolith.md
+PORT-004	docs/design-system.md docs/design/lovable-reference.md docs/design/screenshots/README.md docs/quality/port-004-qa.md
+PORT-005	docs/product/overview.md docs/architecture/overview.md docs/content/profile.md
+PORT-006	docs/architecture/modules.md docs/content/experience.md docs/content/education.md docs/content/certifications.md docs/content/languages.md docs/content/skills.md docs/content/metrics.md
+PORT-007	docs/architecture/storage.md docs/content/projects.md docs/content/project-selection.md docs/design/lovable-reference.md
+PORT-008	docs/product/public-portfolio.md docs/product/v3-social-portfolio-spec.md docs/design/lovable-reference.md docs/design/screenshots/README.md
+PORT-009	docs/product/public-portfolio.md docs/architecture/storage.md docs/integrations/tooling-and-connectors.md
+PORT-010	docs/product/three-d-preview.md docs/architecture/3d-assets.md docs/coordination/blender-handoff.md
+PORT-011	docs/product/three-d-preview.md docs/architecture/3d-assets.md docs/coordination/blender-handoff.md

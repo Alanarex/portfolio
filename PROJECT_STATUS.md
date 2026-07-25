@@ -12,7 +12,7 @@
 
 ## Current phase
 
-**PORT-006 IMPLEMENTED — LOCAL QUALITY GATES GREEN**
+**PORT-006 IN REVIEW — LOCAL QUALITY GATES GREEN**
 
 Laravel now owns structured career, education, certification, spoken-language and skills content
 behind authenticated private dashboard editors. Explicit public reader contracts expose only
@@ -50,7 +50,7 @@ visually unchanged until the later public-delivery slice.
 
 ## Current objective
 
-Complete review and CI for issue #11, then continue with PORT-007 projects, case studies and media.
+Complete review and CI for issue #11 in PR #27, then end this issue handoff.
 
 ## PORT-006 verification
 
@@ -62,8 +62,9 @@ Complete review and CI for issue #11, then continue with PORT-007 projects, case
   idempotent seed pass.
 - QA: final authorization, data-accuracy, privacy and accessibility re-review has no remaining
   blocking, high or medium finding.
-- Remaining blocker: GitHub CI and merge gates are pending after pull-request publication.
-- Next task after merge: issue #12, PORT-007 projects, case studies and media.
+- Remaining blocker: GitHub CI and merge gates are pending on PR #27.
+- Next queue item after merge: issue #12, PORT-007 projects, case studies and media, in a fresh
+  `next issue` chat.
 
 ## Autonomous defaults
 
@@ -90,11 +91,12 @@ Complete review and CI for issue #11, then continue with PORT-007 projects, case
 
 ## Immediate next steps
 
-1. Publish the PORT-006 draft pull request against `release/v3.0.0/main`.
-2. Verify PostgreSQL CI, authorization/data-accuracy review and migration rollback evidence.
-3. Squash-merge issue #11 when every gate is green.
-4. Start issue #12 (PORT-007 projects, case studies and media).
+1. Verify PostgreSQL CI, authorization/data-accuracy review and migration rollback evidence on PR
+   #27.
+2. Squash-merge issue #11 when every gate is green.
+3. End this issue handoff; a fresh `next issue` chat may then select issue #12.
 
 ## Update rule
 
-The orchestrator updates this file after each merged milestone or material architectural decision and continues to the next executable issue unless an ADR-007 hard blocker exists.
+The coordinator updates this file when an issue changes state or a material architectural decision
+lands. Each `next issue` chat ends after one issue's handoff or merge.
