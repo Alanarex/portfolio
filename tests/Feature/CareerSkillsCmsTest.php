@@ -7,10 +7,13 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia as Assert;
 use Modules\ActivityLog\Models\AuditEvent;
 use Modules\Career\Contracts\PublicCareerReader;
+use Modules\Career\Infrastructure\CareerCache;
 use Modules\Skills\Contracts\PublicSkillsReader;
+use Modules\Skills\Infrastructure\SkillsCache;
 use Tests\TestCase;
 
 final class CareerSkillsCmsTest extends TestCase
@@ -81,6 +84,7 @@ final class CareerSkillsCmsTest extends TestCase
 
         $public = $this->app->make(PublicCareerReader::class)->forLocale('en')?->toArray();
         self::assertSame('Example role', $public['experiences'][0]['role'] ?? null);
+        self::assertIsArray(Cache::get(CareerCache::key('en')));
         self::assertSame('More than 385 queries reduced to 6.', $public['experiences'][0]['achievements'][0]['statement'] ?? null);
         self::assertSame('Example program', $public['education'][0]['program'] ?? null);
         self::assertSame('TOEIC', $public['certifications'][0]['name'] ?? null);
@@ -133,6 +137,7 @@ final class CareerSkillsCmsTest extends TestCase
 
         $public = $this->app->make(PublicSkillsReader::class)->forLocale('en')?->toArray();
         self::assertSame(['laravel', 'php'], array_column($public['categories'][0]['skills'] ?? [], 'key'));
+        self::assertIsArray(Cache::get(SkillsCache::key('en')));
         self::assertArrayNotHasKey('status', $public['categories'][0] ?? []);
 
         $payload['categories'][0]['is_visible'] = false;

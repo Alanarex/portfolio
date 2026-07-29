@@ -18,7 +18,8 @@ final class DatabasePublicSkillsReader implements PublicSkillsReader
             return null;
         }
 
-        return Cache::remember(SkillsCache::key($locale), now()->addMinutes(5), function () use ($locale): PublicSkillsData {
+        /** @var array{categories: list<array<string, mixed>>} $payload */
+        $payload = Cache::remember(SkillsCache::key($locale), now()->addMinutes(5), function () use ($locale): array {
             $categories = SkillCategory::query()
                 ->where('status', PublicationStatus::Published->value)
                 ->where('is_visible', true)
@@ -36,8 +37,10 @@ final class DatabasePublicSkillsReader implements PublicSkillsReader
                 ->map(fn (SkillCategory $category): array => $this->serializeCategory($category))
                 ->all();
 
-            return new PublicSkillsData($categories);
+            return ['categories' => $categories];
         });
+
+        return new PublicSkillsData($payload['categories']);
     }
 
     /** @return array{key: string, name: string, skills: list<array{key: string, name: string, description: string|null}>} */

@@ -7,11 +7,14 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia as Assert;
 use Modules\ActivityLog\Models\AuditEvent;
 use Modules\Profile\Contracts\PublicProfileReader;
+use Modules\Profile\Infrastructure\ProfileCache;
 use Modules\Profile\Models\CvVersion;
 use Modules\Settings\Contracts\PublicSettingsReader;
+use Modules\Settings\Infrastructure\SettingsCache;
 use Modules\Settings\Models\Locale;
 use Modules\Settings\Models\SiteSetting;
 use Tests\TestCase;
@@ -102,6 +105,7 @@ final class ProfileSettingsCmsTest extends TestCase
         $public = $reader->forLocale('en')?->toArray();
         self::assertSame('Alaa Khalil', $public['display_name'] ?? null);
         self::assertSame('English public summary.', $public['summary'] ?? null);
+        self::assertIsArray(Cache::get(ProfileCache::key('en')));
         self::assertArrayNotHasKey('location', $public ?? []);
         self::assertArrayNotHasKey('availability', $public ?? []);
         self::assertNull($reader->forLocale('ar'));
@@ -190,6 +194,7 @@ final class ProfileSettingsCmsTest extends TestCase
         $private = $reader->forLocale('fr')?->toArray();
         self::assertArrayNotHasKey('email', $private ?? []);
         self::assertArrayNotHasKey('phone', $private ?? []);
+        self::assertIsArray(Cache::get(SettingsCache::key('fr')));
         self::assertSame([], $private['social_links'] ?? null);
 
         $payload = $this->settingsPayload();

@@ -19,7 +19,8 @@ final class DatabasePublicSettingsReader implements PublicSettingsReader
             return null;
         }
 
-        return Cache::remember(SettingsCache::key($locale), now()->addMinutes(5), function () use ($locale): ?PublicSettingsData {
+        /** @var array{site_name: string, locale: string, email: string|null, phone: string|null, social_links: array<string, string>, feature_flags: array<string, bool>, contact_form_enabled: bool}|null $payload */
+        $payload = Cache::remember(SettingsCache::key($locale), now()->addMinutes(5), function () use ($locale): ?array {
             $settings = SiteSetting::query()
                 ->where('key', 'main')
                 ->with(['socialLinks', 'featureFlags'])
@@ -39,15 +40,25 @@ final class DatabasePublicSettingsReader implements PublicSettingsReader
                 ->mapWithKeys(fn ($flag): array => [$flag->key => (bool) $flag->enabled])
                 ->all();
 
-            return new PublicSettingsData(
-                siteName: $settings->site_name,
-                locale: $locale,
-                email: $settings->show_email ? $settings->contact_email : null,
-                phone: $settings->show_phone ? $settings->contact_phone : null,
-                socialLinks: $socialLinks,
-                featureFlags: $featureFlags,
-                contactFormEnabled: ($featureFlags['contact'] ?? false) && filled($settings->contact_email),
-            );
+            return [
+                'site_name' => $settings->site_name,
+                'locale' => $locale,
+                'email' => $settings->show_email ? $settings->contact_email : null,
+                'phone' => $settings->show_phone ? $settings->contact_phone : null,
+                'social_links' => $socialLinks,
+                'feature_flags' => $featureFlags,
+                'contact_form_enabled' => ($featureFlags['contact'] ?? false) && filled($settings->contact_email),
+            ];
         });
+
+        return $payload === null ? null : new PublicSettingsData(
+            siteName: $payload['site_name'],
+            locale: $payload['locale'],
+            email: $payload['email'],
+            phone: $payload['phone'],
+            socialLinks: $payload['social_links'],
+            featureFlags: $payload['feature_flags'],
+            contactFormEnabled: $payload['contact_form_enabled'],
+        );
     }
 }
