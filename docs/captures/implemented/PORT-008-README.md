@@ -6,6 +6,7 @@ The PORT-008 browser job writes full-page implementation evidence here for:
 - dark desktop project index and case study;
 - light mobile landing page and project index.
 
-The generated PNG files are committed only after the Playwright flow, axe WCAG A/AA audit and
-manual visual review pass. This file records the expected evidence set while the first draft CI run
-is pending.
+These PNG files come from green Quality run #36. The no-JavaScript flow, keyboard checks and axe
+WCAG A/AA audit passed before the six captures were downloaded, visually reviewed and committed.
+The desktop landing-page review copies are proportionally reduced to 900 pixels wide to keep the
+repository evidence compact; the CI artifact retains the original 1440-pixel captures.
