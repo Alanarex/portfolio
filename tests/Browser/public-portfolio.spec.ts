@@ -24,9 +24,10 @@ test('essential landing and project content works without JavaScript', async ({ 
 
     await page.goto('/fr/projects');
     await expect(page.getByRole('heading', { name: 'Projets', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Handicapacité' })).toBeVisible();
+    const projectLink = page.getByRole('link', { name: 'Handicapacité' }).first();
+    await expect(projectLink).toBeVisible();
 
-    await page.getByRole('link', { name: 'Handicapacité' }).first().click();
+    await projectLink.click();
     await expect(page).toHaveURL(/\/fr\/projects\/handicapacite$/);
     await expect(page.locator('h1')).toHaveText('Handicapacité');
     await expect(page.getByRole('heading', { name: 'Contexte' })).toBeVisible();
