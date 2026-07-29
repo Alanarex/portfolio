@@ -4,7 +4,7 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, in progress)
+- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, review)
 - Feature branch: `feature/PORT-009-contact-seo`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
@@ -12,7 +12,7 @@
 
 ## Current phase
 
-**PORT-008 DELIVERED — PORT-009 IN PROGRESS**
+**PORT-008 DELIVERED — PORT-009 IN REVIEW**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
 HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
@@ -84,8 +84,9 @@ integration baseline.
   localized privacy content and safe 404/500 templates.
 - Targeted PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite, SQLite rollback/re-migrate and all four
   Playwright/no-JavaScript/axe flows pass locally.
-- The full local PHPUnit run is blocked only by the workstation's missing required GD extension;
-  CI installs GD and exercises the PostgreSQL/full-suite gate.
+- Draft PR #31 contains the implementation and exact validation/security evidence.
+- The full local PHPUnit run has existing media failures because the workstation lacks required GD,
+  plus one nondeterministic audit-order assertion; CI installs GD and exercises the PostgreSQL gate.
 
 ## PORT-008 verification
 
@@ -130,8 +131,8 @@ integration baseline.
 
 ## Immediate next steps
 
-1. Complete the required read-only risk review for issue #14.
-2. Commit, push and open the PORT-009 pull request with exact validation evidence.
+1. Complete PR #31 CI and review.
+2. Squash-merge when all required checks are green and no security/privacy finding remains.
 3. Keep PORT-010 blocked until PORT-009 is merged and closed.
 
 ## Update rule
