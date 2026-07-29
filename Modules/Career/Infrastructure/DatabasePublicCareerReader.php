@@ -21,7 +21,8 @@ final class DatabasePublicCareerReader implements PublicCareerReader
             return null;
         }
 
-        return Cache::remember(CareerCache::key($locale), now()->addMinutes(5), function () use ($locale): PublicCareerData {
+        /** @var array{experiences: list<array<string, mixed>>, education: list<array<string, mixed>>, certifications: list<array<string, mixed>>, languages: list<array<string, mixed>>} $payload */
+        $payload = Cache::remember(CareerCache::key($locale), now()->addMinutes(5), function () use ($locale): array {
             $experiences = Experience::query()
                 ->where('status', PublicationStatus::Published->value)
                 ->whereHas('translations', fn ($query) => $query->where('locale', $locale))
@@ -124,7 +125,19 @@ final class DatabasePublicCareerReader implements PublicCareerReader
                     ];
                 })->all();
 
-            return new PublicCareerData($experiences, $education, $certifications, $languages);
+            return [
+                'experiences' => $experiences,
+                'education' => $education,
+                'certifications' => $certifications,
+                'languages' => $languages,
+            ];
         });
+
+        return new PublicCareerData(
+            experiences: $payload['experiences'],
+            education: $payload['education'],
+            certifications: $payload['certifications'],
+            languages: $payload['languages'],
+        );
     }
 }

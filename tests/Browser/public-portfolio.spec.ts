@@ -21,6 +21,7 @@ test('essential landing and project content works without JavaScript', async ({ 
     await expect(page.getByRole('heading', { name: 'Projets à la une' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Résultats vérifiés' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Découvrir mes projets' })).toHaveAttribute('href', '#projects');
+    await expect(page.getByRole('textbox', { name: 'Nom' })).toBeVisible();
 
     await page.goto('/fr/projects');
     await expect(page.getByRole('heading', { name: 'Projets', exact: true })).toBeVisible();
@@ -36,7 +37,7 @@ test('essential landing and project content works without JavaScript', async ({ 
 });
 
 test('keyboard flow and audited public pages meet WCAG A/AA rules', async ({ page }) => {
-    for (const url of ['/fr', '/fr/projects', '/fr/projects/handicapacite']) {
+    for (const url of ['/fr', '/fr/projects', '/fr/projects/handicapacite', '/fr/privacy']) {
         await page.goto(url);
         await page.keyboard.press('Tab');
         await expect(page.getByRole('link', { name: 'Aller au contenu principal' })).toBeFocused();
@@ -48,6 +49,21 @@ test('keyboard flow and audited public pages meet WCAG A/AA rules', async ({ pag
     }
 });
 
+test('contact submission and privacy information work without exposing the recipient', async ({ page }) => {
+    await page.goto('/fr');
+    await expect(page.locator('body')).not.toContainText('contact@example.test');
+    await page.getByRole('textbox', { name: 'Nom' }).fill('Camille Martin');
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('camille@example.test');
+    await page.getByRole('textbox', { name: 'Objet (facultatif)' }).fill('Projet Laravel');
+    await page.getByRole('textbox', { name: 'Message' }).fill('Bonjour, je souhaite discuter d’un projet Laravel accessible.');
+    await page.getByRole('button', { name: 'Envoyer le message' }).click();
+    await expect(page.getByRole('status')).toContainText('file d’envoi');
+
+    await page.getByRole('link', { name: 'Confidentialité' }).click();
+    await expect(page).toHaveURL(/\/fr\/privacy$/);
+    await expect(page.getByRole('heading', { name: 'Mesure d’audience' })).toBeVisible();
+});
+
 test('light, dark, desktop, and mobile implementation captures render', async ({ browser }) => {
     const desktopContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const desktop = await desktopContext.newPage();
@@ -55,6 +71,9 @@ test('light, dark, desktop, and mobile implementation captures render', async ({
     await desktop.screenshot({
         path: path.join(captureDirectory, 'PORT-008-home-light-desktop.png'),
         fullPage: true,
+    });
+    await desktop.locator('#contact').screenshot({
+        path: path.join(captureDirectory, 'PORT-009-contact-light-desktop.png'),
     });
     await desktop.getByRole('button', { name: /Sombre/ }).click();
     await expect(desktop.locator('html')).toHaveClass(/dark/);
@@ -85,6 +104,11 @@ test('light, dark, desktop, and mobile implementation captures render', async ({
     await mobile.goto('/fr/projects');
     await mobile.screenshot({
         path: path.join(captureDirectory, 'PORT-008-projects-light-mobile.png'),
+        fullPage: true,
+    });
+    await mobile.goto('/fr/privacy');
+    await mobile.screenshot({
+        path: path.join(captureDirectory, 'PORT-009-privacy-light-mobile.png'),
         fullPage: true,
     });
     await mobileContext.close();

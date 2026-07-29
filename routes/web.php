@@ -18,6 +18,7 @@ require base_path('Modules/Career/Routes/web.php');
 require base_path('Modules/Skills/Routes/web.php');
 require base_path('Modules/Projects/Routes/web.php');
 require base_path('Modules/Portfolio/Routes/web.php');
+require base_path('Modules/Contact/Routes/web.php');
 
 Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::redirect('/dashboard', '/dashboard/profile')->name('dashboard');

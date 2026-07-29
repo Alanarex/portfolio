@@ -31,7 +31,7 @@ final class SettingsController extends Controller
                 'sort_order' => $link->sort_order ?? $index,
             ];
         });
-        $flags = collect(['projects', 'contact', 'cv', 'three_d'])->mapWithKeys(function (string $key) use ($settings): array {
+        $flags = collect(['projects', 'contact', 'cv', 'activity', 'three_d'])->mapWithKeys(function (string $key) use ($settings): array {
             if ($settings === null) {
                 return [$key => false];
             }

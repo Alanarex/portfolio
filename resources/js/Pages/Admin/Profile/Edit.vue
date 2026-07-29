@@ -22,6 +22,7 @@ type CvVersion = {
   is_verified: boolean;
   published: boolean;
   archived: boolean;
+  has_document: boolean;
 };
 
 const props = defineProps<{
@@ -43,21 +44,32 @@ for (const locale of ['fr', 'en'] as const) {
 
 const form = useForm({ ...props.profile, translations });
 const newCv = useForm({
-  locale: 'fr', label: '', version_label: '', original_filename: '', mime_type: '', size_bytes: null as number | null,
-  checksum_sha256: '', is_verified: false, published: false, archived: false,
+  locale: 'fr', label: '', version_label: '', document: null as File | null,
+  is_verified: false, published: false, archived: false,
 });
-const cvForms = props.cvVersions.map((version) => useForm({ ...version }));
+const cvForms = props.cvVersions.map((version) => useForm({ ...version, document: null as File | null }));
 
 function saveProfile(): void {
   form.put('/dashboard/profile', { preserveScroll: true });
 }
 
 function addCv(): void {
-  newCv.post('/dashboard/cv-versions', { preserveScroll: true, onSuccess: () => newCv.reset() });
+  newCv.post('/dashboard/cv-versions', {
+    forceFormData: true,
+    preserveScroll: true,
+    onSuccess: () => newCv.reset(),
+  });
 }
 
 function updateCv(index: number): void {
-  cvForms[index].put(`/dashboard/cv-versions/${cvForms[index].id}`, { preserveScroll: true });
+  cvForms[index]
+    .transform((data) => ({ ...data, _method: 'put' }))
+    .post(`/dashboard/cv-versions/${cvForms[index].id}`, { forceFormData: true, preserveScroll: true });
+}
+
+function selectDocument(event: Event, target: { document: File | null }): void {
+  const input = event.target as HTMLInputElement;
+  target.document = input.files?.[0] ?? null;
 }
 
 function deleteCv(id: number): void {
@@ -134,7 +146,7 @@ function deleteCv(id: number): void {
     <section class="mt-12" aria-labelledby="cv-heading">
       <div>
         <h2 id="cv-heading" class="text-2xl font-bold">Versions du CV</h2>
-        <p class="mt-2 text-sm text-muted-foreground">Métadonnées uniquement. Aucun fichier n’est téléversé ou téléchargeable dans cette fonctionnalité.</p>
+        <p class="mt-2 text-sm text-muted-foreground">Les PDF restent privés. Seule une version vérifiée, publiée et activée dans les paramètres peut être téléchargée publiquement.</p>
       </div>
 
       <div v-if="cvForms.length === 0" class="mt-5 rounded-2xl border border-dashed border-border bg-surface p-6 text-sm text-muted-foreground">Aucune version enregistrée.</div>
@@ -146,6 +158,12 @@ function deleteCv(id: number): void {
         <label class="flex min-h-11 items-center gap-3"><input v-model="cv.is_verified" type="checkbox"> Vérifié</label>
         <label class="flex min-h-11 items-center gap-3"><input v-model="cv.published" type="checkbox"> Marqué publié</label>
         <label class="flex min-h-11 items-center gap-3"><input v-model="cv.archived" type="checkbox"> Archivé</label>
+        <div class="md:col-span-3">
+          <label :for="`cv-document-${cv.id}`" class="mb-2 block text-sm font-semibold">Remplacer le PDF</label>
+          <input :id="`cv-document-${cv.id}`" class="admin-input" type="file" accept="application/pdf,.pdf" :aria-invalid="Boolean(cv.errors.document)" @change="selectDocument($event, cv)">
+          <p class="mt-2 text-xs text-muted-foreground">{{ cv.has_document ? 'Un PDF privé est enregistré.' : 'Aucun PDF enregistré.' }}</p>
+          <p v-if="cv.errors.document" class="mt-2 text-sm text-destructive" role="alert">{{ cv.errors.document }}</p>
+        </div>
         <div class="flex flex-wrap gap-3 md:col-span-3"><button type="submit" class="admin-button" :disabled="cv.processing">Enregistrer</button><button type="button" class="min-h-11 rounded-md border border-destructive px-4 text-destructive" @click="deleteCv(cv.id)">Supprimer</button></div>
       </form>
 
@@ -155,9 +173,12 @@ function deleteCv(id: number): void {
         <div><label for="new-cv-label" class="mb-2 block text-sm font-semibold">Libellé</label><input id="new-cv-label" v-model="newCv.label" class="admin-input" required maxlength="120"></div>
         <div><label for="new-cv-version" class="mb-2 block text-sm font-semibold">Version</label><input id="new-cv-version" v-model="newCv.version_label" class="admin-input" required maxlength="50"></div>
         <div><label for="new-cv-locale" class="mb-2 block text-sm font-semibold">Langue</label><select id="new-cv-locale" v-model="newCv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
-        <div><label for="new-cv-filename" class="mb-2 block text-sm font-semibold">Nom du fichier (métadonnée)</label><input id="new-cv-filename" v-model="newCv.original_filename" class="admin-input" maxlength="255"></div>
-        <div><label for="new-cv-mime" class="mb-2 block text-sm font-semibold">Type MIME</label><select id="new-cv-mime" v-model="newCv.mime_type" class="admin-input"><option value="">Non défini</option><option value="application/pdf">application/pdf</option></select></div>
-        <div><label for="new-cv-size" class="mb-2 block text-sm font-semibold">Taille en octets</label><input id="new-cv-size" v-model="newCv.size_bytes" class="admin-input" type="number" min="1" max="20971520"></div>
+        <div class="md:col-span-3">
+          <label for="new-cv-document" class="mb-2 block text-sm font-semibold">Fichier PDF privé</label>
+          <input id="new-cv-document" class="admin-input" type="file" accept="application/pdf,.pdf" :aria-invalid="Boolean(newCv.errors.document)" @change="selectDocument($event, newCv)">
+          <p class="mt-2 text-xs text-muted-foreground">PDF uniquement, 20 Mo maximum. Le nom, la taille et le SHA-256 sont calculés par le serveur.</p>
+          <p v-if="newCv.errors.document" class="mt-2 text-sm text-destructive" role="alert">{{ newCv.errors.document }}</p>
+        </div>
         <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.is_verified" type="checkbox"> Vérifié</label>
         <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.published" type="checkbox"> Marqué publié</label>
         <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.archived" type="checkbox"> Archivé</label>

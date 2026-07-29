@@ -31,10 +31,11 @@ final class UpdateSettingsRequest extends FormRequest
             'social_links.*.is_enabled' => ['required', 'boolean'],
             'social_links.*.is_public' => ['required', 'boolean'],
             'social_links.*.sort_order' => ['required', 'integer', 'min:0', 'max:100'],
-            'feature_flags' => ['required', 'array:projects,contact,cv,three_d'],
+            'feature_flags' => ['required', 'array:projects,contact,cv,activity,three_d'],
             'feature_flags.projects' => ['required', 'boolean'],
             'feature_flags.contact' => ['required', 'boolean'],
             'feature_flags.cv' => ['required', 'boolean'],
+            'feature_flags.activity' => ['required', 'boolean'],
             'feature_flags.three_d' => ['required', 'boolean'],
         ];
     }

@@ -7,10 +7,18 @@
     <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0b1426" media="(prefers-color-scheme: dark)">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $settings?->siteName ?? __('portfolio.brand_fallback') }}">
+    <meta property="og:locale" content="{{ $locale === 'fr' ? 'fr_FR' : 'en_GB' }}">
+    <meta property="og:locale:alternate" content="{{ $locale === 'fr' ? 'en_GB' : 'fr_FR' }}">
     <meta property="og:title" content="{{ $meta['title'] }}">
     <meta property="og:description" content="{{ $meta['description'] }}">
     <meta property="og:url" content="{{ $meta['canonical'] }}">
     <meta property="og:image" content="{{ asset('assets/brand/portrait-hero-640.webp') }}">
+    <meta property="og:image:alt" content="{{ __('portfolio.hero.portrait_alt') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $meta['title'] }}">
+    <meta name="twitter:description" content="{{ $meta['description'] }}">
+    <meta name="twitter:image" content="{{ asset('assets/brand/portrait-hero-640.webp') }}">
     @php
         $frUrl = $locale === 'fr' ? $meta['canonical'] : $alternateUrl;
         $enUrl = $locale === 'en' ? $meta['canonical'] : $alternateUrl;
@@ -20,6 +28,7 @@
     <link rel="alternate" hreflang="en" href="{{ $enUrl }}">
     <link rel="alternate" hreflang="x-default" href="{{ $frUrl }}">
     <title>{{ $meta['title'] }}</title>
+    <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
     <script>
         document.documentElement.classList.remove('no-js');
         try {
@@ -39,7 +48,7 @@
         ->filter()
         ->take(10);
 @endphp
-<body class="public-portfolio">
+<body class="public-portfolio" data-analytics-driver="null">
     <a href="#main-content" class="skip-link">{{ __('portfolio.skip') }}</a>
 
     <div class="portfolio-shell">
@@ -139,6 +148,7 @@
                     <a href="{{ route('portfolio.home', ['locale' => $locale]) }}">{{ __('portfolio.nav.home') }}</a>
                     <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">{{ __('portfolio.nav.projects') }}</a>
                     <a href="{{ route('portfolio.home', ['locale' => $locale]).'#contact' }}">{{ __('portfolio.nav.contact') }}</a>
+                    <a href="{{ route('portfolio.privacy', ['locale' => $locale]) }}">{{ __('portfolio.footer.privacy') }}</a>
                 </nav>
             </footer>
         </main>
@@ -174,10 +184,12 @@
                 </section>
             @endif
 
-            <section class="context-card activity-card">
-                <p class="context-label">{{ __('portfolio.sections.activity') }}</p>
-                <p>{{ __('portfolio.sections.activity_pending') }}</p>
-            </section>
+            @if (($settings?->featureFlags['activity'] ?? false) === true)
+                <section class="context-card activity-card">
+                    <p class="context-label">{{ __('portfolio.sections.activity') }}</p>
+                    <p>{{ __('portfolio.sections.activity_pending') }}</p>
+                </section>
+            @endif
         </aside>
     </div>
 

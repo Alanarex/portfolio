@@ -67,7 +67,7 @@ final class PublicPortfolioSeeder extends Seeder
             'key' => 'main',
             'site_name' => 'Alaa Khalil',
             'default_locale' => 'fr',
-            'contact_email' => null,
+            'contact_email' => 'contact@example.test',
             'contact_phone' => null,
             'show_email' => false,
             'show_phone' => false,
@@ -78,6 +78,13 @@ final class PublicPortfolioSeeder extends Seeder
             'is_enabled' => true,
             'is_public' => true,
             'sort_order' => 10,
+        ]);
+        $settings->featureFlags()->createMany([
+            ['key' => 'projects', 'enabled' => true],
+            ['key' => 'contact', 'enabled' => true],
+            ['key' => 'cv', 'enabled' => false],
+            ['key' => 'activity', 'enabled' => true],
+            ['key' => 'three_d', 'enabled' => false],
         ]);
     }
 

@@ -17,6 +17,7 @@ final readonly class PublicSettingsData
         public ?string $phone,
         public array $socialLinks,
         public array $featureFlags,
+        public bool $contactFormEnabled = false,
     ) {}
 
     /** @return array<string, mixed> */
@@ -27,6 +28,7 @@ final readonly class PublicSettingsData
             'locale' => $this->locale,
             'social_links' => $this->socialLinks,
             'feature_flags' => $this->featureFlags,
+            'contact_form_enabled' => $this->contactFormEnabled,
         ];
 
         if ($this->email !== null) {

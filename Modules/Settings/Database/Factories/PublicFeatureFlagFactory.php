@@ -18,7 +18,7 @@ final class PublicFeatureFlagFactory extends Factory
     {
         return [
             'site_setting_id' => SiteSetting::factory(),
-            'key' => fake()->unique()->randomElement(['projects', 'contact', 'cv', 'three_d']),
+            'key' => fake()->unique()->randomElement(['projects', 'contact', 'cv', 'activity', 'three_d']),
             'enabled' => false,
         ];
     }

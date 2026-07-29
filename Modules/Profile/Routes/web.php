@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Profile\Http\Controllers\Admin\CvVersionController;
 use Modules\Profile\Http\Controllers\Admin\ProfileController;
+use Modules\Profile\Http\Controllers\PublicCvController;
 
 Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -13,3 +14,7 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->g
     Route::put('/cv-versions/{cvVersion}', [CvVersionController::class, 'update'])->name('cv-versions.update');
     Route::delete('/cv-versions/{cvVersion}', [CvVersionController::class, 'destroy'])->name('cv-versions.destroy');
 });
+
+Route::get('/{locale}/cv', PublicCvController::class)
+    ->where(['locale' => 'fr|en'])
+    ->name('portfolio.cv.download');

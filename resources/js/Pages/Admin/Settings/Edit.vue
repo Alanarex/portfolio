@@ -11,7 +11,7 @@ type Settings = {
   show_email: boolean;
   show_phone: boolean;
   social_links: SocialLink[];
-  feature_flags: Record<'projects' | 'contact' | 'cv' | 'three_d', boolean>;
+  feature_flags: Record<'projects' | 'contact' | 'cv' | 'activity' | 'three_d', boolean>;
 };
 
 const props = defineProps<{
@@ -100,6 +100,7 @@ function save(): void {
           <label class="flex min-h-11 items-center gap-3"><input v-model="form.feature_flags.projects" type="checkbox"> Projets</label>
           <label class="flex min-h-11 items-center gap-3"><input v-model="form.feature_flags.contact" type="checkbox"> Contact</label>
           <label class="flex min-h-11 items-center gap-3"><input v-model="form.feature_flags.cv" type="checkbox"> CV</label>
+          <label class="flex min-h-11 items-center gap-3"><input v-model="form.feature_flags.activity" type="checkbox"> Activité Git publique</label>
           <label class="flex min-h-11 items-center gap-3"><input v-model="form.feature_flags.three_d" type="checkbox"> Expérience 3D</label>
         </fieldset>
       </section>

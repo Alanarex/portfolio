@@ -51,6 +51,7 @@ final class ProfileController extends Controller
                 'is_verified' => $version->is_verified,
                 'published' => $version->published_at !== null,
                 'archived' => $version->archived_at !== null,
+                'has_document' => $version->path !== null,
             ])->values() ?? [],
         ]);
     }

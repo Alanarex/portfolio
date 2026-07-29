@@ -18,6 +18,8 @@
 - PORT-008 / issue #13 is squash-merged through PR #29 into `release/v3.0.0/main`; issue #13 is
   closed after green backend, frontend and browser jobs plus manual review of six implementation
   captures.
+- PORT-009 / issue #14 is in review through draft PR #31; contact delivery, private verified CV
+  storage/downloads, SEO discovery metadata, privacy defaults and safe error pages are implemented.
 - New PHPUnit coverage checks SSR output, locale and publication gates, incomplete translations,
   stable slugs, 404 behavior and private media authorization.
 - New Playwright coverage checks no-JavaScript content, keyboard flow, axe WCAG A/AA, responsive
@@ -26,9 +28,9 @@
   Pint, Larastan, ESLint, Stylelint, the production Vite build and all three Playwright flows.
 - Playwright verifies JavaScript-disabled navigation, keyboard order, axe WCAG A/AA and the
   responsive light/dark capture set committed under `docs/captures/implemented/`.
-- Essential public content is rendered before JavaScript. Git activity, CV delivery, final contact
-  behavior and final WebGL remain honest placeholders for PORT-009 through PORT-011.
+- Essential public content is rendered before JavaScript. Git activity remains privacy-disabled by
+  default; final WebGL remains an honest placeholder for PORT-010 and PORT-011.
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
 - PR #27 merged PORT-006 into `release/v3.0.0/main`; issue #11 is closed as completed.
-- Next gate: issue #14 / PORT-009 is ready for a fresh `next issue` chat.
+- Next gate: complete PR #31 CI/review; PORT-010 remains dependency-blocked.

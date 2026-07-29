@@ -4,15 +4,15 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, ready)
-- Feature branch: `feature/PORT-009-contact-seo` (not started)
+- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, review)
+- Feature branch: `feature/PORT-009-contact-seo`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-008 DELIVERED — PORT-009 READY**
+**PORT-008 DELIVERED — PORT-009 IN REVIEW**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
 HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
@@ -30,7 +30,7 @@ without JavaScript.
 - explicit `Profile`, `Settings` and `ActivityLog` modules with module-owned migrations
 - localized profile content for FR/EN plus non-public Arabic readiness records
 - encrypted private contact/social values and private-by-default visibility controls
-- metadata-only CV versions with no upload or public download route
+- private verified CV uploads with integrity-checked, publication-gated public delivery
 - redacted audit events and deterministic public-read cache invalidation
 - Vue 3/Inertia private CMS forms isolated from the public React application
 - explicit `Career` and `Skills` modules with module-owned reversible migrations
@@ -53,8 +53,9 @@ without JavaScript.
 - self-hosted Inter, Space Grotesk and Font Awesome assets with no public font CDN dependency
 - responsive WebP derivatives of the supplied portrait and theme-aware logo variants
 - publication-checked private media streaming with MIME-safe response headers
-- honest empty states and placeholders for Git activity, CV delivery, final contact workflow and 3D
-- page-ready canonical, hreflang, Open Graph and localized metadata hooks
+- privacy-gated Git activity, queued encrypted contact delivery and null analytics by default
+- canonical, hreflang, Open Graph, Twitter, schema.org, sitemap and robots metadata
+- localized privacy and safe public error pages
 - Playwright no-JavaScript, keyboard, axe WCAG A/AA, desktop/mobile and light/dark capture coverage
 - PHPUnit, Pint, Larastan level 6, ESLint, Stylelint, Vite build and Composer audit gates
 
@@ -68,8 +69,24 @@ without JavaScript.
 
 ## Current objective
 
-Start PORT-009 / issue #14 from the merged PORT-008 integration baseline in a fresh
-`next issue` chat.
+Complete PORT-009 / issue #14 validation and hand off its pull request from the merged PORT-008
+integration baseline.
+
+## PORT-009 verification
+
+- Related issue: #14; dependency #13 and PR #29 are closed and merged.
+- Contact submissions are validated, throttled, honeypot-filtered and queued with encrypted
+  payloads to the private configured recipient without an application contact-message table.
+- Verified published PDFs use private UUID storage, SHA-256 integrity checks and locale/publication
+  gates; replacement, deletion and single-published-version behavior are covered.
+- Public SEO includes canonical/hreflang, Open Graph/Twitter, schema.org, sitemap and robots output.
+- Public privacy defaults include a null analytics implementation, hidden activity by default,
+  localized privacy content and safe 404/500 templates.
+- Targeted PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite, SQLite rollback/re-migrate and all four
+  Playwright/no-JavaScript/axe flows pass locally.
+- Draft PR #31 contains the implementation and exact validation/security evidence.
+- The full local PHPUnit run has existing media failures because the workstation lacks required GD,
+  plus one nondeterministic audit-order assertion; CI installs GD and exercises the PostgreSQL gate.
 
 ## PORT-008 verification
 
@@ -114,8 +131,8 @@ Start PORT-009 / issue #14 from the merged PORT-008 integration baseline in a fr
 
 ## Immediate next steps
 
-1. Start issue #14 from `release/v3.0.0/main` on `feature/PORT-009-contact-seo`.
-2. Apply ADR-007 privacy defaults and the issue's `review-high` route.
+1. Complete PR #31 CI and review.
+2. Squash-merge when all required checks are green and no security/privacy finding remains.
 3. Keep PORT-010 blocked until PORT-009 is merged and closed.
 
 ## Update rule
