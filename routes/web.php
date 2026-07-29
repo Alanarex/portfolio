@@ -17,10 +17,9 @@ require base_path('Modules/Settings/Routes/web.php');
 require base_path('Modules/Career/Routes/web.php');
 require base_path('Modules/Skills/Routes/web.php');
 require base_path('Modules/Projects/Routes/web.php');
+require base_path('Modules/Portfolio/Routes/web.php');
 
 Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::redirect('/dashboard', '/dashboard/profile')->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
-
-Route::view('/{path?}', 'portfolio')->where('path', '.*')->name('portfolio');
