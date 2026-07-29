@@ -18,14 +18,17 @@
 - PORT-008 / issue #13 is squash-merged through PR #29 into `release/v3.0.0/main`; issue #13 is
   closed after green backend, frontend and browser jobs plus manual review of six implementation
   captures.
-- PORT-009 / issue #14 is in review through draft PR #31; contact delivery, private verified CV
-  storage/downloads, SEO discovery metadata, privacy defaults and safe error pages are implemented.
+- PORT-009 / issue #14 is squash-merged through PR #31 as `dd8df49` into
+  `release/v3.0.0/main` and closed as completed; contact delivery, private verified CV
+  storage/downloads, SEO discovery metadata, privacy defaults and safe error pages are delivered.
 - New PHPUnit coverage checks SSR output, locale and publication gates, incomplete translations,
   stable slugs, 404 behavior and private media authorization.
 - New Playwright coverage checks no-JavaScript content, keyboard flow, axe WCAG A/AA, responsive
   mobile layouts and light/dark implemented captures.
 - Final Quality run #37 passes PostgreSQL migrate/rollback/re-migrate, PHPUnit with 403 assertions,
   Pint, Larastan, ESLint, Stylelint, the production Vite build and all three Playwright flows.
+- Quality run #41 validates PORT-009 with green PostgreSQL migrate/rollback/re-migrate, PHPUnit,
+  Pint, Larastan, ESLint, Stylelint, production build and Playwright/axe jobs.
 - Playwright verifies JavaScript-disabled navigation, keyboard order, axe WCAG A/AA and the
   responsive light/dark capture set committed under `docs/captures/implemented/`.
 - Essential public content is rendered before JavaScript. Git activity remains privacy-disabled by
@@ -33,4 +36,4 @@
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
 - PR #27 merged PORT-006 into `release/v3.0.0/main`; issue #11 is closed as completed.
-- Next gate: complete PR #31 CI/review; PORT-010 remains dependency-blocked.
+- Next gate: PORT-010 / issue #15 is dependency-unblocked and ready for a fresh `next issue` chat.

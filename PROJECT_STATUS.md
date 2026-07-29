@@ -4,15 +4,15 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, review)
-- Feature branch: `feature/PORT-009-contact-seo`
+- Current feature: PORT-010 Three.js configuration and placeholder (issue #15, ready)
+- Feature branch: `feature/PORT-010-threejs-config`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-008 DELIVERED — PORT-009 IN REVIEW**
+**PORT-009 DELIVERED — PORT-010 READY**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
 HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
@@ -69,12 +69,12 @@ without JavaScript.
 
 ## Current objective
 
-Complete PORT-009 / issue #14 validation and hand off its pull request from the merged PORT-008
-integration baseline.
+Start PORT-010 / issue #15 from the merged PORT-009 integration baseline in a fresh
+`next issue` chat.
 
 ## PORT-009 verification
 
-- Related issue: #14; dependency #13 and PR #29 are closed and merged.
+- Related issue: #14 is closed as completed; dependency #13 and PR #29 are closed and merged.
 - Contact submissions are validated, throttled, honeypot-filtered and queued with encrypted
   payloads to the private configured recipient without an application contact-message table.
 - Verified published PDFs use private UUID storage, SHA-256 integrity checks and locale/publication
@@ -84,9 +84,11 @@ integration baseline.
   localized privacy content and safe 404/500 templates.
 - Targeted PHPUnit, Pint, Larastan, ESLint, Stylelint, Vite, SQLite rollback/re-migrate and all four
   Playwright/no-JavaScript/axe flows pass locally.
-- Draft PR #31 contains the implementation and exact validation/security evidence.
-- The full local PHPUnit run has existing media failures because the workstation lacks required GD,
-  plus one nondeterministic audit-order assertion; CI installs GD and exercises the PostgreSQL gate.
+- PR #31 is squash-merged as `dd8df49` into `release/v3.0.0/main`.
+- Final Quality run #41 passes PostgreSQL migrate/rollback/re-migrate, PHPUnit, Pint, Larastan,
+  ESLint, Stylelint, the production build and all Playwright/axe flows.
+- The workstation's pre-merge full PHPUnit run had existing GD and audit-order limitations; the
+  green Quality run #41 exercised the full PostgreSQL/backend, frontend and browser gates.
 
 ## PORT-008 verification
 
@@ -103,7 +105,8 @@ integration baseline.
   axe WCAG A/AA validation.
 - Six visually reviewed implementation captures are committed under
   `docs/captures/implemented/`.
-- Next queue item: issue #14, PORT-009 contact, SEO, CV and privacy, is ready for a fresh
+- PORT-009 / issue #14 subsequently merged through PR #31 and is closed as completed.
+- Next queue item: issue #15, PORT-010 Three.js configuration and placeholder, is ready for a fresh
   `next issue` chat.
 
 ## Autonomous defaults
@@ -131,9 +134,9 @@ integration baseline.
 
 ## Immediate next steps
 
-1. Complete PR #31 CI and review.
-2. Squash-merge when all required checks are green and no security/privacy finding remains.
-3. Keep PORT-010 blocked until PORT-009 is merged and closed.
+1. Start PORT-010 / issue #15 from `release/v3.0.0/main`.
+2. Create `feature/PORT-010-threejs-config` in a fresh `next issue` chat.
+3. Keep PORT-011 blocked until PORT-010 is merged and closed.
 
 ## Update rule
 
