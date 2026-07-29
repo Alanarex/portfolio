@@ -4,15 +4,15 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-008 public portfolio and case studies (issue #13)
-- Feature branch: `feature/PORT-008-public-portfolio`
+- Current feature: PORT-009 contact, SEO, CV and privacy (issue #14, ready)
+- Feature branch: `feature/PORT-009-contact-seo` (not started)
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-008 IMPLEMENTED — BROWSER AND PHP CI PENDING**
+**PORT-008 DELIVERED — PORT-009 READY**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
 HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
@@ -68,7 +68,8 @@ without JavaScript.
 
 ## Current objective
 
-Publish the draft pull request, collect implemented screenshots and complete GitHub CI for issue #13.
+Start PORT-009 / issue #14 from the merged PORT-008 integration baseline in a fresh
+`next issue` chat.
 
 ## PORT-008 verification
 
@@ -78,13 +79,14 @@ Publish the draft pull request, collect implemented screenshots and complete Git
   incomplete-translation exclusion, unknown project 404s and re-authorized media delivery.
 - Playwright coverage added for JavaScript-disabled navigation, keyboard focus, axe WCAG A/AA
   audits and light/dark desktop plus mobile evidence captures.
-- Local checks: Codex workflow validation, PHP parsing, ESLint, Stylelint, Vite production build,
-  Playwright test discovery and `git diff --check` pass.
-- Environment limitation: this Work Mode container has no PHP, Composer or Docker. PHPUnit, Pint,
-  Larastan, Composer audit and browser rendering must run in GitHub Actions.
-- Remaining evidence: green PHP/browser CI and committed implemented screenshots produced by the
-  browser job.
-- Next queue item after merge: issue #14, PORT-009 contact, SEO, CV and privacy, in a fresh
+- PR #29 is squash-merged as `0a892b9`; issue #13 is closed as completed.
+- Final Quality run #37 passes PostgreSQL migrate/rollback/re-migrate, PHPUnit with 403 assertions,
+  Pint, Larastan, ESLint, Stylelint and the production Vite build.
+- All three Playwright flows pass, including JavaScript-disabled navigation, keyboard order and
+  axe WCAG A/AA validation.
+- Six visually reviewed implementation captures are committed under
+  `docs/captures/implemented/`.
+- Next queue item: issue #14, PORT-009 contact, SEO, CV and privacy, is ready for a fresh
   `next issue` chat.
 
 ## Autonomous defaults
@@ -112,9 +114,9 @@ Publish the draft pull request, collect implemented screenshots and complete Git
 
 ## Immediate next steps
 
-1. Open the PORT-008 draft pull request and verify PHPUnit, Pint, Larastan, frontend and browser CI.
-2. Commit the generated implementation captures after visual review.
-3. Hand off issue #13 only after exact evidence and remaining risks are recorded.
+1. Start issue #14 from `release/v3.0.0/main` on `feature/PORT-009-contact-seo`.
+2. Apply ADR-007 privacy defaults and the issue's `review-high` route.
+3. Keep PORT-010 blocked until PORT-009 is merged and closed.
 
 ## Update rule
 
