@@ -28,21 +28,19 @@ Do not change order without updating this file, issue `#17` and affected issue d
 | 4 | PORT-005 — Profile and settings CMS | #10 | `feature/PORT-005-profile-settings` | #9 | Automatic if green | Done |
 | 5 | PORT-006 — Career, education and skills CMS | #11 | `feature/PORT-006-career-skills` | #10 | Automatic if green | Done |
 | 6 | PORT-007 — Projects, case studies and media | #12 | `feature/PORT-007-projects-media` | #11 | Automatic if green | Done |
-| 7 | PORT-008 — Public portfolio and case studies | #13 | `feature/PORT-008-public-portfolio` | #12 | Screenshots + QA, no manual gate | Review |
-| 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | Planned |
+| 7 | PORT-008 — Public portfolio and case studies | #13 | `feature/PORT-008-public-portfolio` | #12 | Screenshots + QA, no manual gate | Done |
+| 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | Ready |
 | 9 | PORT-010 — Three.js configuration and placeholder | #15 | `feature/PORT-010-threejs-config` | #14 | Automatic if green | Planned |
 | 10 | PORT-011 — Final v1 3D integration | #16 | `feature/PORT-011-blender-integration` | #15 | ADR-007 procedural/licensed fallback | Planned |
 
 ## Current delivery evidence
 
 - PORT-007 / issue #12: squash-merged through PR #28 into `release/v3.0.0/main`; issue closed.
-- PORT-008 / issue #13: HTML-first localized public composition is implemented on
-  `feature/PORT-008-public-portfolio`.
-- Local gates: workflow validation, PHP parser, ESLint, Stylelint, production Vite build,
-  Playwright test discovery and `git diff --check` pass.
-- Remaining evidence: GitHub CI must run PHPUnit, Pint, Larastan, Composer audit, PostgreSQL checks
-  and Playwright/axe, then the generated screenshots must be visually reviewed and committed.
-- Next queue item after merge: PORT-009 / issue #14 in a fresh `next issue` chat.
+- PORT-008 / issue #13: squash-merged through PR #29 into `release/v3.0.0/main`; issue closed.
+- Final Quality run #37 passes PostgreSQL rollback, 403 PHPUnit assertions, Pint, Larastan,
+  ESLint, Stylelint, production build and all Playwright/axe flows.
+- Six approved implementation captures are committed under `docs/captures/implemented/`.
+- Next queue item: PORT-009 / issue #14 is ready for a fresh `next issue` chat.
 
 ## State values
 
