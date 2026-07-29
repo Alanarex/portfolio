@@ -10,7 +10,7 @@ description: Start or resume one Portfolio PORT issue safely from the two-word n
 5. Verify dependency merge, active base, exact branch and clean worktree. Reconcile GitHub/cache disagreement before coding.
 6. State outcome, exclusions, route and checks. Implement only this issue.
 7. The primary coordinator alone changes files shared across the task, commits, pushes, opens/updates PRs and changes GitHub state.
-8. Run targeted checks and `.ai-dev/bin/verify`, plus routed risk checks. Update evidence and compact progress caches when facts change.
+8. Run targeted checks and the applicable Composer and npm validation scripts, plus routed risk checks. Update evidence and compact progress caches when facts change.
 9. Follow gated merge policy and end after this issue's handoff or merge. Do not start a second issue in the same chat.
 
 Stop rather than inventing a product decision, personal fact, credential, external authorization or dependency state.
