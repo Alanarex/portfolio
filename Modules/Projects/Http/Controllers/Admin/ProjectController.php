@@ -256,7 +256,7 @@ final class ProjectController extends Controller
             $translation = $model->translations->firstWhere('locale', $locale);
 
             return [$locale => collect($fields)->mapWithKeys(
-                fn (string $field): array => [$field => $translation?->{$field} ?? ''],
+                fn (string $field): array => [$field => $translation->{$field} ?? ''],
             )->all()];
         })->all();
     }

@@ -19,7 +19,6 @@ final class ProjectsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../Config/projects.php', 'projects');
         $this->app->bind(PublicProjectReader::class, DatabasePublicProjectReader::class);
         $this->app->bind(MediaStorage::class, LocalMediaStorage::class);
     }

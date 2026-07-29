@@ -36,6 +36,7 @@ use Modules\Projects\Enums\RepositoryVisibility;
  * @property int|null $featured_order
  * @property int $sort_order
  * @property string|null $source_reference
+ * @property CarbonImmutable|null $published_at
  * @property CarbonImmutable|null $deletion_pending_at
  * @property-read Collection<int, ProjectTranslation> $translations
  * @property-read Collection<int, CaseStudySection> $caseStudySections

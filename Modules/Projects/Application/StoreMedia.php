@@ -54,7 +54,7 @@ final class StoreMedia
 
                 $stored = $this->mediaStorage->store(
                     $file,
-                    $project?->uuid ?? 'shared',
+                    $project === null ? 'shared' : $project->uuid,
                     $kind,
                     $uuid,
                 );
