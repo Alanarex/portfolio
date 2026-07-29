@@ -1,0 +1,5 @@
+{
+    "name": "Portfolio",
+    "description": "HTML-first public portfolio composition",
+    "dependencies": ["Profile", "Settings", "Career", "Skills", "Projects"]
+}

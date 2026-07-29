@@ -5,6 +5,14 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Projects\Http\Controllers\Admin\MediaController;
 use Modules\Projects\Http\Controllers\Admin\ProjectController;
+use Modules\Projects\Http\Controllers\PublicMediaController;
+
+Route::get('/{locale}/media/{deliveryKey}', [PublicMediaController::class, 'show'])
+    ->where([
+        'locale' => 'fr|en',
+        'deliveryKey' => '[0-9a-fA-F-]{36}',
+    ])
+    ->name('portfolio.media.show');
 
 Route::middleware(['auth', 'admin'])->prefix('dashboard')->name('dashboard.')->group(function (): void {
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');

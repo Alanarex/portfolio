@@ -83,3 +83,64 @@ jobs:
       - run: npm run lint
       - run: npm run stylelint
       - run: npm run build
+
+  browser:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: portfolio_browser
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d portfolio_browser"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      APP_URL: http://127.0.0.1:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: portfolio_browser
+      DB_USERNAME: portfolio
+      DB_PASSWORD: portfolio
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: fileinfo, gd, intl, pdo_pgsql, zip
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: php artisan migrate --force
+      - run: php artisan db:seed --force --class="Tests\\Browser\\Support\\PublicPortfolioSeeder"
+      - run: php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/browser-server.log 2>&1 &
+      - run: npx wait-on http://127.0.0.1:8000/fr --timeout 30000
+      - run: npm run test:e2e
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: port-008-browser-evidence
+          path: |
+            docs/captures/implemented
+            storage/playwright
+            storage/playwright-report
+            storage/logs/browser-server.log
+          if-no-files-found: warn

@@ -20,13 +20,19 @@ final class DatabasePublicProjectReader implements PublicProjectReader
             return [];
         }
 
-        return Cache::remember(ProjectsCache::key($locale, 'all'), now()->addMinutes(5), fn (): array => $this
+        /** @var list<string> $payloads */
+        $payloads = Cache::remember(ProjectsCache::key($locale, 'all'), now()->addMinutes(5), fn (): array => $this
             ->query($locale)
             ->orderBy('sort_order')
             ->orderBy('slug')
             ->get()
-            ->map(fn (Project $project): PublicProjectData => $this->map($project))
+            ->map(fn (Project $project): string => $this->map($project)->toCachePayload())
             ->all());
+
+        return array_map(
+            static fn (string $payload): PublicProjectData => PublicProjectData::fromCachePayload($payload),
+            $payloads,
+        );
     }
 
     public function featured(string $locale): array
@@ -35,14 +41,20 @@ final class DatabasePublicProjectReader implements PublicProjectReader
             return [];
         }
 
-        return Cache::remember(ProjectsCache::key($locale, 'featured'), now()->addMinutes(5), fn (): array => $this
+        /** @var list<string> $payloads */
+        $payloads = Cache::remember(ProjectsCache::key($locale, 'featured'), now()->addMinutes(5), fn (): array => $this
             ->query($locale)
             ->where('is_featured', true)
             ->orderBy('featured_order')
             ->orderBy('sort_order')
             ->get()
-            ->map(fn (Project $project): PublicProjectData => $this->map($project))
+            ->map(fn (Project $project): string => $this->map($project)->toCachePayload())
             ->all());
+
+        return array_map(
+            static fn (string $payload): PublicProjectData => PublicProjectData::fromCachePayload($payload),
+            $payloads,
+        );
     }
 
     public function findBySlug(string $locale, string $slug): ?PublicProjectData
@@ -51,15 +63,18 @@ final class DatabasePublicProjectReader implements PublicProjectReader
             return null;
         }
 
-        return Cache::remember(
+        /** @var string|null $payload */
+        $payload = Cache::remember(
             ProjectsCache::key($locale, 'slug:'.hash('sha256', $slug)),
             now()->addMinutes(5),
-            function () use ($locale, $slug): ?PublicProjectData {
+            function () use ($locale, $slug): ?string {
                 $project = $this->query($locale)->where('slug', $slug)->first();
 
-                return $project === null ? null : $this->map($project);
+                return $project === null ? null : $this->map($project)->toCachePayload();
             },
         );
+
+        return $payload === null ? null : PublicProjectData::fromCachePayload($payload);
     }
 
     /** @return Builder<Project> */

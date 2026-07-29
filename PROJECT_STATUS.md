@@ -4,25 +4,27 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-007 projects, case studies and media (issue #12)
-- Feature branch: `feature/PORT-007-projects-media`
+- Current feature: PORT-008 public portfolio and case studies (issue #13)
+- Feature branch: `feature/PORT-008-public-portfolio`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
 - Archived React prototype: `archive/react-v2-prototype-2026-07-11`
 
 ## Current phase
 
-**PORT-007 IMPLEMENTED — SECURITY REVIEW CLEAR, CI PENDING**
+**PORT-008 IMPLEMENTED — BROWSER AND PHP CI PENDING**
 
-Laravel now owns structured projects, localized case studies and private media behind authenticated
-dashboard editors. Public readers expose only published, locale-complete, verified and explicitly
-visible data; the public React/TanStack interface remains visually unchanged until PORT-008.
+Laravel now composes the public landing page, project index and project case studies as localized,
+HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
+while essential public content is sourced only from allowlisted CMS readers and remains usable
+without JavaScript.
 
 ## Implemented baseline
 
 - Laravel 13 / PHP 8.3+ application skeleton
-- React 19 and TanStack Router public frontend mounted through Laravel Vite
-- light/dark themes, French/English preferences and four audience modes
+- preserved React 19/TanStack Lovable reference source under `resources/js/portfolio/`
+- HTML-first localized public routes under `/fr` and `/en`
+- persistent light/dark themes with separately designed desktop and mobile layouts
 - supplied portrait and theme-specific logo assets
 - restored single-administrator authentication and session-revocation boundary
 - explicit `Profile`, `Settings` and `ActivityLog` modules with module-owned migrations
@@ -44,6 +46,16 @@ visible data; the public React/TanStack interface remains visually unchanged unt
 - administrator project/media CRUD, ordering, publication and private preview
 - verified bilingual publication gates and allowlisted cached public project readers
 - draft-only idempotent project imports from verified repository documentation
+- localized Blade landing composition in the approved section order
+- published-project index and stable-slug case-study routes
+- semantic navigation, landmarks, headings, skip link and visible keyboard focus
+- responsive left profile rail, central content column, contextual right rail and mobile bottom nav
+- self-hosted Inter, Space Grotesk and Font Awesome assets with no public font CDN dependency
+- responsive WebP derivatives of the supplied portrait and theme-aware logo variants
+- publication-checked private media streaming with MIME-safe response headers
+- honest empty states and placeholders for Git activity, CV delivery, final contact workflow and 3D
+- page-ready canonical, hreflang, Open Graph and localized metadata hooks
+- Playwright no-JavaScript, keyboard, axe WCAG A/AA, desktop/mobile and light/dark capture coverage
 - PHPUnit, Pint, Larastan level 6, ESLint, Stylelint, Vite build and Composer audit gates
 
 ## Reset evidence
@@ -56,23 +68,23 @@ visible data; the public React/TanStack interface remains visually unchanged unt
 
 ## Current objective
 
-Publish the draft pull request and complete GitHub CI for issue #12.
+Publish the draft pull request, collect implemented screenshots and complete GitHub CI for issue #13.
 
-## PORT-007 verification
+## PORT-008 verification
 
-- Related issue: #12.
-- Targeted coverage added for authorization, stable slugs, publication/locale/verification gates,
-  public/private repository rules, encrypted metadata, upload spoofing/size rules, storage cleanup,
-  public DTO allowlists, cache invalidation, audit redaction and idempotent seeds.
-- Local frontend checks: ESLint, Stylelint and Vite production build pass.
-- Local PHP syntax: every PHP file parses successfully with an independent parser.
+- Related issue: #13.
+- Dependency: PORT-007 / issue #12 squash-merged through PR #28 and closed.
+- Targeted PHPUnit coverage added for HTML-first output, localized stable routes, draft and
+  incomplete-translation exclusion, unknown project 404s and re-authorized media delivery.
+- Playwright coverage added for JavaScript-disabled navigation, keyboard focus, axe WCAG A/AA
+  audits and light/dark desktop plus mobile evidence captures.
+- Local checks: Codex workflow validation, PHP parsing, ESLint, Stylelint, Vite production build,
+  Playwright test discovery and `git diff --check` pass.
 - Environment limitation: this Work Mode container has no PHP, Composer or Docker. PHPUnit, Pint,
-  Larastan, Composer audit and migrate/rollback/re-migrate must run in GitHub Actions.
-- QA: the routed read-only review found no remaining blocking, high or medium issue after
-  retry-safe deletion, upload/deletion locking, bounded full-image decoding and reactive media-form
-  remediations.
-- Remaining blocker: PHP quality gates and PostgreSQL migration rollback evidence are pending in CI.
-- Next queue item after merge: issue #13, PORT-008 public portfolio and case studies, in a fresh
+  Larastan, Composer audit and browser rendering must run in GitHub Actions.
+- Remaining evidence: green PHP/browser CI and committed implemented screenshots produced by the
+  browser job.
+- Next queue item after merge: issue #14, PORT-009 contact, SEO, CV and privacy, in a fresh
   `next issue` chat.
 
 ## Autonomous defaults
@@ -100,10 +112,9 @@ Publish the draft pull request and complete GitHub CI for issue #12.
 
 ## Immediate next steps
 
-1. Open the PORT-007 draft pull request and verify PostgreSQL migrate/rollback/re-migrate, PHPUnit,
-   Pint, Larastan, Composer audit and frontend CI.
-2. Hand off issue #12 only after exact evidence and remaining risks are recorded.
-3. A fresh `next issue` chat may select issue #13 only after PORT-007 is merged and closed.
+1. Open the PORT-008 draft pull request and verify PHPUnit, Pint, Larastan, frontend and browser CI.
+2. Commit the generated implementation captures after visual review.
+3. Hand off issue #13 only after exact evidence and remaining risks are recorded.
 
 ## Update rule
 
