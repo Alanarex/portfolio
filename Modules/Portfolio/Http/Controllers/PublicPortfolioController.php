@@ -38,7 +38,7 @@ final class PublicPortfolioController extends Controller
             'alternateUrl' => route('portfolio.home', ['locale' => $data['alternateLocale']]),
             'meta' => $this->meta(
                 title: __('portfolio.meta.home_title'),
-                description: $data['profile']?->summary ?? __('portfolio.meta.home_description'),
+                description: $data['profile']->summary ?? __('portfolio.meta.home_description'),
                 canonical: route('portfolio.home', ['locale' => $locale]),
             ),
         ]);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Modules\Projects\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Modules\Projects\Enums\MediaKind;
 use Modules\Projects\Enums\PublicationStatus;
@@ -14,7 +13,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class PublicMediaController extends Controller
 {
-    public function show(string $locale, string $deliveryKey): Response|StreamedResponse
+    public function show(string $locale, string $deliveryKey): StreamedResponse
     {
         abort_unless(in_array($locale, ['fr', 'en'], true), 404);
 
