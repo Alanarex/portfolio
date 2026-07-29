@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Projects\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,7 +36,7 @@ use Modules\Projects\Enums\RepositoryVisibility;
  * @property int|null $featured_order
  * @property int $sort_order
  * @property string|null $source_reference
- * @property \Carbon\CarbonImmutable|null $deletion_pending_at
+ * @property CarbonImmutable|null $deletion_pending_at
  * @property-read Collection<int, ProjectTranslation> $translations
  * @property-read Collection<int, CaseStudySection> $caseStudySections
  * @property-read Collection<int, MediaAsset> $mediaAssets

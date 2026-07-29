@@ -14,6 +14,7 @@ use Modules\Projects\Application\DeleteProject;
 use Modules\Projects\Application\ReorderProjects;
 use Modules\Projects\Application\SaveProject;
 use Modules\Projects\Enums\CaseStudySectionType;
+use Modules\Projects\Enums\MediaKind;
 use Modules\Projects\Enums\ProjectLifecycle;
 use Modules\Projects\Enums\PublicationStatus;
 use Modules\Projects\Enums\RepositoryVisibility;
@@ -267,7 +268,7 @@ final class ProjectController extends Controller
             'publication_statuses' => array_column(PublicationStatus::cases(), 'value'),
             'lifecycle_statuses' => array_column(ProjectLifecycle::cases(), 'value'),
             'repository_visibilities' => array_column(RepositoryVisibility::cases(), 'value'),
-            'media_kinds' => array_column(\Modules\Projects\Enums\MediaKind::cases(), 'value'),
+            'media_kinds' => array_column(MediaKind::cases(), 'value'),
         ];
     }
 }

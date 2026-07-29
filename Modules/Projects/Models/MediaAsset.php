@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Projects\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +28,7 @@ use Modules\Projects\Enums\MediaKind;
  * @property int|null $height
  * @property bool $is_public
  * @property int $sort_order
- * @property \Carbon\CarbonImmutable|null $deletion_pending_at
+ * @property CarbonImmutable|null $deletion_pending_at
  * @property-read Project|null $project
  * @property-read Collection<int, MediaAssetTranslation> $translations
  */
