@@ -28,6 +28,15 @@ Configure for staging and production error monitoring after the application foun
 
 Add when GitLab activity synchronization and repository management enter scope.
 
+### Transactional mail
+
+Contact submissions use Laravel's queued mail boundary. For local verification, run Mailpit and
+set `MAIL_MAILER=smtp`, `MAIL_HOST=127.0.0.1` and `MAIL_PORT=1025`. Production chooses a
+transactional provider through environment configuration; credentials never belong in the
+repository. The application does not persist a contact-message table.
+Queued payloads are encrypted, limited to three attempts and operational failed-job records are
+pruned daily after seven days.
+
 ### Figma connector/MCP
 
 Add only if mockups and design tokens are maintained in Figma. Screenshots alone remain acceptable for initial design references.

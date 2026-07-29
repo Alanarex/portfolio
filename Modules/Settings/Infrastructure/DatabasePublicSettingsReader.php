@@ -46,6 +46,7 @@ final class DatabasePublicSettingsReader implements PublicSettingsReader
                 phone: $settings->show_phone ? $settings->contact_phone : null,
                 socialLinks: $socialLinks,
                 featureFlags: $featureFlags,
+                contactFormEnabled: ($featureFlags['contact'] ?? false) && filled($settings->contact_email),
             );
         });
     }

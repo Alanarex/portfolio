@@ -7,3 +7,6 @@ French remains the fixed default for V3.
 Contact values and social-link URLs are encrypted at rest and private by default. Public consumers
 receive only an immutable allowlisted projection through `PublicSettingsReader`; mutations clear
 every locale cache synchronously.
+
+The contact-form availability bit never reveals the private recipient. Activity, CV, contact and
+3D publication remain independently disabled by default.

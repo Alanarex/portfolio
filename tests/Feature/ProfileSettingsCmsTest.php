@@ -377,6 +377,7 @@ final class ProfileSettingsCmsTest extends TestCase
                 'projects' => true,
                 'contact' => true,
                 'cv' => false,
+                'activity' => false,
                 'three_d' => false,
             ],
         ];

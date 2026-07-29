@@ -206,7 +206,8 @@ final class PublicPortfolioTest extends TestCase
                     email: 'contact@example.test',
                     phone: null,
                     socialLinks: ['github' => 'https://github.com/example'],
-                    featureFlags: [],
+                    featureFlags: ['activity' => true],
+                    contactFormEnabled: true,
                 );
             }
         });

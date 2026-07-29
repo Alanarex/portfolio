@@ -6,8 +6,10 @@ namespace Modules\Profile\Providers;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\Profile\Contracts\PublicCvReader;
 use Modules\Profile\Contracts\PublicProfileReader;
 use Modules\Profile\Infrastructure\DatabasePublicProfileReader;
+use Modules\Profile\Infrastructure\PublishedCvLocator;
 use Modules\Profile\Models\CvVersion;
 use Modules\Profile\Models\Profile;
 use Modules\Profile\Policies\CvVersionPolicy;
@@ -17,6 +19,7 @@ final class ProfileServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(PublicCvReader::class, PublishedCvLocator::class);
         $this->app->bind(PublicProfileReader::class, DatabasePublicProfileReader::class);
     }
 

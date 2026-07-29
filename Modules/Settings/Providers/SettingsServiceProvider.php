@@ -6,7 +6,9 @@ namespace Modules\Settings\Providers;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\Settings\Contracts\ContactRecipientReader;
 use Modules\Settings\Contracts\PublicSettingsReader;
+use Modules\Settings\Infrastructure\DatabaseContactRecipientReader;
 use Modules\Settings\Infrastructure\DatabasePublicSettingsReader;
 use Modules\Settings\Models\SiteSetting;
 use Modules\Settings\Policies\SiteSettingPolicy;
@@ -15,6 +17,7 @@ final class SettingsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(ContactRecipientReader::class, DatabaseContactRecipientReader::class);
         $this->app->bind(PublicSettingsReader::class, DatabasePublicSettingsReader::class);
     }
 

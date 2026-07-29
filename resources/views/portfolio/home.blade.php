@@ -9,7 +9,13 @@
             <div class="hero-actions">
                 <a href="#projects" class="button button-primary">{{ __('portfolio.hero.projects_cta') }}</a>
                 <a href="#contact" class="button button-secondary">{{ __('portfolio.hero.contact_cta') }}</a>
-                <span class="button button-muted" aria-disabled="true">{{ __('portfolio.hero.cv_pending') }}</span>
+                @if ($cvAvailable)
+                    <a href="{{ route('portfolio.cv.download', ['locale' => $locale]) }}" class="button button-secondary">
+                        <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>{{ __('portfolio.hero.cv_cta') }}
+                    </a>
+                @else
+                    <span class="button button-muted" aria-disabled="true">{{ __('portfolio.hero.cv_pending') }}</span>
+                @endif
             </div>
             @if ($profile?->professionalTitles)
                 <ul class="hero-title-list" aria-label="{{ __('portfolio.sections.positioning') }}">
@@ -153,13 +159,15 @@
         @endif
     </section>
 
-    <section class="section-block activity-placeholder" aria-labelledby="activity-title">
-        <i class="fa-brands fa-github" aria-hidden="true"></i>
-        <div>
-            <h2 id="activity-title">{{ __('portfolio.sections.activity') }}</h2>
-            <p>{{ __('portfolio.sections.activity_pending') }}</p>
-        </div>
-    </section>
+    @if (($settings?->featureFlags['activity'] ?? false) === true)
+        <section class="section-block activity-placeholder" aria-labelledby="activity-title">
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <div>
+                <h2 id="activity-title">{{ __('portfolio.sections.activity') }}</h2>
+                <p>{{ __('portfolio.sections.activity_pending') }}</p>
+            </div>
+        </section>
+    @endif
 
     <section id="education" class="section-block" aria-labelledby="education-title">
         <header class="section-heading"><h2 id="education-title">{{ __('portfolio.sections.education') }}</h2></header>
@@ -202,14 +210,55 @@
             <h2 id="contact-title">{{ __('portfolio.sections.contact') }}</h2>
             <p>{{ __('portfolio.sections.contact_intro') }}</p>
         </div>
-        <div class="contact-actions">
-            @if ($settings?->email)<a class="button button-primary" href="mailto:{{ $settings->email }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i>{{ $settings->email }}</a>@endif
-            @if ($settings?->phone)<a class="button button-secondary" href="tel:{{ preg_replace('/\\s+/', '', $settings->phone) }}"><i class="fa-solid fa-phone" aria-hidden="true"></i>{{ $settings->phone }}</a>@endif
-            @foreach ($settings?->socialLinks ?? [] as $platform => $url)
-                <a class="button button-secondary" href="{{ $url }}" rel="noopener noreferrer">{{ ucfirst($platform) }}</a>
-            @endforeach
-            @if (! $settings?->email && ! $settings?->phone && ($settings?->socialLinks ?? []) === [])
+        <div>
+            @if (session('contact_success'))
+                <p class="contact-success" role="status">{{ session('contact_success') }}</p>
+            @endif
+            @if ($settings?->contactFormEnabled)
+                <form class="contact-form" method="post" action="{{ route('portfolio.contact.submit', ['locale' => $locale]) }}">
+                    @csrf
+                    <div class="contact-field">
+                        <label for="contact-name">{{ __('portfolio.contact.name') }}</label>
+                        <input id="contact-name" name="name" value="{{ old('name') }}" required maxlength="120" autocomplete="name" @error('name') aria-invalid="true" aria-describedby="contact-name-error" @enderror>
+                        @error('name')<p id="contact-name-error" class="field-error" role="alert">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="contact-field">
+                        <label for="contact-email">{{ __('portfolio.contact.email') }}</label>
+                        <input id="contact-email" name="email" type="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email" @error('email') aria-invalid="true" aria-describedby="contact-email-error" @enderror>
+                        @error('email')<p id="contact-email-error" class="field-error" role="alert">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="contact-field contact-field-wide">
+                        <label for="contact-subject">{{ __('portfolio.contact.subject') }}</label>
+                        <input id="contact-subject" name="subject" value="{{ old('subject') }}" maxlength="160" @error('subject') aria-invalid="true" aria-describedby="contact-subject-error" @enderror>
+                        @error('subject')<p id="contact-subject-error" class="field-error" role="alert">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="contact-field contact-field-wide">
+                        <label for="contact-message">{{ __('portfolio.contact.message') }}</label>
+                        <textarea id="contact-message" name="message" required minlength="10" maxlength="5000" rows="6" @error('message') aria-invalid="true" aria-describedby="contact-message-error" @enderror>{{ old('message') }}</textarea>
+                        @error('message')<p id="contact-message-error" class="field-error" role="alert">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="contact-honeypot" aria-hidden="true">
+                        <label for="contact-website">Website</label>
+                        <input id="contact-website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+                    <div class="contact-field-wide contact-submit">
+                        <button class="button button-primary" type="submit">
+                            <i class="fa-regular fa-paper-plane" aria-hidden="true"></i>{{ __('portfolio.contact.submit') }}
+                        </button>
+                        <p>{{ __('portfolio.contact.privacy') }}</p>
+                    </div>
+                </form>
+            @else
                 <p class="empty-state">{{ __('portfolio.empty.contact') }}</p>
+            @endif
+            @if ($settings?->email || $settings?->phone || ($settings?->socialLinks ?? []) !== [])
+                <div class="contact-actions">
+                    @if ($settings?->email)<a class="button button-secondary" href="mailto:{{ $settings->email }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i>{{ $settings->email }}</a>@endif
+                    @if ($settings?->phone)<a class="button button-secondary" href="tel:{{ preg_replace('/\\s+/', '', $settings->phone) }}"><i class="fa-solid fa-phone" aria-hidden="true"></i>{{ $settings->phone }}</a>@endif
+                    @foreach ($settings?->socialLinks ?? [] as $platform => $url)
+                        <a class="button button-secondary" href="{{ $url }}" rel="noopener noreferrer">{{ ucfirst($platform) }}</a>
+                    @endforeach
+                </div>
             @endif
         </div>
     </section>

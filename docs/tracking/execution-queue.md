@@ -29,7 +29,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 | 5 | PORT-006 — Career, education and skills CMS | #11 | `feature/PORT-006-career-skills` | #10 | Automatic if green | Done |
 | 6 | PORT-007 — Projects, case studies and media | #12 | `feature/PORT-007-projects-media` | #11 | Automatic if green | Done |
 | 7 | PORT-008 — Public portfolio and case studies | #13 | `feature/PORT-008-public-portfolio` | #12 | Screenshots + QA, no manual gate | Done |
-| 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | Ready |
+| 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | In progress |
 | 9 | PORT-010 — Three.js configuration and placeholder | #15 | `feature/PORT-010-threejs-config` | #14 | Automatic if green | Planned |
 | 10 | PORT-011 — Final v1 3D integration | #16 | `feature/PORT-011-blender-integration` | #15 | ADR-007 procedural/licensed fallback | Planned |
 
@@ -40,7 +40,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 - Final Quality run #37 passes PostgreSQL rollback, 403 PHPUnit assertions, Pint, Larastan,
   ESLint, Stylelint, production build and all Playwright/axe flows.
 - Six approved implementation captures are committed under `docs/captures/implemented/`.
-- Next queue item: PORT-009 / issue #14 is ready for a fresh `next issue` chat.
+- PORT-009 / issue #14 is implemented on its feature branch and completing validation/review.
 
 ## State values
 

@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by(hash('sha256', $email.'|'.$request->ip()));
         });
+
+        RateLimiter::for('public-contact', static function (Request $request): Limit {
+            return Limit::perMinute(3)->by(hash('sha256', (string) $request->ip()));
+        });
     }
 }

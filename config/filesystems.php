@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        'cv' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/cv'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -17,6 +17,8 @@ use Modules\Profile\Database\Factories\CvVersionFactory;
  * @property string $locale
  * @property string $label
  * @property string $version_label
+ * @property string|null $disk
+ * @property string|null $path
  * @property string|null $original_filename
  * @property string|null $mime_type
  * @property int|null $size_bytes
@@ -25,7 +27,7 @@ use Modules\Profile\Database\Factories\CvVersionFactory;
  * @property CarbonImmutable|null $published_at
  * @property CarbonImmutable|null $archived_at
  */
-#[Fillable(['profile_id', 'locale', 'label', 'version_label', 'original_filename', 'mime_type', 'size_bytes', 'checksum_sha256', 'is_verified', 'published_at', 'archived_at'])]
+#[Fillable(['profile_id', 'locale', 'label', 'version_label', 'disk', 'path', 'original_filename', 'mime_type', 'size_bytes', 'checksum_sha256', 'is_verified', 'published_at', 'archived_at'])]
 final class CvVersion extends Model
 {
     /** @use HasFactory<CvVersionFactory> */

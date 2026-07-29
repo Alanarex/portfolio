@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Gate;
 use Modules\ActivityLog\Contracts\AuditRecorder;
 use Modules\Profile\Application\SaveCvVersion;
 use Modules\Profile\Http\Requests\SaveCvVersionRequest;
+use Modules\Profile\Infrastructure\CvStorage;
 use Modules\Profile\Models\CvVersion;
+use Modules\Profile\Models\Profile;
 
 final class CvVersionController extends Controller
 {
@@ -39,15 +41,27 @@ final class CvVersionController extends Controller
         return back()->with('success', 'Version de CV enregistrée.');
     }
 
-    public function destroy(Request $request, CvVersion $cvVersion, AuditRecorder $auditRecorder): RedirectResponse
-    {
+    public function destroy(
+        Request $request,
+        CvVersion $cvVersion,
+        AuditRecorder $auditRecorder,
+        CvStorage $storage,
+    ): RedirectResponse {
         Gate::authorize('delete', $cvVersion);
         $user = $request->user();
         abort_unless($user !== null, 403);
 
-        DB::transaction(function () use ($request, $cvVersion, $auditRecorder, $user): void {
-            $id = (string) $cvVersion->getKey();
-            $cvVersion->delete();
+        $stored = DB::transaction(function () use ($request, $cvVersion, $auditRecorder, $user): array {
+            $profile = Profile::query()->where('key', 'main')->lockForUpdate()->firstOrFail();
+            $lockedVersion = CvVersion::query()
+                ->where('profile_id', $profile->getKey())
+                ->whereKey($cvVersion->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+            $id = (string) $lockedVersion->getKey();
+            $disk = $lockedVersion->disk;
+            $path = $lockedVersion->path;
+            $lockedVersion->delete();
             $auditRecorder->record(
                 actor: $user,
                 action: 'cv-version.deleted',
@@ -56,7 +70,10 @@ final class CvVersionController extends Controller
                 changedFields: [],
                 requestId: $request->attributes->get('request_id'),
             );
+
+            return compact('disk', 'path');
         });
+        $storage->delete($stored['disk'], $stored['path']);
 
         return back()->with('success', 'Version de CV supprimée.');
     }
