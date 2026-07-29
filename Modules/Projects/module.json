@@ -1,0 +1,5 @@
+{
+  "name": "Projects",
+  "description": "Projects, localized case studies and private media storage",
+  "provider": "Modules\\Projects\\Providers\\ProjectsServiceProvider"
+}
