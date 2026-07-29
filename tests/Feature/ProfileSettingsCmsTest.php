@@ -271,8 +271,7 @@ final class ProfileSettingsCmsTest extends TestCase
         self::assertArrayNotHasKey('cv_versions', $this->app->make(PublicProfileReader::class)->forLocale('fr')?->toArray() ?? []);
         self::assertStringNotContainsString('cv-2026.pdf', AuditEvent::query()->get()->toJson());
         $this->get('/cv-2026.pdf')
-            ->assertOk()
-            ->assertHeader('content-type', 'text/html; charset=UTF-8')
+            ->assertNotFound()
             ->assertHeaderMissing('content-disposition');
 
         $this->actingAs($administrator)
