@@ -41,13 +41,13 @@ final class PublicPortfolioTest extends TestCase
             ->assertSee('Développeur PHP / Laravel')
             ->assertSee('Portfolio V3')
             ->assertSee('385 requêtes SQL à 6')
-            ->assertSee('Scène interactive en préparation')
+            ->assertDontSee('Scène interactive en préparation')
+            ->assertDontSee('CV bientôt disponible')
             ->assertSee('Aucune activité privée n’est exposée')
             ->assertSeeInOrder([
                 'Positionnement',
                 'Projets à la une',
                 'Résultats vérifiés',
-                'Espace développeur 3D',
                 'Forces techniques',
                 'Expérience',
                 'Compétences et stack',

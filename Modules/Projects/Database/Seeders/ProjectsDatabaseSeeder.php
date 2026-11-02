@@ -109,6 +109,16 @@ final class ProjectsDatabaseSeeder extends Seeder
         }
 
         $handicapacite = Project::query()->where('slug', 'handicapacite')->firstOrFail();
+        $metrics = $handicapacite->caseStudySections()->firstOrCreate(['type' => 'metrics'], [
+            'is_public' => false,
+            'is_verified' => true,
+            'sort_order' => 70,
+        ]);
+        $metrics->translations()->firstOrCreate(['locale' => 'fr'], [
+            'heading' => 'Métriques vérifiées',
+            'body' => '105 tests automatisés, 632 assertions et une accessibilité Lighthouse supérieure ou égale à 95/100.',
+        ]);
+
         $this->sections($handicapacite, [
             ['context', 10, 'Contexte', 'Site d’une association libanaise d’inclusion, réalisé d’avril à juin 2026 dans le cadre du MBA, à titre bénévole. Le site est en production et utilisé par l’association.'],
             ['contribution', 50, 'Contribution', 'Développement complet : site Laravel 13 + Blade + MySQL découpé en modules, multilingue FR/AR (RTL)/EN, back-office (contenus, projets, actualités, rôles), formulaires, Docker en local, Pint et PHPStan.'],
@@ -127,20 +137,10 @@ final class ProjectsDatabaseSeeder extends Seeder
             ['context', 10, 'Contexte', 'Projet de MBA mené par une équipe multidisciplinaire (« My Digital Start-Up »), mis en production.'],
             ['contribution', 50, 'Contribution', 'API backend, dashboard d’administration et coordination technique avec l’extension navigateur développée par l’équipe.'],
         ]);
-
-        $metrics = $handicapacite->caseStudySections()->firstOrCreate(['type' => 'metrics'], [
-            'is_public' => false,
-            'is_verified' => true,
-            'sort_order' => 70,
-        ]);
-        $metrics->translations()->firstOrCreate(['locale' => 'fr'], [
-            'heading' => 'Métriques vérifiées',
-            'body' => '105 tests automatisés, 632 assertions et une accessibilité Lighthouse supérieure ou égale à 95/100.',
-        ]);
     }
 
     /**
-     * Draft-safe sections: the parent project stays unpublished until reviewed in the CMS.
+     * Verified but private sections: they become public only after review in the CMS.
      *
      * @param  list<array{0: string, 1: int, 2: string, 3: string}>  $sections
      */
@@ -148,7 +148,7 @@ final class ProjectsDatabaseSeeder extends Seeder
     {
         foreach ($sections as [$type, $order, $heading, $body]) {
             $section = $project->caseStudySections()->firstOrCreate(['type' => $type], [
-                'is_public' => true,
+                'is_public' => false,
                 'is_verified' => true,
                 'sort_order' => $order,
             ]);
