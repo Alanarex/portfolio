@@ -8,6 +8,11 @@ Plateforme associative multilingue FR/EN/AR avec support RTL, back-office sécur
 **Métriques :** 105 tests automatisés, 632 assertions, accessibilité Lighthouse >= 95/100.  
 **Position portfolio :** Featured project + étude de cas complète.
 
+## Simulateur IA (COSIKA)
+
+Site Laravel 13 qui appelle une API externe de traitement d'images par IA. V1 en 2 semaines, en préproduction et production, V2 en cours. Code privé : présenter la démarche (architecture, TDD, découpage, revue ; code en partie écrit avec un assistant IA).  
+**Position portfolio :** Featured project + étude de cas sans code.
+
 ## Revesta
 
 Dashboard Laravel avec gestion des utilisateurs, rôles, permissions, contenus et API.
@@ -24,8 +29,8 @@ Application Laravel pour un bureau de change avec données de devises et métaux
 
 ## Portfolio
 
-Portfolio interactif avec animations et expérience 3D.  
-**Position portfolio :** Featured project.
+Portfolio Laravel 13 modulaire, bilingue FR/EN, CMS privé Vue 3/Inertia. La scène 3D est reportée après la V1.  
+**Position portfolio :** Projet secondaire.
 
 ## EduConnect
 

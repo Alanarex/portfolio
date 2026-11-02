@@ -13,8 +13,6 @@
                     <a href="{{ route('portfolio.cv.download', ['locale' => $locale]) }}" class="button button-secondary">
                         <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>{{ __('portfolio.hero.cv_cta') }}
                     </a>
-                @else
-                    <span class="button button-muted" aria-disabled="true">{{ __('portfolio.hero.cv_pending') }}</span>
                 @endif
             </div>
             @if ($profile?->professionalTitles)
@@ -83,6 +81,7 @@
         @endif
     </section>
 
+    @if (($settings?->featureFlags['three_d'] ?? false) === true)
     <section class="section-block three-d-section" aria-labelledby="three-d-title">
         <div>
             <p class="eyebrow">{{ __('portfolio.sections.three_d_pending') }}</p>
@@ -96,6 +95,7 @@
             <span class="room-plant"></span>
         </div>
     </section>
+    @endif
 
     <section class="section-block" aria-labelledby="strengths-title">
         <header class="section-heading">

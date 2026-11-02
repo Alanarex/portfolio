@@ -20,6 +20,7 @@ return [
         'light' => 'Clair',
     ],
     'language' => 'Langue',
+    'language_switch' => 'English version',
     'profile' => [
         'unavailable' => 'Le profil public est en cours de préparation.',
         'availability' => 'Disponibilité',
@@ -32,7 +33,6 @@ return [
         'projects_cta' => 'Découvrir mes projets',
         'contact_cta' => 'Me contacter',
         'cv_cta' => 'Télécharger mon CV',
-        'cv_pending' => 'CV bientôt disponible',
         'portrait_alt' => 'Portrait professionnel d’Alaa Khalil',
     ],
     'sections' => [

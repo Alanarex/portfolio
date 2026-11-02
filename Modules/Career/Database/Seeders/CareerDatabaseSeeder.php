@@ -27,10 +27,14 @@ final class CareerDatabaseSeeder extends Seeder
         ]);
         $cosika->translations()->firstOrCreate(['locale' => 'fr'], [
             'role' => 'Développeur PHP / Laravel',
-            'employment_type' => 'Alternance',
+            'employment_type' => 'Alternance (2024-2026) puis CDD',
             'location' => 'Les Herbiers',
             'summary' => null,
             'highlights' => [
+                'Migration de l’application métier Simply de Laravel 6 à Laravel 11 et mise en production',
+                'Simulateur IA (Laravel 13 + API externe de traitement d’images) : V1 livrée en 2 semaines en préproduction et production ; architecture, TDD, découpage des tâches et revue du code',
+                'Travail en parallèle sur 3 applications Laravel partageant la même base de données',
+                'Audit, chiffrage et plan de découpage du Catalogue Digital vers une architecture modulaire (sujet du mémoire de MBA)',
                 'Évolution d’un ERP, d’un catalogue digital et d’API REST pour applications mobiles',
                 'Développement full-stack Laravel / Vue.js',
                 'Sécurisation des endpoints API, RBAC et middlewares',
