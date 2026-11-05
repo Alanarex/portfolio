@@ -3,7 +3,7 @@ name: Quality
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, release/v3.0.0/main]
 
 permissions:
   contents: read
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: fileinfo, gd, intl, pcntl, pdo_pgsql, redis, zip
           coverage: none
           tools: composer:v2
@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
       - run: npm ci
       - run: npm run lint
@@ -117,13 +117,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: fileinfo, gd, intl, pdo_pgsql, zip
           coverage: none
           tools: composer:v2
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: npm ci
@@ -144,3 +144,27 @@ jobs:
             storage/playwright-report
             storage/logs/browser-server.log
           if-no-files-found: warn
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate production compose file
+        env:
+          APP_DOMAIN: example.test
+          ACME_EMAIL: ci@example.test
+          DB_DATABASE: portfolio
+          DB_USERNAME: portfolio
+          DB_PASSWORD: ci-only
+          REDIS_PASSWORD: ci-only
+        run: |
+          cp .env.production.example .env
+          docker compose -f compose.prod.yaml config --quiet
+          docker compose -f compose.yaml config --quiet
+      - name: Build production images
+        run: |
+          docker build --target production -t portfolio-app:ci -f docker/php/Dockerfile .
+          docker build --target web -t portfolio-web:ci -f docker/php/Dockerfile .
+      - name: Check deploy script
+        run: bash -n scripts/deploy.sh
+
