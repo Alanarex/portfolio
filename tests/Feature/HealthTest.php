@@ -28,6 +28,8 @@ final class HealthTest extends TestCase
 
     public function test_health_fails_closed_without_leaking_connection_details(): void
     {
+        $default = config('database.default');
+
         config([
             'database.connections.broken' => [
                 'driver' => 'pgsql',
@@ -40,8 +42,14 @@ final class HealthTest extends TestCase
             'database.default' => 'broken',
         ]);
 
-        $response = $this->getJson('/health')
-            ->assertStatus(503)
+        try {
+            $response = $this->getJson('/health');
+        } finally {
+            // RefreshDatabase rolls back on the default connection at tear down.
+            config(['database.default' => $default]);
+        }
+
+        $response->assertStatus(503)
             ->assertJsonPath('status', 'failed')
             ->assertJsonPath('checks.database', 'failed');
 
