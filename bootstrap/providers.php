@@ -4,6 +4,7 @@ use App\Providers\AppServiceProvider;
 use Modules\ActivityLog\Providers\ActivityLogServiceProvider;
 use Modules\Career\Providers\CareerServiceProvider;
 use Modules\Contact\Providers\ContactServiceProvider;
+use Modules\GitHubActivity\Providers\GitHubActivityServiceProvider;
 use Modules\Portfolio\Providers\PortfolioServiceProvider;
 use Modules\Posts\Providers\PostsServiceProvider;
 use Modules\Profile\Providers\ProfileServiceProvider;
@@ -16,6 +17,7 @@ return [
     ActivityLogServiceProvider::class,
     CareerServiceProvider::class,
     ContactServiceProvider::class,
+    GitHubActivityServiceProvider::class,
     ProfileServiceProvider::class,
     PortfolioServiceProvider::class,
     PostsServiceProvider::class,

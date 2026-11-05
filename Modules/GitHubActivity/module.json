@@ -1,0 +1,5 @@
+{
+  "name": "GitHubActivity",
+  "description": "Scheduled sync of public GitHub repositories and activity for the home page",
+  "provider": "Modules\\GitHubActivity\\Providers\\GitHubActivityServiceProvider"
+}

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Modules\Career\Contracts\PublicCareerReader;
 use Modules\Career\Data\PublicCareerData;
+use Modules\GitHubActivity\Contracts\PublicGitHubActivityReader;
 use Modules\Portfolio\Contracts\PublicAnalytics;
 use Modules\Posts\Contracts\PublicPostsReader;
 use Modules\Profile\Contracts\PublicCvReader;
@@ -31,6 +32,7 @@ final class PublicPortfolioController extends Controller
         private readonly PublicProjectReader $projects,
         private readonly PublicAnalytics $analytics,
         private readonly PublicPostsReader $posts,
+        private readonly PublicGitHubActivityReader $github,
     ) {}
 
     public function home(string $locale): View
@@ -43,6 +45,7 @@ final class PublicPortfolioController extends Controller
             ...$data,
             'page' => 'home',
             'posts' => $this->posts->latest($locale),
+            'githubActivity' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->github->current() : null,
             'alternateUrl' => route('portfolio.home', ['locale' => $data['alternateLocale']]),
             'meta' => $this->meta(
                 title: __('portfolio.meta.home_title'),
