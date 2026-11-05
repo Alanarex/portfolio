@@ -9,6 +9,7 @@ FROM composer:2 AS composer
 # ---------------------------------------------------------------- base
 FROM php:${PHP_VERSION}-fpm-bookworm AS base
 
+# OPcache is built into PHP since 8.5, so it is not in the extension list.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
@@ -20,7 +21,7 @@ RUN apt-get update \
         libwebp-dev \
         unzip \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install -j"$(nproc)" gd intl opcache pcntl pdo_pgsql zip \
+    && docker-php-ext-install -j"$(nproc)" gd intl pcntl pdo_pgsql zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
