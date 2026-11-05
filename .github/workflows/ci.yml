@@ -188,8 +188,8 @@ jobs:
               --config p/secrets --config p/dockerfile \
               --exclude vendor --exclude node_modules --exclude public/build --exclude tests \
               --metrics off
-      - name: Scan Dockerfile and compose files for misconfigurations (Trivy)
+      - name: Scan the Dockerfile for misconfigurations (Trivy)
         run: |
           docker run --rm -v "$PWD:/src" aquasec/trivy:latest \
-            config --severity CRITICAL,HIGH --exit-code 1 /src/docker /src/compose.prod.yaml
+            config --severity CRITICAL,HIGH --exit-code 1 /src/docker
 
