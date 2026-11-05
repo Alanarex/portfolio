@@ -159,9 +159,9 @@ jobs:
           ACME_EMAIL: ci@example.test
           DB_DATABASE: portfolio
           DB_USERNAME: portfolio
-          DB_PASSWORD: ci-only
-          REDIS_PASSWORD: ci-only
         run: |
+          # Throwaway values, generated per run so no password-like literal lives in the repo.
+          export DB_PASSWORD="$(openssl rand -hex 16)" REDIS_PASSWORD="$(openssl rand -hex 16)"
           cp .env.production.example .env
           docker compose -f compose.prod.yaml config --quiet
           docker compose -f compose.yaml config --quiet
