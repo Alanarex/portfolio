@@ -70,6 +70,8 @@ jobs:
       - run: php artisan test
       - run: vendor/bin/pint --test
       - run: composer analyse
+      - name: Composer security audit
+        run: composer audit --locked --no-interaction
 
   frontend:
     runs-on: ubuntu-latest
@@ -80,6 +82,8 @@ jobs:
           node-version: 26
           cache: npm
       - run: npm ci
+      - name: npm security audit
+        run: npm audit --audit-level=high
       - run: npm run lint
       - run: npm run stylelint
       - run: npm run build
@@ -167,4 +171,25 @@ jobs:
           docker build --target web -t portfolio-web:ci -f docker/php/Dockerfile .
       - name: Check deploy script
         run: bash -n scripts/deploy.sh
+      - name: Scan production image for known vulnerabilities (Trivy)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest \
+            image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 1 --no-progress portfolio-app:ci
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static security analysis (Semgrep)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:latest \
+            semgrep scan --error --severity ERROR \
+              --config p/php --config p/javascript --config p/typescript \
+              --config p/secrets --config p/dockerfile \
+              --exclude vendor --exclude node_modules --exclude public/build --exclude tests \
+              --metrics off
+      - name: Scan Dockerfile and compose files for misconfigurations (Trivy)
+        run: |
+          docker run --rm -v "$PWD:/src" aquasec/trivy:latest \
+            config --severity CRITICAL,HIGH --exit-code 1 /src/docker /src/compose.prod.yaml
 
