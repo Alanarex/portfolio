@@ -46,6 +46,29 @@
         @endif
     </section>
 
+    @if (($posts ?? []) !== [])
+        <section id="posts" class="section-block posts-section" aria-labelledby="posts-title">
+            <header class="section-heading">
+                <p>{{ __('portfolio.sections.posts_kicker') }}</p>
+                <h2 id="posts-title">{{ __('portfolio.sections.posts') }}</h2>
+            </header>
+            <ol class="posts-feed">
+                @foreach ($posts as $post)
+                    <li>
+                        <article class="prose-card post-card" aria-labelledby="post-{{ $post->id }}-date">
+                            <p class="post-date"><time id="post-{{ $post->id }}-date" datetime="{{ $post->publishedAt->format(DATE_ATOM) }}">{{ \Illuminate\Support\Carbon::instance($post->publishedAt)->locale(app()->getLocale())->isoFormat('LL') }}</time></p>
+                            {{-- Plain text only: escaped, line breaks kept. --}}
+                            <p class="post-body">{!! nl2br(e($post->body), false) !!}</p>
+                            @if ($post->linkUrl)
+                                <p><a href="{{ $post->linkUrl }}" rel="noopener noreferrer">{{ $post->linkLabel ?? $post->linkUrl }}</a></p>
+                            @endif
+                        </article>
+                    </li>
+                @endforeach
+            </ol>
+        </section>
+    @endif
+
     <section id="projects" class="section-block" aria-labelledby="projects-title">
         <header class="section-heading section-heading-row">
             <div>

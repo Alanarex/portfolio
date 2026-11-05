@@ -36,6 +36,8 @@ return [
         'portrait_alt' => 'Portrait professionnel d’Alaa Khalil',
     ],
     'sections' => [
+        'posts' => 'Publications',
+        'posts_kicker' => 'Les dernières nouvelles',
         'positioning' => 'Positionnement',
         'positioning_kicker' => 'Du besoin à la mise en production',
         'projects' => 'Projets à la une',

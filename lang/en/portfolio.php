@@ -36,6 +36,8 @@ return [
         'portrait_alt' => 'Professional portrait of Alaa Khalil',
     ],
     'sections' => [
+        'posts' => 'Posts',
+        'posts_kicker' => 'Latest updates',
         'positioning' => 'Positioning',
         'positioning_kicker' => 'From need to production',
         'projects' => 'Featured projects',

@@ -838,6 +838,24 @@
   box-shadow: var(--shadow-card);
 }
 
+.posts-feed {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-card {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.post-card .post-date {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
 .prose-card p {
   max-width: 70ch;
   margin: 0;
