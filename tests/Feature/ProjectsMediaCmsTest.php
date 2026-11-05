@@ -426,9 +426,10 @@ final class ProjectsMediaCmsTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
-        $this->assertDatabaseCount('projects', 7);
-        $this->assertDatabaseCount('project_translations', 7);
-        $this->assertDatabaseCount('case_study_sections', 1);
+        $this->assertDatabaseCount('projects', 8);
+        $this->assertDatabaseCount('project_translations', 8);
+        $this->assertDatabaseCount('case_study_sections', 9);
+        $this->assertDatabaseMissing('case_study_sections', ['is_public' => true]);
         $this->assertDatabaseMissing('projects', ['publication_status' => 'published']);
         self::assertSame(0, Project::query()->whereNotNull('repository_url')->count());
 

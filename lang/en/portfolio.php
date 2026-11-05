@@ -20,6 +20,7 @@ return [
         'light' => 'Light',
     ],
     'language' => 'Language',
+    'language_switch' => 'Version française',
     'profile' => [
         'unavailable' => 'The public profile is being prepared.',
         'availability' => 'Availability',
@@ -32,7 +33,6 @@ return [
         'projects_cta' => 'Explore my projects',
         'contact_cta' => 'Contact me',
         'cv_cta' => 'Download my CV',
-        'cv_pending' => 'CV coming soon',
         'portrait_alt' => 'Professional portrait of Alaa Khalil',
     ],
     'sections' => [

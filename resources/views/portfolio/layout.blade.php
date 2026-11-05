@@ -130,7 +130,7 @@
                 </div>
                 <a class="language-switch" href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}">
                     <i class="fa-solid fa-language" aria-hidden="true"></i>
-                    {{ __('portfolio.language') }}: {{ strtoupper($alternateLocale) }}
+                    {{ __('portfolio.language_switch') }}
                 </a>
             </div>
         </aside>
@@ -202,7 +202,7 @@
                 <i class="fa-solid fa-sun" aria-hidden="true"></i>
             </button>
         </div>
-        <a href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}" aria-label="{{ __('portfolio.language') }}: {{ strtoupper($alternateLocale) }}">
+        <a href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}" aria-label="{{ __('portfolio.language_switch') }}">
             {{ strtoupper($alternateLocale) }}
         </a>
     </div>
