@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Support\ContactObfuscator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -59,6 +60,26 @@ final class PublicPortfolioTest extends TestCase
 
         self::assertStringNotContainsString('id="portfolio-app"', $response->getContent());
         self::assertStringNotContainsString('Alex Karim', $response->getContent());
+    }
+
+    public function test_public_email_is_obfuscated_in_the_html_and_revealed_on_demand(): void
+    {
+        $this->bindReaders([$this->projectData('portfolio', 'Portfolio V3')]);
+
+        $html = (string) $this->get('/fr')
+            ->assertOk()
+            ->assertSee('Afficher l’e-mail')
+            ->getContent();
+
+        self::assertStringNotContainsString('contact@example.test', $html);
+        self::assertStringNotContainsString('mailto:', $html);
+        self::assertStringNotContainsString(base64_encode('contact@example.test'), $html);
+
+        self::assertSame(1, preg_match('/data-contact-reveal="([^"]+)"/', $html, $match));
+        self::assertSame(
+            ['h' => 'mailto:contact@example.test', 'l' => 'contact@example.test'],
+            ContactObfuscator::decode(html_entity_decode($match[1])),
+        );
     }
 
     public function test_localized_project_index_and_stable_case_study_routes_render_public_data(): void
