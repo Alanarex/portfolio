@@ -40,7 +40,7 @@ jobs:
           --health-retries 10
     env:
       APP_ENV: testing
-      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= # nosemgrep: CI-only dummy key
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= # nosemgrep
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
@@ -106,7 +106,7 @@ jobs:
           --health-retries 10
     env:
       APP_ENV: testing
-      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= # nosemgrep: CI-only dummy key
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= # nosemgrep
       APP_URL: http://127.0.0.1:8000
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
