@@ -253,8 +253,9 @@
             @endif
             @if ($settings?->email || $settings?->phone || ($settings?->socialLinks ?? []) !== [])
                 <div class="contact-actions">
-                    @if ($settings?->email)<a class="button button-secondary" href="mailto:{{ $settings->email }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i>{{ $settings->email }}</a>@endif
-                    @if ($settings?->phone)<a class="button button-secondary" href="tel:{{ preg_replace('/\\s+/', '', $settings->phone) }}"><i class="fa-solid fa-phone" aria-hidden="true"></i>{{ $settings->phone }}</a>@endif
+                    {{-- Email and phone never appear in clear in the HTML: resources/js/public.ts decodes them on click. --}}
+                    @if ($settings?->email)<button type="button" class="button button-secondary" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('mailto:'.$settings->email, $settings->email) }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i><span>{{ __('portfolio.contact.show_email') }}</span></button>@endif
+                    @if ($settings?->phone)<button type="button" class="button button-secondary" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('tel:'.preg_replace('/\\s+/', '', $settings->phone), $settings->phone) }}"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>{{ __('portfolio.contact.show_phone') }}</span></button>@endif
                     @foreach ($settings?->socialLinks ?? [] as $platform => $url)
                         <a class="button button-secondary" href="{{ $url }}" rel="noopener noreferrer">{{ ucfirst($platform) }}</a>
                     @endforeach
