@@ -73,6 +73,9 @@ chmod 600 .env
 
 Remplis `.env` : `APP_URL`, `APP_DOMAIN`, `ACME_EMAIL`, `DB_PASSWORD`, `REDIS_PASSWORD`
 (`openssl rand -base64 32` pour chaque mot de passe), et le SMTP pour le formulaire de contact.
+`GITHUB_USERNAME` règle le compte affiché dans « Activité GitHub » (synchronisé chaque heure par le
+scheduler). `GITHUB_TOKEN` est facultatif : un token fine-grained sans droit particulier augmente juste
+la limite d'appels à l'API.
 
 ```bash
 docker compose -f compose.prod.yaml build

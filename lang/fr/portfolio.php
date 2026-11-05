@@ -97,6 +97,20 @@ return [
         'education' => 'Les formations et certifications publiées apparaîtront ici.',
         'contact' => 'Les coordonnées publiques sont en cours de configuration.',
     ],
+    'activity' => [
+        'kicker' => 'Ce que je construis en ce moment',
+        'repositories' => 'Dépôts récents',
+        'recent' => 'Activité récente',
+        'updated' => 'Mis à jour le :date',
+        'public_only' => 'Données publiques de github.com/:user, synchronisées chaque heure.',
+        'events' => [
+            'push' => '{1} 1 commit sur :repo|[2,*] :count commits sur :repo',
+            'pr_opened' => 'PR ouverte sur :repo : :title',
+            'pr_merged' => 'PR fusionnée sur :repo : :title',
+            'release' => 'Version :title de :repo',
+            'repo_created' => 'Nouveau dépôt :repo',
+        ],
+    ],
     'contact' => [
         'name' => 'Nom',
         'email' => 'E-mail',

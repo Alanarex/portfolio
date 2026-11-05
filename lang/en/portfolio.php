@@ -97,6 +97,20 @@ return [
         'education' => 'Published education and certifications will appear here.',
         'contact' => 'Public contact details are being configured.',
     ],
+    'activity' => [
+        'kicker' => 'What I am building right now',
+        'repositories' => 'Recent repositories',
+        'recent' => 'Recent activity',
+        'updated' => 'Updated :date',
+        'public_only' => 'Public data from github.com/:user, synced every hour.',
+        'events' => [
+            'push' => '{1} 1 commit to :repo|[2,*] :count commits to :repo',
+            'pr_opened' => 'Opened a PR on :repo: :title',
+            'pr_merged' => 'Merged a PR on :repo: :title',
+            'release' => 'Released :title of :repo',
+            'repo_created' => 'Created repository :repo',
+        ],
+    ],
     'contact' => [
         'name' => 'Name',
         'email' => 'Email',

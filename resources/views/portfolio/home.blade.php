@@ -183,13 +183,55 @@
     </section>
 
     @if (($settings?->featureFlags['activity'] ?? false) === true)
-        <section class="section-block activity-placeholder" aria-labelledby="activity-title">
-            <i class="fa-brands fa-github" aria-hidden="true"></i>
-            <div>
-                <h2 id="activity-title">{{ __('portfolio.sections.activity') }}</h2>
-                <p>{{ __('portfolio.sections.activity_pending') }}</p>
-            </div>
-        </section>
+        @if ($githubActivity ?? null)
+            <section id="activity" class="section-block github-activity" aria-labelledby="activity-title">
+                <header class="section-heading">
+                    <p>{{ __('portfolio.activity.kicker') }}</p>
+                    <h2 id="activity-title">{{ __('portfolio.sections.activity') }}</h2>
+                </header>
+                <div class="github-activity-grid">
+                    @if ($githubActivity->repositories !== [])
+                        <div>
+                            <h3>{{ __('portfolio.activity.repositories') }}</h3>
+                            <ul class="github-repos">
+                                @foreach ($githubActivity->repositories as $repository)
+                                    <li class="prose-card">
+                                        <a href="{{ $repository['url'] }}" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> {{ $repository['name'] }}</a>
+                                        @if ($repository['description'])<p>{{ $repository['description'] }}</p>@endif
+                                        <p class="github-meta">
+                                            @if ($repository['language']){{ $repository['language'] }} · @endif
+                                            @if ($repository['pushed_at']){{ __('portfolio.activity.updated', ['date' => \Illuminate\Support\Carbon::parse($repository['pushed_at'])->locale(app()->getLocale())->isoFormat('LL')]) }}@endif
+                                        </p>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    @if ($githubActivity->events !== [])
+                        <div>
+                            <h3>{{ __('portfolio.activity.recent') }}</h3>
+                            <ol class="github-events">
+                                @foreach ($githubActivity->events as $event)
+                                    <li>
+                                        <a href="{{ $event['url'] }}" rel="noopener noreferrer">{{ trans_choice('portfolio.activity.events.'.$event['type'], $event['count'], ['repo' => $event['repo'], 'title' => $event['title'] ?? '', 'count' => $event['count']]) }}</a>
+                                        <time datetime="{{ $event['at'] }}">{{ \Illuminate\Support\Carbon::parse($event['at'])->locale(app()->getLocale())->diffForHumans() }}</time>
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </div>
+                    @endif
+                </div>
+                <p class="github-meta">{{ __('portfolio.activity.public_only', ['user' => $githubActivity->username]) }}</p>
+            </section>
+        @else
+            <section class="section-block activity-placeholder" aria-labelledby="activity-title">
+                <i class="fa-brands fa-github" aria-hidden="true"></i>
+                <div>
+                    <h2 id="activity-title">{{ __('portfolio.sections.activity') }}</h2>
+                    <p>{{ __('portfolio.sections.activity_pending') }}</p>
+                </div>
+            </section>
+        @endif
     @endif
 
     <section id="education" class="section-block" aria-labelledby="education-title">
