@@ -838,6 +838,60 @@
   box-shadow: var(--shadow-card);
 }
 
+.posts-feed {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-card {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.post-card .post-date {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.github-activity-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (width >= 900px) {
+  .github-activity-grid {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.github-activity h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.github-repos,
+.github-events {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.github-events li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.github-meta,
+.github-events time {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
 .prose-card p {
   max-width: 70ch;
   margin: 0;
