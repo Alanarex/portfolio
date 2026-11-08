@@ -426,12 +426,17 @@ final class ProjectsMediaCmsTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
-        $this->assertDatabaseCount('projects', 8);
-        $this->assertDatabaseCount('project_translations', 8);
+        $this->assertDatabaseCount('projects', 15);
+        $this->assertDatabaseCount('project_translations', 15);
         $this->assertDatabaseCount('case_study_sections', 9);
         $this->assertDatabaseMissing('case_study_sections', ['is_public' => true]);
         $this->assertDatabaseMissing('projects', ['publication_status' => 'published']);
-        self::assertSame(0, Project::query()->whereNotNull('repository_url')->count());
+        $public = Project::query()->whereNotNull('repository_url')->get();
+        self::assertCount(9, $public);
+        foreach ($public as $project) {
+            self::assertStringStartsWith('https://github.com/Alanarex/', $project->repository_url);
+        }
+        $this->assertDatabaseMissing('projects', ['slug' => 'portfolio', 'show_repository' => true]);
 
         $project = Project::query()->where('slug', 'gm-exchange')->firstOrFail();
         $translation = $project->translations()->where('locale', 'fr')->firstOrFail();
