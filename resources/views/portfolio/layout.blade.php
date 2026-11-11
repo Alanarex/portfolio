@@ -23,6 +23,14 @@
         $frUrl = $locale === 'fr' ? $meta['canonical'] : $alternateUrl;
         $enUrl = $locale === 'en' ? $meta['canonical'] : $alternateUrl;
     @endphp
+    {{-- Tab icon follows the browser/OS colour scheme; favicon.ico is the fallback. --}}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/light/favicon-32x32.png') }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicons/light/favicon-16x16.png') }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/dark/favicon-32x32.png') }}" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicons/dark/favicon-16x16.png') }}" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <link rel="canonical" href="{{ $meta['canonical'] }}">
     <link rel="alternate" hreflang="fr" href="{{ $frUrl }}">
     <link rel="alternate" hreflang="en" href="{{ $enUrl }}">
