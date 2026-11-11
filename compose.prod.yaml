@@ -72,12 +72,43 @@ services:
     environment:
       APP_DOMAIN: ${APP_DOMAIN:?APP_DOMAIN is required}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+      PGADMIN_AUTH_USER: ${PGADMIN_AUTH_USER:-}
+      PGADMIN_AUTH_HASH: ${PGADMIN_AUTH_HASH:-}
     volumes:
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       - web
+
+  # Database administration. Not part of the normal stack: start it only when needed with
+  #   docker compose -f compose.prod.yaml --profile admin up -d pgadmin
+  # and stop it afterwards. Reachable only through Caddy on db.${APP_DOMAIN} (basic auth + own login).
+  pgadmin:
+    image: dpage/pgadmin4:9.19.0
+    profiles: ["admin"]
+    restart: unless-stopped
+    mem_limit: 768m
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-}
+      PGADMIN_LISTEN_PORT: "8080" # unprivileged port: no-new-privileges forbids binding 80
+      PGADMIN_DISABLE_POSTFIX: "true"
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED: "False"
+      PGADMIN_CONFIG_SESSION_COOKIE_SECURE: "True"
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+      PGADMIN_CONFIG_MAX_LOGIN_ATTEMPTS: "3"
+      PGADMIN_CONFIG_PROXY_X_FOR_COUNT: "1"
+      PGADMIN_CONFIG_PROXY_X_PROTO_COUNT: "1"
+      PGADMIN_CONFIG_PROXY_X_HOST_COUNT: "1"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:17-alpine
@@ -112,5 +143,6 @@ volumes:
   app_storage:
   postgres_data:
   redis_data:
+  pgadmin_data:
   caddy_data:
   caddy_config:

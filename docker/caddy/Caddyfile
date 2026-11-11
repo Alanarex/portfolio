@@ -15,3 +15,23 @@
 www.{$APP_DOMAIN} {
     redir https://{$APP_DOMAIN}{uri} permanent
 }
+
+# Database administration (pgAdmin). Started on demand, see docs/operations/deployment.md §7.
+# Layer 1: HTTP basic auth here. Layer 2: pgAdmin's own login. PostgreSQL is never published.
+# The default hash below belongs to a random password that was thrown away, so until
+# PGADMIN_AUTH_HASH is set in .env every request is answered 401.
+db.{$APP_DOMAIN} {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Robots-Tag "noindex, nofollow, noarchive"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        -Server
+    }
+    basic_auth {
+        {$PGADMIN_AUTH_USER:db-admin} {$PGADMIN_AUTH_HASH:$2a$14$9qKxHe693p085F48UCR2iezTFsBo3zrPA1SbaLmf6fwuJra/am1J6}
+    }
+    reverse_proxy pgadmin:8080
+}
