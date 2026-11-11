@@ -33,6 +33,9 @@ wait_for_health() {
 start_release() {
     export RELEASE="$1"
     "${COMPOSE[@]}" up -d --remove-orphans
+    # Nginx resolves "app" once at startup. When app is recreated but the web image is unchanged
+    # (same commit redeployed), web would keep proxying to the old container and /health would 502.
+    "${COMPOSE[@]}" restart web
     "${COMPOSE[@]}" exec -T app php artisan optimize
     "${COMPOSE[@]}" exec -T app php artisan queue:restart
 }
