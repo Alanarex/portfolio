@@ -34,3 +34,32 @@ if (hero && lamp) {
     });
     lamp.addEventListener('change', () => hero.classList.toggle('is-lit', !lamp.checked));
 }
+
+// Sommaire des études de cas : met en avant la section visible.
+const toc = document.querySelector<HTMLElement>('[data-case-toc]');
+
+if (toc && 'IntersectionObserver' in window) {
+    const links = new Map(
+        [...toc.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')].map((link) => [link.hash.slice(1), link]),
+    );
+    const observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) {
+                    links.forEach((link) => link.classList.remove('is-active'));
+                    links.get(entry.target.id)?.classList.add('is-active');
+                    links.get(entry.target.id)?.setAttribute('aria-current', 'true');
+                } else {
+                    links.get(entry.target.id)?.removeAttribute('aria-current');
+                }
+            }
+        },
+        { rootMargin: '-35% 0px -55% 0px' },
+    );
+    links.forEach((_, id) => {
+        const section = document.getElementById(id);
+        if (section) {
+            observer.observe(section);
+        }
+    });
+}
