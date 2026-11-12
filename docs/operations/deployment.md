@@ -130,6 +130,21 @@ Tant que `DEPLOY_HOST` est vide, le workflow s'arrête sans erreur. Ne colle jam
 dans un chat, un ticket ou un commit. Tu peux aussi lancer un déploiement à la main :
 *Actions → Deploy → Run workflow*.
 
+## 6. Suivi des erreurs (Sentry, optionnel)
+
+Sentry reçoit les erreurs PHP (exception, pile d'appels, méthode et chemin de l'URL) pour te
+prévenir par e-mail. Sans DSN, rien n'est envoyé.
+
+1. Sur sentry.io, crée un projet **Laravel** (offre gratuite) et copie son **DSN**.
+2. Sur le serveur, dans `/opt/portfolio/.env`, renseigne `SENTRY_LARAVEL_DSN=` (tape-le toi-même,
+   ne le colle pas dans un chat ou un ticket).
+3. Recharge les conteneurs : `docker compose -f compose.prod.yaml up -d --force-recreate app queue scheduler`
+   puis `docker compose -f compose.prod.yaml restart web`.
+
+Les rapports n'incluent jamais le corps des requêtes (formulaire de contact), les paramètres d'URL,
+les cookies, les en-têtes, l'identité du visiteur ni les journaux (`app/Core/Observability/ScrubSentryEvent.php`).
+Le traçage de performance et les profils sont désactivés.
+
 ## 7. Administration de la base (pgAdmin, à la demande)
 
 pgAdmin est l'équivalent de phpMyAdmin pour PostgreSQL. Il tourne sur `https://db.ton-domaine.fr`,
@@ -158,9 +173,14 @@ PostgreSQL n'est jamais exposé : pgAdmin s'y connecte par le réseau privé Doc
    PGADMIN_DEFAULT_PASSWORD=mot-de-passe-pgadmin
    ```
    Ne colle jamais ces valeurs dans un chat, un ticket ou un commit.
-4. Recharge Caddy pour qu'il lise le nouveau bloc et les variables :
+4. **Vérifie** la configuration, puis recharge Caddy pour qu'il lise le nouveau bloc et les
+   variables. Si `PGADMIN_AUTH_USER` est renseigné sans `PGADMIN_AUTH_HASH` (ou l'inverse), Caddy
+   refuse de démarrer et **tout le site tombe** : la première commande te prévient avant :
    ```bash
-   cd /opt/portfolio && docker compose -f compose.prod.yaml up -d --force-recreate caddy
+   cd /opt/portfolio
+   docker compose -f compose.prod.yaml run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile
+   # doit afficher « Valid configuration », sinon corrige le .env AVANT la suite
+   docker compose -f compose.prod.yaml up -d --force-recreate caddy
    ```
 
 **Utilisation**
