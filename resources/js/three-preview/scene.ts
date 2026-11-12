@@ -186,8 +186,192 @@ const restyleCar = (car: THREE.Object3D): { rear: THREE.Vector3; front: THREE.Ve
     return { rear, front };
 };
 
+interface Wheel {
+    pivot: THREE.Group;
+    radius: number;
+}
+
+interface CarRig {
+    holder: THREE.Group;
+    wheels: Wheel[];
+    tailLights: THREE.Vector3[];
+}
+
+interface TriangleBucket {
+    position: number[];
+    normal: number[];
+    uv: number[];
+}
+
+const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
+    const meshes: THREE.Mesh[] = [];
+    root.traverse((object) => {
+        if ((object as THREE.Mesh).isMesh) {
+            meshes.push(object as THREE.Mesh);
+        }
+    });
+    return meshes;
+};
+
+const materialName = (mesh: THREE.Mesh): string => (mesh.material as THREE.Material).name;
+
+/**
+ * Le modèle est fusionné par matériau : les quatre roues sont mélangées au reste de la carrosserie.
+ * On repère les roues avec les pneus, puis on déplace les triangles qui leur appartiennent
+ * dans un pivot par roue, afin de pouvoir les faire tourner.
+ */
+const splitWheels = (holder: THREE.Group): Wheel[] => {
+    holder.updateMatrixWorld(true);
+    const inverse = new THREE.Matrix4().copy(holder.matrixWorld).invert();
+    const meshes = meshesOf(holder);
+    const tires = meshes.filter((mesh) => materialName(mesh) === 'tire_mat4');
+    if (tires.length === 0) {
+        return [];
+    }
+
+    const point = new THREE.Vector3();
+    const boxes = new Map<string, THREE.Box3>();
+    for (const tire of tires) {
+        const positions = tire.geometry.getAttribute('position');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, tire.matrixWorld);
+        for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(matrix);
+            const key = `${point.x > 0 ? 'r' : 'l'}${point.z > 0 ? 'b' : 'f'}`;
+            const box = boxes.get(key) ?? new THREE.Box3();
+            box.expandByPoint(point);
+            boxes.set(key, box);
+        }
+    }
+
+    const wheels = [...boxes.values()].map((box) => {
+        const center = box.getCenter(new THREE.Vector3());
+        const pivot = new THREE.Group();
+        pivot.position.copy(center);
+        return { box, center, pivot, radius: (box.max.y - box.min.y) / 2, buckets: new Map<THREE.Material, TriangleBucket>() };
+    });
+
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    const c = new THREE.Vector3();
+    const centroid = new THREE.Vector3();
+    const normalMatrix = new THREE.Matrix3();
+    const tmp = new THREE.Vector3();
+
+    for (const mesh of meshes) {
+        const name = materialName(mesh);
+        const geometry = mesh.geometry;
+        const index = geometry.getIndex();
+        if (!index || name === 'body' || name === 'brakes_amg' || (mesh.material as THREE.Material).transparent) {
+            continue;
+        }
+        const positions = geometry.getAttribute('position');
+        const normals = geometry.getAttribute('normal');
+        const uvs = geometry.getAttribute('uv');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld);
+        normalMatrix.getNormalMatrix(matrix);
+
+        const kept: number[] = [];
+        let moved = false;
+
+        for (let t = 0; t < index.count; t += 3) {
+            const i0 = index.getX(t);
+            const i1 = index.getX(t + 1);
+            const i2 = index.getX(t + 2);
+            a.fromBufferAttribute(positions, i0).applyMatrix4(matrix);
+            b.fromBufferAttribute(positions, i1).applyMatrix4(matrix);
+            c.fromBufferAttribute(positions, i2).applyMatrix4(matrix);
+            centroid.copy(a).add(b).add(c).divideScalar(3);
+
+            const wheel = wheels.find(
+                (candidate) =>
+                    Math.sign(centroid.x) === Math.sign(candidate.center.x) &&
+                    centroid.x >= candidate.box.min.x - 0.03 &&
+                    centroid.x <= candidate.box.max.x + 0.03 &&
+                    Math.hypot(centroid.y - candidate.center.y, centroid.z - candidate.center.z) <= candidate.radius * 1.03,
+            );
+
+            if (!wheel) {
+                kept.push(i0, i1, i2);
+                continue;
+            }
+
+            moved = true;
+            const material = mesh.material as THREE.Material;
+            const bucket = wheel.buckets.get(material) ?? { position: [], normal: [], uv: [] };
+            wheel.buckets.set(material, bucket);
+            for (const [vertex, source] of [
+                [a, i0],
+                [b, i1],
+                [c, i2],
+            ] as const) {
+                bucket.position.push(vertex.x - wheel.center.x, vertex.y - wheel.center.y, vertex.z - wheel.center.z);
+                if (normals) {
+                    tmp.fromBufferAttribute(normals, source).applyMatrix3(normalMatrix).normalize();
+                    bucket.normal.push(tmp.x, tmp.y, tmp.z);
+                }
+                if (uvs) {
+                    bucket.uv.push(uvs.getX(source), uvs.getY(source));
+                }
+            }
+        }
+
+        if (moved) {
+            geometry.setIndex(kept);
+        }
+    }
+
+    return wheels.map((wheel) => {
+        for (const [material, bucket] of wheel.buckets) {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(bucket.position, 3));
+            if (bucket.normal.length > 0) {
+                geometry.setAttribute('normal', new THREE.Float32BufferAttribute(bucket.normal, 3));
+            }
+            if (bucket.uv.length > 0) {
+                geometry.setAttribute('uv', new THREE.Float32BufferAttribute(bucket.uv, 2));
+            }
+            wheel.pivot.add(new THREE.Mesh(geometry, material));
+        }
+        holder.add(wheel.pivot);
+        return { pivot: wheel.pivot, radius: wheel.radius };
+    });
+};
+
+/** Positions des feux arrière : un à gauche, un à droite, légèrement relevés. */
+const findTailLights = (holder: THREE.Group): THREE.Vector3[] => {
+    holder.updateMatrixWorld(true);
+    const inverse = new THREE.Matrix4().copy(holder.matrixWorld).invert();
+    const point = new THREE.Vector3();
+    const left = new THREE.Box3();
+    const right = new THREE.Box3();
+
+    for (const mesh of meshesOf(holder).filter((item) => materialName(item) === 'r_lights')) {
+        const positions = mesh.geometry.getAttribute('position');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld);
+        for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(matrix);
+            (point.x < 0 ? left : right).expandByPoint(point);
+        }
+    }
+
+    const sides = [left, right].map((box, index) => {
+        if (box.isEmpty()) {
+            return null;
+        }
+        const center = box.getCenter(new THREE.Vector3());
+        // Un bloc unique centré donne deux feux écartés de part et d'autre de l'axe.
+        center.x = (index === 0 ? -1 : 1) * Math.max(Math.abs(center.x), 0.55);
+        return center;
+    });
+
+    const fallback = new THREE.Vector3(0.6, 0.75, CAR_LENGTH / 2);
+    const first = sides[0] ?? (sides[1] ? sides[1].clone().setX(-sides[1].x) : fallback.clone().setX(-0.6));
+    const second = sides[1] ?? first.clone().setX(-first.x);
+    return [first, second].map((light) => light.clone().add(new THREE.Vector3(0, 0.07, 0.04)));
+};
+
 /** Charge la voiture : longueur sur Z, avant vers -Z, roues posées à y = 0. */
-const loadCar = async (): Promise<THREE.Group> => {
+const loadCar = async (): Promise<CarRig> => {
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
     const gltf = await loader.loadAsync(MODEL_URL);
@@ -218,7 +402,8 @@ const loadCar = async (): Promise<THREE.Group> => {
 
     const holder = new THREE.Group();
     holder.add(wrapper);
-    return holder;
+    const wheels = splitWheels(holder);
+    return { holder, wheels, tailLights: findTailLights(holder) };
 };
 
 /** Ruban plat suivant la courbe (route, bas-côtés, vibreurs). */
@@ -460,7 +645,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     });
 
     // Voiture
-    const car = await loadCar();
+    const rig = await loadCar();
+    const car = rig.holder;
     scene.add(car);
 
     const shadow = new THREE.Mesh(
@@ -475,9 +661,15 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     headlight.position.set(0, 0.7, -1.9);
     headlight.target.position.set(0, 0, -18);
     car.add(headlight, headlight.target);
-    const tail = new THREE.PointLight('#ff2a2e', 3, 7, 2);
-    tail.position.set(0, 0.55, 2.5);
-    car.add(tail);
+    const tailGlow = makeGlowTexture('#ff2a2e');
+    for (const light of rig.tailLights) {
+        const lamp = new THREE.PointLight('#ff2a2e', 1.4, 4.5, 2);
+        lamp.position.copy(light);
+        const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: tailGlow, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.8 }));
+        flare.position.copy(light).add(new THREE.Vector3(0, 0, 0.05));
+        flare.scale.setScalar(0.7);
+        car.add(lamp, flare);
+    }
 
     // État
     const state = {
@@ -508,6 +700,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         return clamp(-rect.top / runway, 0, 1);
     };
 
+    let lastU: number | undefined;
     const placeCar = (): void => {
         const u = U_START + state.progress * U_SPAN;
         curve.getPointAt(u, position);
@@ -523,9 +716,15 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const bend = new THREE.Vector3().crossVectors(tangent, ahead).y;
         car.lookAt(car.position.clone().sub(tangent));
         car.rotation.z = clamp(-bend * 40, -0.04, 0.04);
-        if (!reducedMotion) {
-            car.position.y += Math.sin(state.elapsed * 11) * 0.004;
+
+        // Les roues tournent selon la distance réellement parcourue (dans les deux sens du défilement).
+        if (lastU !== undefined) {
+            const travelled = (u - lastU) * curve.getLength();
+            for (const wheel of rig.wheels) {
+                wheel.pivot.rotation.x -= travelled / wheel.radius;
+            }
         }
+        lastU = u;
     };
 
     const placeCamera = (delta: number): void => {
