@@ -263,22 +263,115 @@
 .proof__item p { color: var(--color-text-muted); }
 
 /* Aperçu 3D */
-.three-preview { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-7); align-items: center; }
-.three-preview__copy .button { margin-top: var(--space-5); }
-.three-preview__visual { position: relative; min-height: 24rem; overflow: hidden; border-radius: var(--radius-lg); background: linear-gradient(160deg, #1a1416, #0e0c0d); box-shadow: inset 0 0 0 1px var(--color-border), var(--shadow-lg); transition: transform 600ms var(--ease); }
-.three-preview__visual:hover { transform: perspective(900px) rotateX(3deg) rotateY(-4deg) scale(1.015); }
 
-.three-preview__poster,
-.three-preview__canvas,
-.three-preview__overlay { position: absolute; inset: 0; }
-.three-preview__canvas { z-index: 1; }
-.three-preview__overlay { z-index: 2; display: flex; align-items: flex-start; padding: var(--space-4); pointer-events: none; }
-.three-preview__badge { padding: 0.3rem 0.8rem; border-radius: var(--radius-pill); color: var(--color-danger); background: var(--color-danger-surface); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; }
-.three-preview__canvas canvas { display: block; width: 100%; height: 100%; }
+/* Aperçu 3D : étage épinglé, la voiture avance avec le défilement */
+.journey { position: relative; background: var(--color-bg); }
+.journey[data-state="ready"] { height: 420vh; }
+
+.journey__stick {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 34rem;
+    overflow: hidden;
+}
+
+.journey__stage,
+.journey__poster,
+.journey__scrim { position: absolute; inset: 0; }
+
+.journey__stage { z-index: 0; background: linear-gradient(180deg, #0b090a, #1a1012 70%, #0b090a); cursor: grab; touch-action: pan-y; }
+.journey__stage:active { cursor: grabbing; }
+.journey__stage canvas { display: block; width: 100%; height: 100%; }
+.journey__poster { pointer-events: none; }
+.journey[data-state="ready"] .journey__poster { opacity: 0; }
+
+.journey__scrim {
+    z-index: 1;
+    background: linear-gradient(90deg, rgb(11 9 10 / 92%) 0%, rgb(11 9 10 / 55%) 38%, transparent 65%), linear-gradient(0deg, rgb(11 9 10 / 85%), transparent 28%);
+    pointer-events: none;
+}
+
+.journey__ui {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    height: 100%;
+    padding-block: 6.5rem var(--space-6);
+    align-content: space-between;
+    pointer-events: none;
+}
+
+.journey__copy,
+.journey__steps,
+.journey__credit { pointer-events: auto; }
+
+.journey__copy { max-width: 30rem; }
+.journey__copy .button { margin-top: var(--space-5); }
+.journey__alt { margin-top: var(--space-4); }
+.journey[data-state="ready"] [data-three-preview-load] { display: none; }
+.journey[data-state="loading"] [data-three-preview-load] { opacity: 0.6; cursor: wait; }
+
+.journey__steps {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    transform: translateY(-50%);
+}
+
+.journey__link { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); color: var(--color-text-muted); font-size: 0.9rem; text-decoration: none; transition: color var(--transition-fast), transform var(--transition-base); }
+.journey__step .mono { color: inherit; font-size: 0.75rem; }
+.journey__step { text-shadow: 0 0 0.8rem #0b090a, 0 0 0.3rem #0b090a; }
+
+.journey__dot {
+    order: 2;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-border-strong);
+    transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-base);
+}
+
+.journey[data-step="0"] .journey__step[data-step-index="0"] a,
+.journey[data-step="1"] .journey__step[data-step-index="1"] a,
+.journey[data-step="2"] .journey__step[data-step-index="2"] a,
+.journey[data-step="3"] .journey__step[data-step-index="3"] .journey__link { color: var(--color-text); transform: translateX(-0.4rem); }
+
+.journey[data-step="0"] .journey__step[data-step-index="0"] .journey__dot,
+.journey[data-step="1"] .journey__step[data-step-index="1"] .journey__dot,
+.journey[data-step="2"] .journey__step[data-step-index="2"] .journey__dot,
+.journey[data-step="3"] .journey__step[data-step-index="3"] .journey__dot { background: var(--color-accent-light); box-shadow: 0 0 1rem var(--color-accent-light); transform: scale(1.5); }
+
+.journey__drag {
+    position: absolute;
+    right: 0;
+    bottom: var(--space-6);
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-pill);
+    color: var(--color-text-soft);
+    background: rgb(11 9 10 / 70%);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    transition: opacity 400ms var(--ease);
+}
+
+.journey[data-state="ready"] .journey__drag { display: inline-flex; }
+.journey[data-dragged="true"] .journey__drag { opacity: 0; }
+.journey__credit { max-width: 34rem; margin: 0; }
+
 .three-preview__road { position: absolute; right: -10%; bottom: -8%; left: -10%; height: 55%; background: linear-gradient(180deg, #1a1416, #0e0c0d); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); }
-.three-preview[data-state="ready"] .three-preview__poster { opacity: 0.18; }
-.three-preview[data-state="loading"] [data-three-preview-load] { opacity: 0.6; cursor: wait; }
-.three-preview[data-state="unavailable"] .three-preview__badge { color: var(--color-danger); }
 
 /* Points forts */
 .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-4); margin-top: var(--space-7); }
@@ -297,7 +390,14 @@
     .proof__steps { display: none; }
     .proof__stick { position: static; min-height: 0; padding-block: var(--space-8); }
     .gauge--proof { --p: 0.72; --k: 230; animation: none; }
-    .three-preview__visual { min-height: 17rem; }
+    .journey__scrim { background: linear-gradient(180deg, rgb(11 9 10 / 90%) 0%, rgb(11 9 10 / 40%) 45%, transparent 70%), linear-gradient(0deg, rgb(11 9 10 / 85%), transparent 30%); }
+    .journey__ui { padding-block: var(--space-6) var(--space-4); }
+    .journey__copy .lede { font-size: 0.95rem; }
+    .journey__steps { inset: auto auto 4.5rem 0; display: flex; gap: var(--space-4); transform: none; }
+    .journey__link { font-size: 0.8rem; }
+    .journey__step .mono { display: none; }
+    .journey__drag { right: auto; left: 0; bottom: 7.5rem; }
+    .journey__credit { font-size: 0.7rem; }
 }
 
 /* Pages d'erreur */
