@@ -284,3 +284,7 @@ html.theme-vt::view-transition-new(root) { animation: theme-reveal 700ms var(--e
     from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0)); }
     to { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0)); }
 }
+
+/* Petits textes rouges des sections toujours sombres : rouge plus clair pour respecter le contraste AA */
+.theme-dark .skillmap__meta,
+.theme-dark .journey__period { color: #ff7a7d; }
