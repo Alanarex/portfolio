@@ -130,7 +130,7 @@
 
 @keyframes proof-sweep { from { --p: 0; --k: 0; } to { --p: 0.94; --k: 301; } }
 
-@keyframes proof-lit { 0%, 100% { opacity: 0.22; transform: none; } 50% { opacity: 1; transform: translateX(0.6rem); } }
+@keyframes proof-lit { 0%, 100% { color: var(--color-text-muted); transform: none; } 50% { color: var(--color-text); transform: translateX(0.6rem); } }
 
 @media (prefers-reduced-motion: no-preference) {
 @supports (animation-timeline: view()) {

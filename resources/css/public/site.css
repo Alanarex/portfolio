@@ -258,9 +258,9 @@
 .proof__stick { position: sticky; top: 0; display: flex; grid-area: 1 / 1; align-items: center; align-self: start; min-height: 48rem; }
 .proof__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-7); align-items: center; }
 .proof__list { display: grid; margin-top: var(--space-5); }
-.proof__item { display: grid; gap: var(--space-2); padding-block: var(--space-5); border-top: 1px solid var(--color-border); }
+.proof__item { display: grid; color: var(--color-text-muted); gap: var(--space-2); padding-block: var(--space-5); border-top: 1px solid var(--color-border); }
 .proof__item h3 { margin: 0; font-size: clamp(1.8rem, 3.6vw, 3rem); }
-.proof__item p { color: var(--color-text-muted); }
+.proof__item p { color: inherit; }
 
 /* Aperçu 3D */
 
