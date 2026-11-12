@@ -15,10 +15,11 @@ const logout = () => { loggingOut.value = true; router.post('/logout', {}, { onF
       <div class="dashboard-header__inner">
         <div>
           <p class="eyebrow">
-            Portfolio Platform
+            Administration
           </p><h1>Dashboard</h1>
         </div>
         <button
+          class="button button--small"
           type="button"
           :disabled="loggingOut"
           @click="logout"

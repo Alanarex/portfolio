@@ -1,6 +1,30 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const MAX_DEVICE_PIXEL_RATIO = 1.5;
+const MODEL_URL = '/models/amg-gt-roadster.glb';
+const CAR_LENGTH = 4.6;
+const ROAD_HALF_WIDTH = 4.4;
+const KERB_WIDTH = 0.5;
+const SHOULDER_WIDTH = 5;
+const SIGN_LABELS = ['Projets', 'Preuves', 'Aperçu 3D', 'Contact'];
+/** Progression de défilement (0-1) à laquelle la voiture passe devant chaque panneau. */
+const STOPS = [0.14, 0.38, 0.62, 0.86];
+/** Portion de la courbe parcourue pendant le défilement. */
+const U_START = 0.03;
+const U_SPAN = 0.93;
+const PAINT = new THREE.Color('#9b1217');
+const NIGHT = '#0b090a';
+
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
+const smooth = (edge0: number, edge1: number, value: number): number => {
+    const t = clamp((value - edge0) / (edge1 - edge0), 0, 1);
+    return t * t * (3 - 2 * t);
+};
+const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+const damp = (rate: number, delta: number): number => 1 - Math.exp(-rate * delta);
 
 const supportsWebGl = (): boolean => {
     try {
@@ -11,7 +35,428 @@ const supportsWebGl = (): boolean => {
     }
 };
 
-export const mountThreePreview = (container: HTMLElement): void => {
+const canvasTexture = (width: number, height: number, draw: (ctx: CanvasRenderingContext2D) => void): THREE.CanvasTexture => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+        draw(ctx);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = 8;
+    return texture;
+};
+
+const makeAsphaltTexture = (): THREE.CanvasTexture =>
+    canvasTexture(512, 512, (ctx) => {
+        ctx.fillStyle = '#17141a';
+        ctx.fillRect(0, 0, 512, 512);
+        for (let i = 0; i < 9000; i++) {
+            const g = 22 + Math.random() * 30;
+            ctx.fillStyle = `rgb(${g + 3}, ${g}, ${g + 2})`;
+            ctx.fillRect(Math.random() * 512, Math.random() * 512, 1 + Math.random() * 2, 1 + Math.random() * 2);
+        }
+        // Lignes de rive pleines
+        ctx.fillStyle = '#d9d6d6';
+        ctx.fillRect(14, 0, 8, 512);
+        ctx.fillRect(490, 0, 8, 512);
+        // Axe pointillé
+        ctx.fillStyle = '#e5383b';
+        ctx.fillRect(252, 40, 8, 190);
+        ctx.fillRect(252, 296, 8, 190);
+    });
+
+const makeKerbTexture = (): THREE.CanvasTexture =>
+    canvasTexture(64, 128, (ctx) => {
+        ctx.fillStyle = '#e5383b';
+        ctx.fillRect(0, 0, 64, 64);
+        ctx.fillStyle = '#f2eeee';
+        ctx.fillRect(0, 64, 64, 64);
+    });
+
+const makeGlowTexture = (color: string): THREE.CanvasTexture =>
+    canvasTexture(128, 128, (ctx) => {
+        const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(0.35, `${color}66`);
+        gradient.addColorStop(1, `${color}00`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 128, 128);
+    });
+
+const makeShadowTexture = (): THREE.CanvasTexture =>
+    canvasTexture(128, 128, (ctx) => {
+        const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        gradient.addColorStop(0, 'rgba(0,0,0,0.9)');
+        gradient.addColorStop(0.6, 'rgba(0,0,0,0.45)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 128, 128);
+    });
+
+const makeSign = (label: string, index: number): THREE.Group => {
+    const texture = canvasTexture(512, 256, (ctx) => {
+        ctx.fillStyle = '#161a1d';
+        ctx.fillRect(0, 0, 512, 256);
+        ctx.strokeStyle = '#e5383b';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(12, 12, 488, 232);
+        ctx.fillStyle = '#b1a7a6';
+        ctx.font = '500 34px monospace';
+        ctx.fillText(`0${index + 1} / 0${SIGN_LABELS.length}`, 40, 76);
+        ctx.fillStyle = '#f5f3f4';
+        ctx.font = '700 66px sans-serif';
+        ctx.fillText(label, 40, 170);
+    });
+    const group = new THREE.Group();
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 2.1), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+    panel.position.y = 4.6;
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(4.3, 2.2), new THREE.MeshBasicMaterial({ color: '#0e0c0d', side: THREE.BackSide }));
+    back.position.copy(panel.position);
+    back.position.z = -0.02;
+    const postMaterial = new THREE.MeshStandardMaterial({ color: '#2a2f33', metalness: 0.7, roughness: 0.4 });
+    for (const x of [-1.6, 1.6]) {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 4.8, 8), postMaterial);
+        post.position.set(x, 2.4, 0);
+        group.add(post);
+    }
+    group.add(panel, back);
+    return group;
+};
+
+const restyleCar = (car: THREE.Object3D): { rear: THREE.Vector3; front: THREE.Vector3 } => {
+    const rear = new THREE.Vector3();
+    const front = new THREE.Vector3();
+    let rearCount = 0;
+    let frontCount = 0;
+    car.updateMatrixWorld(true);
+
+    car.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        if (!mesh.isMesh) {
+            return;
+        }
+        const material = mesh.material as THREE.MeshStandardMaterial;
+        const name = material.name;
+        const center = new THREE.Box3().setFromObject(mesh).getCenter(new THREE.Vector3());
+
+        if (name === 'body') {
+            mesh.material = new THREE.MeshPhysicalMaterial({
+                color: PAINT,
+                metalness: 0.75,
+                roughness: 0.28,
+                clearcoat: 1,
+                clearcoatRoughness: 0.05,
+                envMapIntensity: 1.8,
+            });
+        } else if (name === 'glass' || name === 'd_glass') {
+            material.opacity = 0.35;
+            material.transparent = true;
+            material.depthWrite = false;
+        } else if (name.startsWith('brakes')) {
+            material.color = new THREE.Color('#e5383b');
+        } else if (name === 'r_lights') {
+            material.emissive = new THREE.Color('#ff2a2e');
+            material.emissiveIntensity = 1.6;
+        } else if (name === 'lights') {
+            material.emissive = new THREE.Color('#fff1e0');
+            material.emissiveIntensity = 0.9;
+        }
+
+        if (name === 'r_lights') {
+            rear.add(center);
+            rearCount++;
+        } else if (name === 'lights') {
+            front.add(center);
+            frontCount++;
+        }
+    });
+
+    if (rearCount) {
+        rear.divideScalar(rearCount);
+    }
+    if (frontCount) {
+        front.divideScalar(frontCount);
+    }
+
+    return { rear, front };
+};
+
+interface Wheel {
+    pivot: THREE.Group;
+    radius: number;
+}
+
+interface CarRig {
+    holder: THREE.Group;
+    wheels: Wheel[];
+    tailLights: THREE.Vector3[];
+}
+
+interface TriangleBucket {
+    position: number[];
+    normal: number[];
+    uv: number[];
+}
+
+const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
+    const meshes: THREE.Mesh[] = [];
+    root.traverse((object) => {
+        if ((object as THREE.Mesh).isMesh) {
+            meshes.push(object as THREE.Mesh);
+        }
+    });
+    return meshes;
+};
+
+const materialName = (mesh: THREE.Mesh): string => (mesh.material as THREE.Material).name;
+
+/**
+ * Le modèle est fusionné par matériau : les quatre roues sont mélangées au reste de la carrosserie.
+ * On repère les roues avec les pneus, puis on déplace les triangles qui leur appartiennent
+ * dans un pivot par roue, afin de pouvoir les faire tourner.
+ */
+const splitWheels = (holder: THREE.Group): Wheel[] => {
+    holder.updateMatrixWorld(true);
+    const inverse = new THREE.Matrix4().copy(holder.matrixWorld).invert();
+    const meshes = meshesOf(holder);
+    const tires = meshes.filter((mesh) => materialName(mesh) === 'tire_mat4');
+    if (tires.length === 0) {
+        return [];
+    }
+
+    const point = new THREE.Vector3();
+    const boxes = new Map<string, THREE.Box3>();
+    for (const tire of tires) {
+        const positions = tire.geometry.getAttribute('position');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, tire.matrixWorld);
+        for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(matrix);
+            const key = `${point.x > 0 ? 'r' : 'l'}${point.z > 0 ? 'b' : 'f'}`;
+            const box = boxes.get(key) ?? new THREE.Box3();
+            box.expandByPoint(point);
+            boxes.set(key, box);
+        }
+    }
+
+    const wheels = [...boxes.values()].map((box) => {
+        const center = box.getCenter(new THREE.Vector3());
+        const pivot = new THREE.Group();
+        pivot.position.copy(center);
+        return { box, center, pivot, radius: (box.max.y - box.min.y) / 2, buckets: new Map<THREE.Material, TriangleBucket>() };
+    });
+
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    const c = new THREE.Vector3();
+    const centroid = new THREE.Vector3();
+    const normalMatrix = new THREE.Matrix3();
+    const tmp = new THREE.Vector3();
+
+    for (const mesh of meshes) {
+        const name = materialName(mesh);
+        const geometry = mesh.geometry;
+        const index = geometry.getIndex();
+        if (!index || name === 'body' || name === 'brakes_amg' || (mesh.material as THREE.Material).transparent) {
+            continue;
+        }
+        const positions = geometry.getAttribute('position');
+        const normals = geometry.getAttribute('normal');
+        const uvs = geometry.getAttribute('uv');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld);
+        normalMatrix.getNormalMatrix(matrix);
+
+        const kept: number[] = [];
+        let moved = false;
+
+        for (let t = 0; t < index.count; t += 3) {
+            const i0 = index.getX(t);
+            const i1 = index.getX(t + 1);
+            const i2 = index.getX(t + 2);
+            a.fromBufferAttribute(positions, i0).applyMatrix4(matrix);
+            b.fromBufferAttribute(positions, i1).applyMatrix4(matrix);
+            c.fromBufferAttribute(positions, i2).applyMatrix4(matrix);
+            centroid.copy(a).add(b).add(c).divideScalar(3);
+
+            const wheel = wheels.find(
+                (candidate) =>
+                    Math.sign(centroid.x) === Math.sign(candidate.center.x) &&
+                    centroid.x >= candidate.box.min.x - 0.03 &&
+                    centroid.x <= candidate.box.max.x + 0.03 &&
+                    Math.hypot(centroid.y - candidate.center.y, centroid.z - candidate.center.z) <= candidate.radius * 1.03,
+            );
+
+            if (!wheel) {
+                kept.push(i0, i1, i2);
+                continue;
+            }
+
+            moved = true;
+            const material = mesh.material as THREE.Material;
+            const bucket = wheel.buckets.get(material) ?? { position: [], normal: [], uv: [] };
+            wheel.buckets.set(material, bucket);
+            for (const [vertex, source] of [
+                [a, i0],
+                [b, i1],
+                [c, i2],
+            ] as const) {
+                bucket.position.push(vertex.x - wheel.center.x, vertex.y - wheel.center.y, vertex.z - wheel.center.z);
+                if (normals) {
+                    tmp.fromBufferAttribute(normals, source).applyMatrix3(normalMatrix).normalize();
+                    bucket.normal.push(tmp.x, tmp.y, tmp.z);
+                }
+                if (uvs) {
+                    bucket.uv.push(uvs.getX(source), uvs.getY(source));
+                }
+            }
+        }
+
+        if (moved) {
+            geometry.setIndex(kept);
+        }
+    }
+
+    return wheels.map((wheel) => {
+        for (const [material, bucket] of wheel.buckets) {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(bucket.position, 3));
+            if (bucket.normal.length > 0) {
+                geometry.setAttribute('normal', new THREE.Float32BufferAttribute(bucket.normal, 3));
+            }
+            if (bucket.uv.length > 0) {
+                geometry.setAttribute('uv', new THREE.Float32BufferAttribute(bucket.uv, 2));
+            }
+            wheel.pivot.add(new THREE.Mesh(geometry, material));
+        }
+        holder.add(wheel.pivot);
+        return { pivot: wheel.pivot, radius: wheel.radius };
+    });
+};
+
+/** Positions des feux arrière : un à gauche, un à droite, légèrement relevés. */
+const findTailLights = (holder: THREE.Group): THREE.Vector3[] => {
+    holder.updateMatrixWorld(true);
+    const inverse = new THREE.Matrix4().copy(holder.matrixWorld).invert();
+    const point = new THREE.Vector3();
+    const left = new THREE.Box3();
+    const right = new THREE.Box3();
+
+    for (const mesh of meshesOf(holder).filter((item) => materialName(item) === 'r_lights')) {
+        const positions = mesh.geometry.getAttribute('position');
+        const matrix = new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld);
+        for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(matrix);
+            (point.x < 0 ? left : right).expandByPoint(point);
+        }
+    }
+
+    const sides = [left, right].map((box, index) => {
+        if (box.isEmpty()) {
+            return null;
+        }
+        const center = box.getCenter(new THREE.Vector3());
+        // Un bloc unique centré donne deux feux écartés de part et d'autre de l'axe.
+        center.x = (index === 0 ? -1 : 1) * Math.max(Math.abs(center.x), 0.55);
+        return center;
+    });
+
+    const fallback = new THREE.Vector3(0.6, 0.75, CAR_LENGTH / 2);
+    const first = sides[0] ?? (sides[1] ? sides[1].clone().setX(-sides[1].x) : fallback.clone().setX(-0.6));
+    const second = sides[1] ?? first.clone().setX(-first.x);
+    return [first, second].map((light) => light.clone().add(new THREE.Vector3(0, 0.07, 0.04)));
+};
+
+/** Charge la voiture : longueur sur Z, avant vers -Z, roues posées à y = 0. */
+const loadCar = async (): Promise<CarRig> => {
+    const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    const gltf = await loader.loadAsync(MODEL_URL);
+    const model = gltf.scene;
+
+    const { rear, front } = restyleCar(model);
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = CAR_LENGTH / Math.max(size.x, size.z);
+    const wrapper = new THREE.Group();
+
+    model.scale.setScalar(scale);
+    model.position.sub(box.getCenter(new THREE.Vector3()).multiplyScalar(scale));
+
+    const longAxisIsX = size.x > size.z;
+    const axis = longAxisIsX ? 'x' : 'z';
+    const rearIsPositive = rear[axis] > front[axis];
+
+    if (longAxisIsX) {
+        model.rotation.y = rearIsPositive ? -Math.PI / 2 : Math.PI / 2;
+    } else if (!rearIsPositive) {
+        model.rotation.y = Math.PI;
+    }
+
+    wrapper.add(model);
+    const placed = new THREE.Box3().setFromObject(wrapper);
+    wrapper.position.y -= placed.min.y;
+
+    const holder = new THREE.Group();
+    holder.add(wrapper);
+    const wheels = splitWheels(holder);
+    return { holder, wheels, tailLights: findTailLights(holder) };
+};
+
+/** Ruban plat suivant la courbe (route, bas-côtés, vibreurs). */
+const buildRibbon = (
+    curve: THREE.CatmullRomCurve3,
+    segments: number,
+    inner: number,
+    outer: number,
+    height: (side: -1 | 1, edge: 'inner' | 'outer') => number,
+    texture: THREE.Texture | null,
+    uRepeat: number,
+    material: THREE.MeshStandardMaterialParameters,
+): THREE.Mesh => {
+    const positions: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+    const length = curve.getLength();
+    const up = new THREE.Vector3(0, 1, 0);
+    const side = outer < 0 || inner < 0 ? -1 : 1;
+
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const point = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const a = point.clone().addScaledVector(right, inner);
+        const b = point.clone().addScaledVector(right, outer);
+        positions.push(a.x, height(side as -1 | 1, 'inner'), a.z, b.x, height(side as -1 | 1, 'outer'), b.z);
+        const v = (t * length) / uRepeat;
+        uvs.push(0, v, 1, v);
+        if (i < segments) {
+            const k = i * 2;
+            indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2);
+        }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    // Les normales doivent regarder vers le haut quel que soit l'ordre des sommets.
+    const normal = geometry.getAttribute('normal');
+    for (let i = 0; i < normal.count; i++) {
+        if (normal.getY(i) < 0) {
+            normal.setXYZ(i, -normal.getX(i), -normal.getY(i), -normal.getZ(i));
+        }
+    }
+
+    return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ ...material, map: texture, side: THREE.DoubleSide }));
+};
+
+export const mountThreePreview = async (container: HTMLElement): Promise<void> => {
     if (!supportsWebGl()) {
         throw new Error('WebGL is unavailable.');
     }
@@ -21,62 +466,431 @@ export const mountThreePreview = (container: HTMLElement): void => {
         throw new Error('The Three.js canvas host is missing.');
     }
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 20);
-    camera.position.set(0, 0.4, 3.2);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'low-power' });
+    const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DEVICE_PIXEL_RATIO));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
     renderer.domElement.setAttribute('aria-hidden', 'true');
     canvasHost.append(renderer.domElement);
 
-    const geometry = new THREE.BoxGeometry(1.15, 1.15, 1.15);
-    const material = new THREE.MeshNormalMaterial({ flatShading: true });
-    const placeholder = new THREE.Mesh(geometry, material);
-    scene.add(placeholder);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(NIGHT);
+    scene.fog = new THREE.Fog(NIGHT, 30, 150);
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let visible = true;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = 0.5;
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
+
+    scene.add(new THREE.HemisphereLight('#7a86a0', '#1a0b0c', 0.4));
+    const rim = new THREE.DirectionalLight('#e5383b', 1.2);
+    scene.add(rim, rim.target);
+    const key = new THREE.DirectionalLight('#f5f3f4', 0.9);
+    scene.add(key, key.target);
+
+    // Tracé : une route sinueuse en plan.
+    const curve = new THREE.CatmullRomCurve3(
+        [
+            new THREE.Vector3(0, 0, 40),
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(14, 0, -40),
+            new THREE.Vector3(2, 0, -85),
+            new THREE.Vector3(-18, 0, -130),
+            new THREE.Vector3(-8, 0, -180),
+            new THREE.Vector3(16, 0, -225),
+            new THREE.Vector3(10, 0, -275),
+            new THREE.Vector3(0, 0, -320),
+        ],
+        false,
+        'centripetal',
+    );
+    const segments = 480;
+
+    const asphalt = makeAsphaltTexture();
+    const road = buildRibbon(curve, segments, -ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, () => 0, asphalt, 8, { roughness: 0.5, metalness: 0.25 });
+    scene.add(road);
+
+    const kerbTexture = makeKerbTexture();
+    const kerbMaterial = { roughness: 0.7, metalness: 0 };
+    for (const sign of [-1, 1] as const) {
+        const inner = sign * ROAD_HALF_WIDTH;
+        const outer = sign * (ROAD_HALF_WIDTH + KERB_WIDTH);
+        scene.add(buildRibbon(curve, segments, inner, outer, () => 0.02, kerbTexture, 1, kerbMaterial));
+        const shoulder = buildRibbon(
+            curve,
+            segments,
+            outer,
+            sign * (ROAD_HALF_WIDTH + KERB_WIDTH + SHOULDER_WIDTH),
+            (_s, edge) => (edge === 'inner' ? 0.02 : -0.25),
+            null,
+            1,
+            { color: '#120f11', roughness: 1, metalness: 0 },
+        );
+        scene.add(shoulder);
+    }
+
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshStandardMaterial({ color: '#0a0809', roughness: 1 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.3;
+    scene.add(ground);
+
+    // Glissières (poteaux) et lampadaires
+    const up = new THREE.Vector3(0, 1, 0);
+    const sideOffset = ROAD_HALF_WIDTH + KERB_WIDTH + SHOULDER_WIDTH + 0.4;
+    const posts: THREE.Matrix4[] = [];
+    const lamps: { position: THREE.Vector3; yaw: number }[] = [];
+    const length = curve.getLength();
+    for (let d = 0; d < length; d += 9) {
+        const t = d / length;
+        const point = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        for (const sign of [-1, 1]) {
+            const position = point.clone().addScaledVector(right, sign * sideOffset);
+            position.y = 0.45;
+            posts.push(new THREE.Matrix4().makeTranslation(position.x, position.y, position.z));
+        }
+    }
+    for (let d = 14; d < length; d += 42) {
+        const t = d / length;
+        const point = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const sign = Math.round(d / 42) % 2 === 0 ? 1 : -1;
+        lamps.push({ position: point.clone().addScaledVector(right, sign * (sideOffset + 0.6)), yaw: Math.atan2(-tangent.x, -tangent.z) });
+    }
+
+    const postMesh = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(0.14, 0.9, 0.14),
+        new THREE.MeshStandardMaterial({ color: '#d9d6d6', emissive: '#e5383b', emissiveIntensity: 0.35, roughness: 0.5 }),
+        posts.length,
+    );
+    posts.forEach((matrix, index) => postMesh.setMatrixAt(index, matrix));
+    scene.add(postMesh);
+
+    const poleMaterial = new THREE.MeshStandardMaterial({ color: '#23282c', metalness: 0.6, roughness: 0.5 });
+    const glowTexture = makeGlowTexture('#ffb27a');
+    for (const lamp of lamps) {
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 7, 8), poleMaterial);
+        pole.position.copy(lamp.position).setY(3.5);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.12, 0.35), new THREE.MeshBasicMaterial({ color: '#ffd9b0' }));
+        head.position.copy(lamp.position).setY(7);
+        head.rotation.y = lamp.yaw;
+        const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+        glow.position.copy(head.position).setY(6.9);
+        glow.scale.setScalar(6);
+        scene.add(pole, head, glow);
+    }
+
+    // Montagnes lointaines (silhouettes basses)
+    const mountainMaterial = new THREE.MeshStandardMaterial({ color: '#150f12', roughness: 1, flatShading: true });
+    for (let i = 0; i < 46; i++) {
+        const t = Math.random();
+        const point = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const sign = Math.random() < 0.5 ? -1 : 1;
+        const distance = 55 + Math.random() * 90;
+        const height = 14 + Math.random() * 34;
+        const mountain = new THREE.Mesh(new THREE.ConeGeometry(10 + Math.random() * 18, height, 5 + Math.floor(Math.random() * 2)), mountainMaterial);
+        mountain.position.copy(point).addScaledVector(right, sign * distance).setY(height / 2 - 0.5);
+        mountain.rotation.y = Math.random() * Math.PI;
+        scene.add(mountain);
+    }
+
+    // Ciel : étoiles et lune rouge qui suivent la caméra
+    const starCount = 1600;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * 0.46 * Math.PI;
+        starPositions[i * 3] = 300 * Math.sin(phi) * Math.cos(theta);
+        starPositions[i * 3 + 1] = 12 + 300 * Math.cos(phi);
+        starPositions[i * 3 + 2] = 300 * Math.sin(phi) * Math.sin(theta);
+    }
+    const starGeometry = new THREE.BufferGeometry();
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const sky = new THREE.Group();
+    sky.add(
+        new THREE.Points(
+            starGeometry,
+            new THREE.PointsMaterial({ color: '#f5f3f4', size: 1.1, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.85 }),
+        ),
+    );
+    const moon = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: makeGlowTexture('#e5383b'), blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0.7 }),
+    );
+    moon.position.set(-60, 90, -260);
+    moon.scale.setScalar(110);
+    sky.add(moon);
+    scene.add(sky);
+
+    // Panneaux, un par section
+    const signs = SIGN_LABELS.map((label, index) => {
+        const sign = makeSign(label, index);
+        const u = U_START + (STOPS[index] + 0.025) * U_SPAN;
+        const point = curve.getPointAt(u);
+        const tangent = curve.getTangentAt(u);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const side = index % 2 === 0 ? 1 : -1;
+        sign.position.copy(point).addScaledVector(right, side * (sideOffset + 1.2));
+        const target = sign.position.clone().addScaledVector(tangent, -10).addScaledVector(right, -side * 4);
+        sign.lookAt(target);
+        scene.add(sign);
+        return sign;
+    });
+
+    // Voiture
+    const rig = await loadCar();
+    const car = rig.holder;
+    scene.add(car);
+
+    const shadow = new THREE.Mesh(
+        new THREE.PlaneGeometry(CAR_LENGTH * 1.25, CAR_LENGTH * 0.62),
+        new THREE.MeshBasicMaterial({ map: makeShadowTexture(), transparent: true, depthWrite: false, opacity: 0.9 }),
+    );
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.03;
+    car.add(shadow);
+
+    const headlight = new THREE.SpotLight('#fff1e0', 260, 60, 0.5, 0.6, 1.6);
+    headlight.position.set(0, 0.7, -1.9);
+    headlight.target.position.set(0, 0, -18);
+    car.add(headlight, headlight.target);
+    const tailGlow = makeGlowTexture('#ff2a2e');
+    for (const light of rig.tailLights) {
+        const lamp = new THREE.PointLight('#ff2a2e', 1.4, 4.5, 2);
+        lamp.position.copy(light);
+        const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: tailGlow, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.8 }));
+        flare.position.copy(light).add(new THREE.Vector3(0, 0, 0.05));
+        flare.scale.setScalar(0.7);
+        car.add(lamp, flare);
+    }
+
+    // État
+    const state = {
+        target: 0,
+        progress: 0,
+        velocity: 0,
+        yaw: 0,
+        pitch: 0,
+        dragging: false,
+        visible: true,
+        elapsed: 0,
+        lastScrollProgress: 0,
+        activeStep: -1,
+    };
     let animationFrame: number | undefined;
+    const clock = new THREE.Clock();
+
+    const tangent = new THREE.Vector3();
+    const position = new THREE.Vector3();
+    const desired = new THREE.Vector3();
+    const lookAt = new THREE.Vector3();
+    const smoothedLook = new THREE.Vector3();
+    let cameraReady = false;
+
+    const scrollProgress = (): number => {
+        const rect = container.getBoundingClientRect();
+        const runway = Math.max(rect.height - window.innerHeight, 1);
+        return clamp(-rect.top / runway, 0, 1);
+    };
+
+    let lastU: number | undefined;
+    const placeCar = (): void => {
+        const u = U_START + state.progress * U_SPAN;
+        curve.getPointAt(u, position);
+        curve.getTangentAt(u, tangent);
+
+        car.position.copy(position);
+        car.position.y = 0.02;
+        car.lookAt(car.position.clone().sub(tangent));
+
+        // Les roues tournent selon la distance réellement parcourue (dans les deux sens du défilement).
+        if (lastU !== undefined) {
+            const travelled = (u - lastU) * curve.getLength();
+            for (const wheel of rig.wheels) {
+                wheel.pivot.rotation.x -= travelled / wheel.radius;
+            }
+        }
+        lastU = u;
+    };
+
+    const placeCamera = (delta: number): void => {
+        const p = state.progress;
+        // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
+        const base =
+            lerp(2.45, 0.32, smooth(0.0, 0.2, p)) +
+            lerp(0, 1.35, smooth(0.8, 1, p));
+        const azimuth = base + state.yaw;
+        const distance = lerp(8.8, 8.4, smooth(0, 0.25, p)) - 1.2 * smooth(0.8, 1, p);
+        const height = clamp(lerp(1.5, 2.5, smooth(0, 0.25, p)) + state.pitch, 0.5, 6);
+
+        const rear = tangent.clone().multiplyScalar(-1);
+        rear.applyAxisAngle(up, azimuth);
+        desired.copy(car.position).addScaledVector(rear, distance).setY(height);
+
+        const aimAhead = 2.4 * (1 - clamp(Math.abs(azimuth), 0, 1.5) / 1.5);
+        lookAt.copy(car.position).addScaledVector(tangent, aimAhead).setY(0.8);
+
+        if (!cameraReady) {
+            camera.position.copy(desired);
+            smoothedLook.copy(lookAt);
+            cameraReady = true;
+        } else {
+            camera.position.lerp(desired, damp(5, delta));
+            smoothedLook.lerp(lookAt, damp(7, delta));
+        }
+        camera.lookAt(smoothedLook);
+
+        const kick = clamp(Math.abs(state.velocity) * 60, 0, 1);
+        camera.fov = lerp(camera.fov, 42 + kick * 9, damp(4, delta));
+        camera.updateProjectionMatrix();
+    };
+
+    const updateLights = (): void => {
+        rim.position.copy(car.position).add(new THREE.Vector3(-6, 4, 5));
+        rim.target.position.copy(car.position);
+        key.position.copy(car.position).add(new THREE.Vector3(5, 8, -4));
+        key.target.position.copy(car.position);
+        sky.position.copy(camera.position);
+    };
+
+    const updateSteps = (): void => {
+        let active = -1;
+        let best = 0.1;
+        STOPS.forEach((stop, index) => {
+            const distance = Math.abs(state.progress - stop);
+            if (distance < best) {
+                best = distance;
+                active = index;
+            }
+        });
+        if (active !== state.activeStep) {
+            state.activeStep = active;
+            container.dataset.step = String(active);
+        }
+        container.style.setProperty('--journey', state.progress.toFixed(4));
+        signs.forEach((sign, index) => {
+            const scale = index === active ? 1.1 : 1;
+            sign.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.15);
+        });
+    };
+
+    const update = (delta: number): void => {
+        state.elapsed += delta;
+        state.target = reducedMotion ? 0.3 : scrollProgress();
+        const previous = state.progress;
+        state.progress += (state.target - state.progress) * damp(reducedMotion ? 30 : 4.5, delta);
+        state.velocity = lerp(state.velocity, (state.progress - previous) / Math.max(delta, 0.001), damp(6, delta)) / 60;
+        if (!state.dragging) {
+            state.yaw *= 1 - damp(0.9, delta);
+            state.pitch *= 1 - damp(1.2, delta);
+        }
+
+        placeCar();
+        placeCamera(delta);
+        updateLights();
+        updateSteps();
+    };
+
+    const render = (): void => {
+        animationFrame = undefined;
+        if (!state.visible) {
+            return;
+        }
+
+        update(Math.min(clock.getDelta(), 0.05));
+        renderer.render(scene, camera);
+
+        if (!reducedMotion || state.dragging) {
+            animationFrame = requestAnimationFrame(render);
+        }
+    };
+
+    const wake = (): void => {
+        if (state.visible && animationFrame === undefined) {
+            clock.getDelta();
+            render();
+        }
+    };
 
     const resize = (): void => {
         const width = Math.max(canvasHost.clientWidth, 1);
         const height = Math.max(canvasHost.clientHeight, 1);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
+        // Sur grand écran, on décale la voiture vers la droite pour laisser la place au texte.
+        if (width / height > 1.25) {
+            camera.setViewOffset(width, height, -width * 0.13, 0, width, height);
+        } else {
+            camera.clearViewOffset();
+        }
         camera.updateProjectionMatrix();
     };
 
-    const render = (): void => {
-        animationFrame = undefined;
-        if (!visible) {
+    // Interaction : glisser pour tourner autour de la voiture (le défilement vertical reste libre au toucher)
+    let lastX = 0;
+    let lastY = 0;
+    const stage = canvasHost;
+    stage.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse' && event.button !== 0) {
             return;
         }
-
-        if (!reducedMotion) {
-            placeholder.rotation.y += 0.006;
+        state.dragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        stage.setPointerCapture(event.pointerId);
+        container.dataset.dragged = 'true';
+        wake();
+    });
+    stage.addEventListener('pointermove', (event) => {
+        if (!state.dragging) {
+            return;
         }
-        renderer.render(scene, camera);
-
-        if (!reducedMotion) {
-            animationFrame = requestAnimationFrame(render);
+        state.yaw -= (event.clientX - lastX) * 0.007;
+        state.pitch = clamp(state.pitch + (event.clientY - lastY) * 0.012, -1, 3);
+        lastX = event.clientX;
+        lastY = event.clientY;
+    });
+    const endDrag = (event: PointerEvent): void => {
+        state.dragging = false;
+        if (stage.hasPointerCapture(event.pointerId)) {
+            stage.releasePointerCapture(event.pointerId);
         }
+        wake();
     };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
 
-    const visibilityObserver = new IntersectionObserver((entries) => {
-        visible = entries.some((entry) => entry.isIntersecting);
-        if (visible && animationFrame === undefined) {
-            render();
-        } else if (!visible && animationFrame !== undefined) {
+    // Visibilité : contrôle géométrique au défilement (fiable même quand l'IntersectionObserver est silencieux).
+    const checkVisibility = (): void => {
+        const rect = container.getBoundingClientRect();
+        state.visible = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (state.visible) {
+            wake();
+        } else if (animationFrame !== undefined) {
             cancelAnimationFrame(animationFrame);
             animationFrame = undefined;
         }
-    });
+    };
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility, { passive: true });
 
-    const resizeObserver = new ResizeObserver(resize);
+    const resizeObserver = new ResizeObserver(() => {
+        resize();
+        if (reducedMotion) {
+            wake();
+        }
+    });
     resizeObserver.observe(canvasHost);
-    visibilityObserver.observe(container);
     resize();
-    render();
+    checkVisibility();
+    if (animationFrame === undefined && state.visible) {
+        render();
+    }
 };

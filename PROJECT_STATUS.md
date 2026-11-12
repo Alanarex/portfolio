@@ -54,6 +54,18 @@ PORT-003 was squash-merged through PR #21 as `9b98e36f1088b156caecb11e9c0ca0c829
 - visible keyboard focus, associated form errors and reduced-motion behavior;
 - representative desktop/mobile captures and documented QA direction.
 
+## Interface redesign (PR #52)
+
+Owner-requested redesign layered on PORT-004, recorded in ADR-008:
+
+- red palette (onyx, garnet, mahogany, strawberry) replaces the navy/slate default of ADR-007;
+- self-hosted variable fonts (Inter, Space Grotesk, JetBrains Mono);
+- scroll-driven speedometer, pinned proof section, stacked project cards, Lenis smooth scroll;
+- switch and floating-label components shared by Blade and Vue;
+- lazy-loaded Three.js road and car scene using a CC BY 4.0 model (provenance in `docs/architecture/3d-assets.md`).
+
+Not yet covered: career/skills/education/passions/contact sections (wait for PORT-005 to PORT-009 content), case study page, admin project form, page transitions.
+
 ## Current objective
 
 Validate and merge issue #9 / PORT-004, then continue automatically through every remaining executable PORT issue up to PORT-011. Each feature retains its own branch, PR, tests, merge and issue closure.
