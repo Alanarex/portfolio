@@ -20,6 +20,7 @@
 <a class="skip-link" href="#main">Aller au contenu</a>
 @include('partials.gauge-defs')
 <div class="scroll-progress" aria-hidden="true"></div>
+@sectionMissing('no_loader')
 <div class="loader" role="status" aria-label="Chargement de la page">
     <div class="loader__inner">
         <span class="brand" aria-hidden="true">Alan<span class="brand__mark"></span></span>
@@ -27,11 +28,12 @@
         <div class="loader__meter" aria-hidden="true"><i></i></div>
     </div>
 </div>
+@endif
 <header class="site-header"><div class="container site-header__inner">
     <a class="brand" href="{{ route('home') }}" aria-label="Alan, accueil">Alan<span class="brand__mark"></span></a>
     <nav class="site-nav" aria-label="Navigation principale">
-        <a href="#projets">Projets</a><a href="#preuves">Preuves</a><a href="#apercu">Aperçu 3D</a><a href="#contact">Contact</a>
-        <a class="button button--small" href="#contact"><span>Me contacter</span><span class="button__arrow" aria-hidden="true">→</span></a>
+        <a href="{{ route('home') }}#projets">Projets</a><a href="{{ route('home') }}#preuves">Preuves</a><a href="{{ route('home') }}#apercu">Aperçu 3D</a><a href="{{ route('home') }}#contact">Contact</a>
+        <a class="button button--small" href="{{ route('home') }}#contact"><span>Me contacter</span><span class="button__arrow" aria-hidden="true">→</span></a>
     </nav>
 </div></header>
 <main id="main">@yield('content')</main>
