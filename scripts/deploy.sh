@@ -32,6 +32,10 @@ wait_for_health() {
 
 start_release() {
     export RELEASE="$1"
+    # Keep :latest on the release being started. Without RELEASE in the environment, Compose falls
+    # back to :latest, so a manual `docker compose up` would otherwise swap in an older image.
+    docker tag "portfolio-app:$1" portfolio-app:latest || log "could not tag portfolio-app:latest" >&2
+    docker tag "portfolio-web:$1" portfolio-web:latest || log "could not tag portfolio-web:latest" >&2
     "${COMPOSE[@]}" up -d --remove-orphans
     # Nginx resolves "app" once at startup. When app is recreated but the web image is unchanged
     # (same commit redeployed), web would keep proxying to the old container and /health would 502.
