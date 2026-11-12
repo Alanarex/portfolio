@@ -706,16 +706,9 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         curve.getPointAt(u, position);
         curve.getTangentAt(u, tangent);
 
-        // Légère dérive latérale pour qu'elle reste vivante à l'arrêt
-        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
-        const sway = reducedMotion ? 0 : Math.sin(state.elapsed * 0.7) * 0.22;
-        car.position.copy(position).addScaledVector(right, sway);
+        car.position.copy(position);
         car.position.y = 0.02;
-
-        const ahead = curve.getTangentAt(clamp(u + 0.01, 0, 1));
-        const bend = new THREE.Vector3().crossVectors(tangent, ahead).y;
         car.lookAt(car.position.clone().sub(tangent));
-        car.rotation.z = clamp(-bend * 40, -0.04, 0.04);
 
         // Les roues tournent selon la distance réellement parcourue (dans les deux sens du défilement).
         if (lastU !== undefined) {
@@ -732,7 +725,6 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
         const base =
             lerp(2.45, 0.32, smooth(0.0, 0.2, p)) +
-            (reducedMotion ? 0 : 0.14 * Math.sin(p * 16)) * smooth(0.2, 0.3, p) +
             lerp(0, 1.35, smooth(0.8, 1, p));
         const azimuth = base + state.yaw;
         const distance = lerp(8.8, 8.4, smooth(0, 0.25, p)) - 1.2 * smooth(0.8, 1, p);
