@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import { cloneProps } from '@admin/lib/clone';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type SocialLink = { platform: string; url: string; is_enabled: boolean; is_public: boolean; sort_order: number };
@@ -19,7 +20,7 @@ const props = defineProps<{
   locales: { code: string; label: string; direction: string; status: string }[];
 }>();
 
-const form = useForm(structuredClone(props.settings));
+const form = useForm(cloneProps(props.settings));
 
 function socialError(platform: string, field: string): string | undefined {
   const submitted = form.social_links.filter((link) => link.url.trim() !== '');

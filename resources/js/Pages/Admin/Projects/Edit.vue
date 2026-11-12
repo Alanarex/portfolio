@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { cloneProps } from '@admin/lib/clone';
 import { shallowRef, watch } from 'vue';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
@@ -75,8 +76,8 @@ const sectionLabels: Record<string, Record<Locale, string>> = {
   lessons: { fr: 'Enseignements', en: 'Lessons' },
 };
 
-const form = useForm(structuredClone(props.project));
-const createMediaForms = (media: Media[]) => media.map((asset) => useForm(structuredClone(asset)));
+const form = useForm(cloneProps(props.project));
+const createMediaForms = (media: Media[]) => media.map((asset) => useForm(cloneProps(asset)));
 const mediaForms = shallowRef(createMediaForms(props.media));
 const newMedia = useForm({
   project_id: props.project.id ?? null,
