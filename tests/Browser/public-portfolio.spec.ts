@@ -40,6 +40,8 @@ test.describe('accessibility audit', () => {
     test.use({ reducedMotion: 'reduce' });
 
 test('keyboard flow and audited public pages meet WCAG A/AA rules', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
     for (const url of ['/fr', '/fr/projects', '/fr/projects/handicapacite', '/fr/privacy', '/fr/legal']) {
         await page.goto(url);
         await page.keyboard.press('Tab');
