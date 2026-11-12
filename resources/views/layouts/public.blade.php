@@ -39,7 +39,7 @@
 <main id="main">@yield('content')</main>
 <footer class="site-footer"><div class="container site-footer__inner">
     <p>© {{ date('Y') }} Alan</p>
-    <a href="{{ route('login') }}">Espace privé</a>
+    <nav class="site-footer__links" aria-label="Liens du pied de page"><a href="{{ route('legal') }}">Mentions légales</a><a href="{{ route('login') }}">Espace privé</a></nav>
 </div></footer>
 </body>
 </html>

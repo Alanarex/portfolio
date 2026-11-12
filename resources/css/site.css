@@ -303,3 +303,14 @@
 .error-page { display: grid; justify-items: start; min-height: 70vh; align-content: center; padding-block: var(--space-8); }
 .error-page__code { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: clamp(7rem, 24vw, 18rem); font-weight: 700; letter-spacing: -0.06em; line-height: 0.9; }
 .error-page__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+
+/* Mentions légales */
+.site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-5); }
+.legal { max-width: 52rem; padding-block: var(--space-8); }
+.legal section { margin-top: var(--space-7); }
+.legal h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+.legal p { margin-bottom: var(--space-3); color: var(--color-text-soft); }
+.legal__list { display: grid; gap: var(--space-3); margin: 0 0 var(--space-4); }
+.legal__item { padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.legal__list dd { margin: var(--space-1) 0 0; }
+.legal__credits { display: grid; gap: var(--space-2); margin: var(--space-3) 0; padding-left: var(--space-5); color: var(--color-text-soft); }
