@@ -18,8 +18,9 @@ www.{$APP_DOMAIN} {
 
 # Database administration (pgAdmin). Started on demand, see docs/operations/deployment.md §7.
 # Layer 1: HTTP basic auth here. Layer 2: pgAdmin's own login. PostgreSQL is never published.
-# While PGADMIN_AUTH_USER / PGADMIN_AUTH_HASH are empty in .env, Caddy still starts and every
-# request is answered 401 (checked on the VPS).
+# While PGADMIN_AUTH_USER and PGADMIN_AUTH_HASH are both empty in .env, Caddy still starts and every
+# request is answered 401 (checked on the VPS). Setting only one of them makes Caddy refuse to
+# start, which takes the whole site down: set both, then run `caddy validate` (see the guide).
 db.{$APP_DOMAIN} {
     encode zstd gzip
     header {
@@ -31,8 +32,6 @@ db.{$APP_DOMAIN} {
         -Server
     }
     basic_auth {
-        # nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
-        # (default hash of a random password that was discarded: not a usable secret)
         {$PGADMIN_AUTH_USER} {$PGADMIN_AUTH_HASH}
     }
     reverse_proxy pgadmin:8080
