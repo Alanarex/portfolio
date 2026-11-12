@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, router, useForm } from '@inertiajs/vue3';
+import { cloneProps } from '@admin/lib/clone';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type Translation = {
@@ -37,7 +38,7 @@ const props = defineProps<{
 }>();
 
 const localeLabels = { fr: 'Français', en: 'English', ar: 'العربية (préparation)' } as const;
-const translations = structuredClone(props.profile.translations);
+const translations = cloneProps(props.profile.translations);
 for (const locale of ['fr', 'en'] as const) {
   if (translations[locale].professional_titles.length === 0) translations[locale].professional_titles = [''];
 }

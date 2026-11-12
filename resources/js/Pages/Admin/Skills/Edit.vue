@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import { cloneProps } from '@admin/lib/clone';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type Locale = 'fr' | 'en';
@@ -8,7 +9,7 @@ type Skill = { id?: number; key: string; status: Status; is_visible: boolean; so
 type Category = { id?: number; key: string; status: Status; is_visible: boolean; sort_order: number; translations: Record<Locale, { name: string }>; skills: Skill[] };
 
 const props = defineProps<{ categories: Category[] }>();
-const form = useForm({ categories: structuredClone(props.categories) });
+const form = useForm({ categories: cloneProps(props.categories) });
 const locales: Locale[] = ['fr', 'en'];
 const statusLabels: Record<Status, string> = { draft: 'Brouillon', published: 'Publié', archived: 'Archivé' };
 

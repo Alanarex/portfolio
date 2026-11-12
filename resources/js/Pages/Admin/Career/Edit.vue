@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import { cloneProps } from '@admin/lib/clone';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type Locale = 'fr' | 'en';
@@ -16,7 +17,7 @@ type Certification = { id?: number; key: string; issuer: string; credential_id: 
 type Language = { id?: number; key: string; language_code: string; proficiency_kind: 'native' | 'bilingual' | 'cefr'; cefr_level: string; status: Status; sort_order: number; translations: Translations };
 
 const props = defineProps<{ career: { experiences: Experience[]; education: Education[]; certifications: Certification[]; languages: Language[] } }>();
-const form = useForm(structuredClone(props.career));
+const form = useForm(cloneProps(props.career));
 const locales: Locale[] = ['fr', 'en'];
 const statusLabels: Record<Status, string> = { draft: 'Brouillon', published: 'Publié', archived: 'Archivé' };
 
