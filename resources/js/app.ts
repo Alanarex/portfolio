@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
 
 createInertiaApp({
@@ -10,3 +10,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) }).use(plugin).mount(el);
     },
 });
+
+// Indique une navigation Inertia en cours (atténuation du contenu, cf. dashboard.css).
+router.on('start', () => document.documentElement.setAttribute('data-navigating', ''));
+router.on('finish', () => document.documentElement.removeAttribute('data-navigating'));

@@ -8,6 +8,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
     .auth-shell .panel { animation: rise 800ms var(--ease) both; }
+    #dashboard-content { animation: rise 500ms var(--ease) both; }
+    html[data-navigating] #dashboard-content { opacity: 0.55; transition: opacity 200ms var(--ease); }
 }
 
 /* Dashboard */

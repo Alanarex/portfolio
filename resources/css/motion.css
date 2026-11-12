@@ -79,6 +79,22 @@
     pointer-events: none;
 }
 
+/* Transition de page : View Transitions entre pages Blade (navigateurs compatibles) */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+
+    ::view-transition-old(root) { animation: 220ms var(--ease) both page-out; }
+    ::view-transition-new(root) { animation: 420ms var(--ease) both page-in; }
+}
+
+@keyframes page-out {
+    to { opacity: 0; transform: translateY(-0.5rem); }
+}
+
+@keyframes page-in {
+    from { opacity: 0; transform: translateY(0.75rem); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
 
