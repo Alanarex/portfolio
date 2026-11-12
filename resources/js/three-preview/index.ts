@@ -30,7 +30,11 @@ if (preview) {
 
     loadButton?.addEventListener('click', () => void loadPreview());
 
-    if ('IntersectionObserver' in window) {
+    // Mobile / économiseur de données : le chargement reste à la demande.
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    const onDemandOnly = window.matchMedia('(pointer: coarse)').matches || connection?.saveData === true;
+
+    if ('IntersectionObserver' in window && !onDemandOnly) {
         const preloadObserver = new IntersectionObserver(
             (entries, observer) => {
                 if (entries.some((entry) => entry.isIntersecting)) {

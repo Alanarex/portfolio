@@ -66,3 +66,12 @@ SOURCE
 - no external file references;
 - poster and mobile fallback present;
 - staging smoke test passes.
+
+## Runtime car model (home page road scene)
+
+- Asset: `public/models/amg-gt-roadster.glb` (~2.7 MB, ~196k triangles, meshopt-compressed).
+- Source: "Mercedes Amg GT roadster" by RES1N, https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695
+- Licence: CC BY 4.0 (attribution displayed in the 3D section of the home page). The licence covers the modeler's work, not the Mercedes-Benz / AMG trademarks: the site copy never names the brand.
+- Modifications: decimated (gltf-transform + meshoptimizer), textures resized to 512 px WebP, `logo`, `plate`, `tex1`, `tex2`, `tex3` primitives removed, paint/glass/brake/rear-light materials overridden at runtime in `resources/js/three-preview/scene.ts`.
+- Known limitation: badge lettering baked into the original geometry at the rear is still visible; masking it requires editing the source mesh.
+- The untouched source archive stays outside the repository.

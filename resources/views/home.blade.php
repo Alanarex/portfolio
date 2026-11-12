@@ -81,14 +81,15 @@
     <div class="container three-preview" data-three-preview data-state="poster">
         <div class="three-preview__copy" data-scroll-reveal>
             <p class="eyebrow">Aperçu 3D facultatif</p>
-            <h2 id="three-preview-title">Espace développeur en 3D</h2>
-            <p class="lede">Une visualisation légère enrichit l’expérience. Le portfolio et ses liens restent entièrement utilisables sans WebGL ni JavaScript.</p>
+            <h2 id="three-preview-title">Sur la route, en 3D</h2>
+            <p class="lede">Une voiture sur une route, avec un panneau par section. Le portfolio reste entièrement utilisable sans WebGL ni JavaScript.</p>
             <button class="button" type="button" data-three-preview-load><span>Charger l’aperçu 3D</span><span class="button__arrow" aria-hidden="true">→</span></button>
             <p class="error" role="status" data-three-preview-status hidden>L’aperçu 3D n’est pas disponible sur cet appareil. Le contenu HTML reste accessible.</p>
             <p style="margin-top: var(--space-4)"><a href="#projets">Consulter les projets au format HTML</a></p>
+            <p class="hint" style="margin-top: var(--space-4)">Modèle 3D : <a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener">« Mercedes Amg GT roadster »</a> par <a href="https://sketchfab.com/Resinnnn" rel="noopener">RES1N</a>, licence <a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>, modifié (allégé, couleurs changées).</p>
         </div>
-        <div class="three-preview__visual" role="img" aria-label="Illustration statique d’un espace de travail" data-scroll-reveal>
-            <div class="three-preview__poster" aria-hidden="true"><span class="three-preview__desk"></span><span class="three-preview__screen"></span></div>
+        <div class="three-preview__visual" role="img" aria-label="Illustration d’une voiture de sport roulant de nuit sur une route" data-scroll-reveal>
+            <div class="three-preview__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
             <div class="three-preview__canvas" data-three-preview-canvas></div>
             <div class="three-preview__overlay" aria-hidden="true"><span class="three-preview__badge">EXPÉRIENCE OPTIONNELLE</span></div>
         </div>
