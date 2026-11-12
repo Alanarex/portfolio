@@ -145,17 +145,17 @@ Les rapports n'incluent jamais le corps des requêtes (formulaire de contact), l
 les cookies, les en-têtes, l'identité du visiteur ni les journaux (`app/Core/Observability/ScrubSentryEvent.php`).
 Le traçage de performance et les profils sont désactivés.
 
-## 7. Administration de la base (pgAdmin, à la demande)
+## 7. Administration de la base (Adminer, à la demande)
 
-pgAdmin est l'équivalent de phpMyAdmin pour PostgreSQL. Il tourne sur `https://db.ton-domaine.fr`,
+Adminer est l'équivalent de phpMyAdmin pour PostgreSQL (une seule page, ~30 Mo de RAM). Il tourne sur `https://db.ton-domaine.fr`,
 **uniquement quand tu le démarres**, derrière deux protections indépendantes :
 
-1. **Caddy** : mot de passe HTTP (basic auth) avant même d'atteindre pgAdmin. Tant que
+1. **Caddy** : mot de passe HTTP (basic auth) avant même d'atteindre Adminer. Tant que
    `PGADMIN_AUTH_HASH` n'est pas renseigné, toute requête reçoit un 401.
-2. **pgAdmin** : sa propre connexion (e-mail + mot de passe, 3 essais avant verrouillage).
+2. **Adminer** : connexion PostgreSQL (utilisateur et mot de passe de la base, pas de compte à part).
 
-PostgreSQL n'est jamais exposé : pgAdmin s'y connecte par le réseau privé Docker. La page envoie
-`noindex` et n'est pas dans le sitemap. La vérification de mises à jour de pgAdmin est désactivée.
+PostgreSQL n'est jamais exposé : Adminer s'y connecte par le réseau privé Docker. La page envoie
+`noindex` et n'est pas dans le sitemap.
 
 **Préparation (une seule fois)**
 
@@ -165,12 +165,10 @@ PostgreSQL n'est jamais exposé : pgAdmin s'y connecte par le réseau privé Doc
    ```bash
    docker run --rm -it caddy:2.10-alpine caddy hash-password
    ```
-3. Dans `/opt/portfolio/.env` renseigne (choisis **deux mots de passe différents**, longs) :
+3. Dans `/opt/portfolio/.env` renseigne (mot de passe long) :
    ```text
    PGADMIN_AUTH_USER=un-nom-qui-n-est-pas-admin
    PGADMIN_AUTH_HASH='le-hash-affiche'      # entre APOSTROPHES : il contient des $
-   PGADMIN_DEFAULT_EMAIL=ton-email@exemple.fr
-   PGADMIN_DEFAULT_PASSWORD=mot-de-passe-pgadmin
    ```
    Ne colle jamais ces valeurs dans un chat, un ticket ou un commit.
 4. **Vérifie** la configuration, puis recharge Caddy pour qu'il lise le nouveau bloc et les
@@ -186,13 +184,13 @@ PostgreSQL n'est jamais exposé : pgAdmin s'y connecte par le réseau privé Doc
 **Utilisation**
 
 ```bash
-docker compose -f compose.prod.yaml --profile admin up -d pgadmin   # démarrer (~20 s)
-docker compose -f compose.prod.yaml stop pgadmin                    # arrêter après usage
+docker compose -f compose.prod.yaml --profile admin up -d adminer   # démarrer
+docker compose -f compose.prod.yaml stop adminer                    # arrêter après usage
 ```
 
-Ouvre `https://db.ton-domaine.fr`, passe le mot de passe Caddy, puis connecte-toi à pgAdmin.
-Au premier accès, *Add New Server* : hôte `postgres`, port `5432`, base et utilisateur = `DB_DATABASE` /
-`DB_USERNAME` du `.env`, mot de passe = `DB_PASSWORD`. pgAdmin consomme environ 250 Mo de RAM.
+Ouvre `https://db.ton-domaine.fr`, passe le mot de passe Caddy, puis connecte-toi à Adminer :
+système *PostgreSQL*, serveur `postgres` (déjà rempli), utilisateur et base = `DB_USERNAME` / `DB_DATABASE`
+du `.env`, mot de passe = `DB_PASSWORD`.
 
 **Pour durcir encore** : si ton IP est fixe, ajoute dans le bloc `db.{$APP_DOMAIN}` du Caddyfile
 `@interdit not remote_ip TON.IP.ICI` suivi de `respond @interdit 403`, avant `basic_auth`.
