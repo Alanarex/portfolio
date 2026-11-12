@@ -35,6 +35,10 @@ test('essential landing and project content works without JavaScript', async ({ 
     await context.close();
 });
 
+test.describe('accessibility audit', () => {
+    // Entry and scroll animations are mid-transition for axe otherwise; reduced motion shows the final state.
+    test.use({ reducedMotion: 'reduce' });
+
 test('keyboard flow and audited public pages meet WCAG A/AA rules', async ({ page }) => {
     for (const url of ['/fr', '/fr/projects', '/fr/projects/handicapacite', '/fr/privacy', '/fr/legal']) {
         await page.goto(url);
@@ -46,6 +50,8 @@ test('keyboard flow and audited public pages meet WCAG A/AA rules', async ({ pag
             .analyze();
         expect(results.violations, `${url} accessibility violations`).toEqual([]);
     }
+});
+
 });
 
 test('contact submission and privacy information work without exposing the recipient', async ({ page }) => {

@@ -108,5 +108,12 @@
         transition-duration: 0.01ms !important;
     }
 
+    [data-reveal],
+    [data-scroll-reveal] {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
     .scroll-progress { display: none; }
 }
