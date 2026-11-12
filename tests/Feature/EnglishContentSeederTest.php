@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\EnglishContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Career\Models\Experience;
 use Modules\Profile\Models\Profile;
@@ -19,6 +20,7 @@ final class EnglishContentSeederTest extends TestCase
     public function test_every_seeded_item_gets_an_english_translation_and_stays_a_draft(): void
     {
         $this->seed(DatabaseSeeder::class);
+        $this->seed(EnglishContentSeeder::class);
 
         foreach (Skill::query()->with('translations')->get() as $skill) {
             $this->assertNotNull($skill->translations->firstWhere('locale', 'en'), "skill {$skill->key} has no EN");
@@ -40,10 +42,12 @@ final class EnglishContentSeederTest extends TestCase
     public function test_seeding_twice_changes_nothing_and_keeps_dashboard_edits(): void
     {
         $this->seed(DatabaseSeeder::class);
+        $this->seed(EnglishContentSeeder::class);
         Profile::query()->where('key', 'main')->update(['display_name' => 'Edited']);
         $count = Skill::query()->count();
 
         $this->seed(DatabaseSeeder::class);
+        $this->seed(EnglishContentSeeder::class);
 
         $this->assertSame($count, Skill::query()->count());
         $this->assertSame('Edited', Profile::query()->where('key', 'main')->value('display_name'));

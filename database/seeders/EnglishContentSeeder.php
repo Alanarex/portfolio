@@ -17,6 +17,9 @@ use Modules\Skills\Models\Skill;
 use Modules\Skills\Models\SkillCategory;
 
 /**
+ * Run explicitly: php artisan db:seed --class=EnglishContentSeeder --force (DatabaseSeeder stays free of
+ * English copy and profile data, see ProfileSettingsCmsTest and ProjectsMediaCmsTest).
+ *
  * Adds the profile (FR + EN) and the English translations of the French draft content created by the
  * other seeders. Idempotent (firstOrCreate), never overwrites what was edited in the dashboard, and
  * never publishes anything: publication stays a deliberate action in the CMS.
