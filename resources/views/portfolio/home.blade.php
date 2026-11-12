@@ -21,28 +21,50 @@
     $activityEnabled = ($settings?->featureFlags['activity'] ?? false) === true;
     $home = route('portfolio.home', ['locale' => $locale]);
 
-    $stops = array_values(array_filter([
-        ['id' => 'projets', 'label' => __('portfolio.nav.projects')],
-        $experiences !== [] ? ['id' => 'experience', 'label' => __('portfolio.nav.experience')] : null,
-        $skillNames->isNotEmpty() ? ['id' => 'competences', 'label' => __('portfolio.nav.skills')] : null,
-        $threeDEnabled ? ['id' => 'apercu', 'label' => __('portfolio.nav.three_d')] : null,
-        ['id' => 'contact', 'label' => __('portfolio.nav.contact')],
-    ]));
-    // Positions des arrêts le long du tracé de la carte (de gauche à droite), selon leur nombre.
-    $stopSpots = [
-        ['x' => 70, 'y' => 430, 'lx' => 40, 'ly' => 488, 'anchor' => 'start'],
-        ['x' => 300, 'y' => 300, 'lx' => 300, 'ly' => 250, 'anchor' => 'middle'],
-        ['x' => 520, 'y' => 390, 'lx' => 520, 'ly' => 448, 'anchor' => 'middle'],
-        ['x' => 730, 'y' => 200, 'lx' => 730, 'ly' => 150, 'anchor' => 'middle'],
-        ['x' => 930, 'y' => 100, 'lx' => 930, 'ly' => 160, 'anchor' => 'middle'],
-    ];
-    $spotIndexes = match (count($stops)) {
-        5 => [0, 1, 2, 3, 4],
-        4 => [0, 1, 3, 4],
-        3 => [0, 2, 4],
-        default => [0, 4],
-    };
-    $mapPath = 'M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100';
+    // Étapes du parcours : études et expériences, de la plus ancienne à la plus récente.
+    $milestones = collect($experiences)
+        ->map(fn (array $item): array => [
+            'kind' => 'experience',
+            'year' => (int) ($item['start']['year'] ?? 0),
+            'period' => ($item['start']['year'] ?? '').' — '.(($item['is_current'] ?? false) ? __('portfolio.three_d.now') : ($item['end']['year'] ?? '')),
+            'title' => $item['role'] ?? '',
+            'org' => $item['organization'] ?? '',
+            'summary' => $item['summary'] ?? null,
+            'highlights' => array_slice($item['highlights'] ?? [], 0, 3),
+        ])
+        ->concat(collect($education)->map(fn (array $item): array => [
+            'kind' => 'education',
+            'year' => (int) ($item['start']['year'] ?? 0),
+            'period' => trim(($item['start']['year'] ?? '').' — '.($item['end']['year'] ?? ''), ' —'),
+            'title' => $item['program'] ?? '',
+            'org' => $item['institution'] ?? '',
+            'summary' => null,
+            'highlights' => [],
+        ]))
+        ->sortBy([['year', 'asc'], ['kind', 'asc']])
+        ->values()
+        ->take(-6)
+        ->values();
+
+    // Carte des compétences : un arrêt par domaine (7 au maximum), répartis le long d'un tracé sinueux.
+    $categories = array_values($skills?->categories ?? []);
+    $anchors = [[70, 420], [220, 300], [370, 390], [520, 230], [670, 330], [820, 160], [940, 110]];
+    $mapCount = min(count($categories), count($anchors));
+    $mapStops = [];
+    for ($i = 0; $i < $mapCount; $i++) {
+        $index = $mapCount === 1 ? 3 : (int) round($i * (count($anchors) - 1) / ($mapCount - 1));
+        $mapStops[] = $anchors[$index];
+    }
+    $mapPath = $mapStops === [] ? '' : 'M'.$mapStops[0][0].' '.$mapStops[0][1];
+    for ($i = 1; $i < count($mapStops); $i++) {
+        [$x0, $y0] = $mapStops[$i - 1];
+        [$x1, $y1] = $mapStops[$i];
+        $half = ($x1 - $x0) / 2;
+        $mapPath .= ' C'.($x0 + $half).' '.$y0.' '.($x1 - $half).' '.$y1.' '.$x1.' '.$y1;
+    }
+
+    // Niveau CECRL (A1 à C2) converti en 1 à 6 pour la jauge des langues.
+    $cefrLevels = ['A1' => 1, 'A2' => 2, 'B1' => 3, 'B2' => 4, 'C1' => 5, 'C2' => 6];
 @endphp
 
 @section('content')
@@ -148,7 +170,7 @@
         @if ($featuredProjects !== [])
             <div class="stack">
                 @foreach (array_slice($featuredProjects, 0, 5) as $project)
-                    @include('portfolio.partials.project-card', ['project' => $project, 'index' => $loop->index])
+                    @include('portfolio.partials.project-stack', ['project' => $project, 'index' => $loop->index])
                 @endforeach
             </div>
         @else
@@ -158,108 +180,16 @@
 </section>
 
 @if ($proofItems !== [])
-    <section class="proof" id="preuves" aria-labelledby="proof-title">
-        <div class="proof__steps" aria-hidden="true"><div></div><div></div><div></div></div>
-        <div class="proof__stick"><div class="container proof__grid">
-            <div>
-                <p class="eyebrow">{{ __('portfolio.sections.metrics_intro') }}</p>
-                <h2 id="proof-title">{{ __('portfolio.sections.metrics') }}</h2>
-                <div class="proof__list">
-                    @foreach ($proofItems as $metric)
-                        <div class="proof__item"><span class="mono">0{{ $loop->iteration }}</span><p>{{ $metric }}</p></div>
-                    @endforeach
-                </div>
-            </div>
-            @include('portfolio.partials.gauge', ['class' => 'gauge--proof', 'label' => __('portfolio.hero.gauge_proof_label')])
-        </div></div>
-    </section>
-@endif
-
-@if ($threeDEnabled)
-    <section class="journey theme-dark" id="apercu" aria-labelledby="three-preview-title" data-three-preview data-state="poster">
-        <div class="journey__stick">
-            <div class="journey__stage" data-three-preview-canvas>
-                <div class="journey__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
-            </div>
-            <div class="journey__scrim" aria-hidden="true"></div>
-            <div class="container journey__ui">
-                <div class="journey__copy">
-                    <p class="eyebrow">{{ __('portfolio.three_d.eyebrow') }}</p>
-                    <h2 id="three-preview-title">{{ __('portfolio.three_d.title') }}</h2>
-                    <p class="lede">{{ __('portfolio.three_d.intro') }}</p>
-                    <button class="button" type="button" data-three-preview-load><span>{{ __('portfolio.three_d.load') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
-                    <p class="error" role="status" data-three-preview-status hidden>{{ __('portfolio.three_d.unavailable') }}</p>
-                    <p class="journey__alt"><a href="#projets">{{ __('portfolio.three_d.html_alt') }}</a></p>
-                </div>
-                <ol class="journey__steps" aria-label="{{ __('portfolio.three_d.steps') }}">
-                    @foreach (array_slice($stops, 0, 4) as $stop)
-                        <li class="journey__step" data-step-index="{{ $loop->index }}"><a class="journey__link" href="#{{ $stop['id'] }}"><span class="journey__dot" aria-hidden="true"></span><span class="mono">0{{ $loop->iteration }}</span> {{ $stop['label'] }}</a></li>
-                    @endforeach
-                </ol>
-                <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
-                <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
-                    'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener">« Mercedes Amg GT roadster »</a>',
-                    'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener">RES1N</a>',
-                    'licence' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>',
-                ]) !!}</p>
-            </div>
-        </div>
-    </section>
-@endif
-
-<section class="section" id="plan" aria-labelledby="plan-title">
-    <div class="container">
-        <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.map.eyebrow') }}</p>
-        <h2 id="plan-title" data-scroll-reveal>{{ __('portfolio.map.title') }}</h2>
-        <p class="lede" data-scroll-reveal>{{ __('portfolio.map.intro') }}</p>
-        <div class="map theme-dark" data-scroll-reveal>
-            <svg viewBox="0 0 1000 520" role="group" aria-label="{{ __('portfolio.map.label', ['count' => count($stops)]) }}">
-                <defs>
-                    <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1b1718"/></pattern>
-                    <radialGradient id="map-beam" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-                </defs>
-                <rect width="1000" height="520" fill="url(#map-grid)"/>
-                <g class="map__relief" fill="none"><ellipse cx="180" cy="140" rx="150" ry="90"/><ellipse cx="180" cy="140" rx="100" ry="58"/><ellipse cx="820" cy="400" rx="170" ry="100"/><ellipse cx="820" cy="400" rx="110" ry="62"/><ellipse cx="560" cy="120" rx="90" ry="50"/></g>
-                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path class="map__kerb" d="{{ $mapPath }}"/>
-                    <path class="map__asphalt" d="{{ $mapPath }}"/>
-                    <path class="map__lane" d="{{ $mapPath }}"/>
-                    <path class="map__draw" pathLength="1" d="{{ $mapPath }}"/>
-                </g>
-                <g class="map__car"><path d="M10 -5 L70 -20 L70 20 L10 5Z" fill="url(#map-beam)" opacity=".7"/><rect x="-14" y="-8" width="28" height="16" rx="5" fill="#f5f3f4"/><rect x="-6" y="-5" width="12" height="10" rx="3" fill="#161a1d"/><rect x="-15" y="-7" width="3" height="4" fill="#e5383b"/><rect x="-15" y="3" width="3" height="4" fill="#e5383b"/></g>
-                @foreach ($stops as $stop)
-                    @php($spot = $stopSpots[$spotIndexes[$loop->index]])
-                    <a @class(['map__stop', 'map__stop--end' => $loop->last]) href="#{{ $stop['id'] }}" aria-label="{{ __('portfolio.map.stop', ['n' => $loop->iteration, 'label' => $stop['label']]) }}"><circle class="map__ring" cx="{{ $spot['x'] }}" cy="{{ $spot['y'] }}" r="22"/><text class="map__num" x="{{ $spot['x'] }}" y="{{ $spot['y'] + 7 }}" text-anchor="middle">{{ $loop->iteration }}</text><text class="map__label" x="{{ $spot['lx'] }}" y="{{ $spot['ly'] }}" text-anchor="{{ $spot['anchor'] }}">{{ $stop['label'] }}</text><text class="map__tag" x="{{ $spot['lx'] }}" y="{{ $spot['ly'] + 18 }}" text-anchor="{{ $spot['anchor'] }}">{{ $loop->first ? __('portfolio.map.start') : ($loop->last ? __('portfolio.map.end') : __('portfolio.map.step', ['n' => str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)])) }}</text></a>
-                @endforeach
-            </svg>
-        </div>
-        <ol class="map__list" aria-label="{{ __('portfolio.map.list') }}">
-            @foreach ($stops as $stop)
-                <li><a class="map__link" href="#{{ $stop['id'] }}"><b class="map__index">0{{ $loop->iteration }}</b><span class="map__name">{{ $stop['label'] }}</span></a></li>
-            @endforeach
-        </ol>
-    </div>
-</section>
-
-@if ($experiences !== [])
-    <section class="section" id="experience" aria-labelledby="experience-title" style="padding-top: 0">
+    <section class="section proof" id="preuves" aria-labelledby="proof-title">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.experience_kicker') }}</p>
-            <h2 id="experience-title" data-scroll-reveal>{{ __('portfolio.sections.experience') }}</h2>
-            <ol class="timeline">
-                @foreach ($experiences as $experience)
-                    <li class="timeline__item" data-scroll-reveal>
-                        <p class="timeline__date mono">{{ $experience['start']['year'] }} — {{ ($experience['is_current'] ?? false) ? __('portfolio.projects.ongoing') : ($experience['end']['year'] ?? '') }}</p>
-                        <div class="card timeline__card">
-                            <h3>{{ $experience['role'] }}</h3>
-                            <p class="timeline__org">{{ $experience['organization'] }}</p>
-                            @if (! empty($experience['summary']))<p>{{ $experience['summary'] }}</p>@endif
-                            @if (($experience['highlights'] ?? []) !== [])
-                                <ul class="checklist">
-                                    @foreach ($experience['highlights'] as $highlight)<li>{{ $highlight }}</li>@endforeach
-                                </ul>
-                            @endif
-                        </div>
+            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.metrics_intro') }}</p>
+            <h2 id="proof-title" data-scroll-reveal>{{ __('portfolio.sections.metrics') }}</h2>
+            <ol class="proof__list">
+                @foreach ($proofItems as $metric)
+                    <li class="proof__item card" data-scroll-reveal>
+                        <span class="proof__index mono">{{ __('portfolio.proof.item', ['n' => str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)]) }}</span>
+                        {{-- Chiffres mis en valeur : le texte est échappé avant l'ajout des balises. --}}
+                        <p class="proof__text">{!! preg_replace('/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u', '<b>$0</b>', e($metric)) !!}</p>
                     </li>
                 @endforeach
             </ol>
@@ -267,21 +197,98 @@
     </section>
 @endif
 
-@if (($skills?->categories ?? []) !== [])
-    <section class="section" id="competences" aria-labelledby="skills-title" style="padding-top: 0">
-        <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.strengths') }}</p>
-            <h2 id="skills-title" data-scroll-reveal>{{ __('portfolio.sections.skills') }}</h2>
-            <div class="skills">
-                @foreach ($skills->categories as $category)
-                    <article class="card card--lift" data-scroll-reveal>
-                        <span class="number">0{{ $loop->iteration }}</span>
-                        <h3>{{ $category['name'] }}</h3>
-                        <ul class="tag-row">
-                            @foreach ($category['skills'] ?? [] as $skill)<li class="chip">{{ $skill['name'] }}</li>@endforeach
-                        </ul>
-                    </article>
-                @endforeach
+@if ($milestones->isNotEmpty())
+    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" @if ($threeDEnabled) data-three-preview data-state="poster" @endif>
+        <div class="journey__stick">
+            <div class="journey__stage" data-three-preview-canvas>
+                <div class="journey__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
+            </div>
+            <div class="journey__scrim" aria-hidden="true"></div>
+            <div class="container journey__ui">
+                <div class="journey__copy">
+                    <p class="eyebrow">{{ __('portfolio.sections.experience_kicker') }}</p>
+                    <h2 id="journey-title">{{ __('portfolio.sections.experience') }}</h2>
+                    @if ($threeDEnabled)
+                        <p class="lede">{{ __('portfolio.three_d.intro') }}</p>
+                        <button class="button" type="button" data-three-preview-load><span>{{ __('portfolio.three_d.load') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
+                        <p class="error" role="status" data-three-preview-status hidden>{{ __('portfolio.three_d.unavailable') }}</p>
+                    @endif
+                </div>
+                <ol class="journey__steps" aria-label="{{ __('portfolio.three_d.steps') }}">
+                    @foreach ($milestones as $milestone)
+                        <li @class(['journey__step', 'is-active' => $loop->first]) data-step-index="{{ $loop->index }}" data-sign="{{ $milestone['org'] ?: $milestone['title'] }}" data-sign-kicker="{{ $milestone['period'] }}">
+                            <p class="journey__period mono">{{ $milestone['period'] }} <span class="journey__count">· {{ __('portfolio.three_d.counter', ['n' => $loop->iteration, 'total' => $loop->count]) }}</span></p>
+                            <h3>{{ $milestone['title'] }}</h3>
+                            @if ($milestone['org'])<p class="journey__org">{{ $milestone['org'] }}</p>@endif
+                            @if (! empty($milestone['summary']))<p class="journey__summary">{{ $milestone['summary'] }}</p>@endif
+                            @if ($milestone['highlights'] !== [])
+                                <ul class="checklist">
+                                    @foreach ($milestone['highlights'] as $highlight)<li>{{ $highlight }}</li>@endforeach
+                                </ul>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+                @if ($threeDEnabled)
+                    <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
+                    <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
+                        'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer">« Mercedes Amg GT roadster »</a>',
+                        'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener noreferrer">RES1N</a>',
+                        'licence' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer">CC BY 4.0</a>',
+                    ]) !!}</p>
+                @endif
+            </div>
+        </div>
+    </section>
+@endif
+
+@if ($categories !== [])
+    <section class="skillmap theme-dark" id="competences" aria-labelledby="skills-title" data-skillmap style="--n: {{ $mapCount }}">
+        <div class="skillmap__stick">
+            <div class="container skillmap__inner">
+                <header class="skillmap__head">
+                    <p class="eyebrow">{{ __('portfolio.sections.strengths') }}</p>
+                    <h2 id="skills-title">{{ __('portfolio.sections.skills') }}</h2>
+                    <p class="lede">{{ __('portfolio.sections.skills_intro') }}</p>
+                </header>
+                <div class="map">
+                    <svg viewBox="0 0 1000 520" role="group" aria-label="{{ __('portfolio.map.label', ['count' => $mapCount]) }}">
+                        <defs>
+                            <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1b1718"/></pattern>
+                            <radialGradient id="map-beam" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+                        </defs>
+                        <rect width="1000" height="520" fill="url(#map-grid)"/>
+                        <g class="map__relief" fill="none"><ellipse cx="180" cy="140" rx="150" ry="90"/><ellipse cx="180" cy="140" rx="100" ry="58"/><ellipse cx="820" cy="400" rx="170" ry="100"/><ellipse cx="820" cy="400" rx="110" ry="62"/><ellipse cx="560" cy="120" rx="90" ry="50"/></g>
+                        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="map__kerb" d="{{ $mapPath }}"/>
+                            <path class="map__asphalt" d="{{ $mapPath }}"/>
+                            <path class="map__lane" d="{{ $mapPath }}"/>
+                            <path class="map__draw" pathLength="1" d="{{ $mapPath }}" data-map-path/>
+                        </g>
+                        <g class="map__car" style="offset-path: path('{{ $mapPath }}')"><path d="M10 -5 L70 -20 L70 20 L10 5Z" fill="url(#map-beam)" opacity=".7"/><rect x="-14" y="-8" width="28" height="16" rx="5" fill="#f5f3f4"/><rect x="-6" y="-5" width="12" height="10" rx="3" fill="#161a1d"/><rect x="-15" y="-7" width="3" height="4" fill="#e5383b"/><rect x="-15" y="3" width="3" height="4" fill="#e5383b"/></g>
+                        @foreach ($mapStops as $i => [$x, $y])
+                            @php
+                                // Étiquette au-dessus d'un sommet du tracé, en dessous d'un creux : les voisines ne se chevauchent pas.
+                                $above = $y < ($mapStops[$i - 1][1] ?? PHP_INT_MAX) && $y < ($mapStops[$i + 1][1] ?? PHP_INT_MAX);
+                                $anchor = $i === 0 ? 'start' : ($i === $mapCount - 1 && $mapCount > 1 ? 'end' : 'middle');
+                                $labelX = $i === 0 ? $x - 30 : ($i === $mapCount - 1 && $mapCount > 1 ? $x + 30 : $x);
+                                $labelY = $above ? $y - 50 : $y + 56;
+                            @endphp
+                            <a @class(['map__stop', 'is-active' => $i === 0]) href="#competences" data-map-stop="{{ $i }}" data-x="{{ $x }}" data-y="{{ $y }}" aria-label="{{ __('portfolio.map.stop', ['n' => $i + 1, 'label' => $categories[$i]['name']]) }}"><circle class="map__ring" cx="{{ $x }}" cy="{{ $y }}" r="22"/><text class="map__num" x="{{ $x }}" y="{{ $y + 7 }}" text-anchor="middle">{{ $i + 1 }}</text><text class="map__label" x="{{ $labelX }}" y="{{ $labelY }}" text-anchor="{{ $anchor }}">{{ $categories[$i]['name'] }}</text><text class="map__tag" x="{{ $labelX }}" y="{{ $labelY + 18 }}" text-anchor="{{ $anchor }}">{{ $i === 0 ? __('portfolio.map.start') : ($i === $mapCount - 1 ? __('portfolio.map.end') : __('portfolio.map.step', ['n' => str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)])) }}</text></a>
+                        @endforeach
+                    </svg>
+                </div>
+                <ol class="skillmap__panels" aria-label="{{ __('portfolio.map.list') }}">
+                    @foreach ($categories as $category)
+                        <li @class(['skillmap__panel', 'is-active' => $loop->first]) data-map-panel="{{ $loop->index }}">
+                            <p class="mono skillmap__meta">0{{ $loop->iteration }} · {{ __('portfolio.map.count', ['count' => count($category['skills'] ?? [])]) }}</p>
+                            <h3>{{ $category['name'] }}</h3>
+                            <ul class="tag-row">
+                                @foreach ($category['skills'] ?? [] as $skill)<li class="chip">{{ $skill['name'] }}</li>@endforeach
+                            </ul>
+                        </li>
+                    @endforeach
+                </ol>
             </div>
         </div>
     </section>
@@ -329,33 +336,52 @@
     </section>
 @endif
 
-@if ($education !== [] || $certifications !== [] || $languages !== [])
+@if ($certifications !== [] || $languages !== [])
     <section class="section" id="formation" aria-labelledby="education-title" style="padding-top: 0">
         <div class="container">
             <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.education_kicker') }}</p>
             <h2 id="education-title" data-scroll-reveal>{{ __('portfolio.sections.education') }}</h2>
-            <div class="grid-4">
-                @foreach ($education as $record)
-                    <article class="card card--lift" data-scroll-reveal>
-                        <p class="mono">{{ $record['start']['year'] ?? '' }} — {{ $record['end']['year'] ?? '' }}</p>
-                        <h3>{{ $record['program'] }}</h3>
-                        <p class="muted">{{ $record['institution'] }}</p>
-                    </article>
-                @endforeach
-                @foreach ($certifications as $certification)
-                    <article class="card card--lift" data-scroll-reveal>
-                        <p class="mono">{{ $certification['issued']['year'] ?? '' }}</p>
-                        <h3>{{ $certification['name'] }}</h3>
-                        <p class="muted">{{ $certification['issuer'] }}</p>
-                    </article>
-                @endforeach
-                @foreach ($languages as $language)
-                    <article class="card card--lift" data-scroll-reveal>
-                        <p class="mono">{{ strtoupper($language['language_code'] ?? '') }}@if (! empty($language['cefr_level'])) · {{ $language['cefr_level'] }}@endif</p>
-                        <h3>{{ $language['name'] }}</h3>
-                        <p class="muted">{{ $language['proficiency_label'] }}</p>
-                    </article>
-                @endforeach
+            <div class="credentials">
+                @if ($certifications !== [])
+                    <div>
+                        <h3 class="credentials__title mono" data-scroll-reveal>{{ __('portfolio.sections.certifications') }}</h3>
+                        <ul class="plates">
+                            @foreach ($certifications as $certification)
+                                <li class="plate" data-scroll-reveal>
+                                    <span class="plate__year mono">{{ $certification['issued']['year'] ?? '' }}</span>
+                                    <span class="plate__name">{{ $certification['name'] }}</span>
+                                    <span class="plate__issuer mono">{{ $certification['issuer'] }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                @if ($languages !== [])
+                    <div>
+                        <h3 class="credentials__title mono" data-scroll-reveal>{{ __('portfolio.sections.languages') }}</h3>
+                        <ul class="levels">
+                            @foreach ($languages as $language)
+                                @php
+                                    $label = (string) ($language['proficiency_label'] ?? '');
+                                    $cefr = strtoupper((string) ($language['cefr_level'] ?? ''));
+                                    // Langue maternelle ou bilingue : jauge pleine, même sans niveau CECRL.
+                                    $level = $cefrLevels[$cefr] ?? (preg_match('/maternelle|native|bilingu/iu', $label) === 1 ? 6 : null);
+                                @endphp
+                                <li class="level" data-scroll-reveal>
+                                    <div class="level__head">
+                                        <span class="level__name">{{ $language['name'] }}</span>
+                                        <span class="level__label mono">{{ $label }}@if ($cefr !== '' && strcasecmp($cefr, $label) !== 0) · {{ $cefr }}@endif</span>
+                                    </div>
+                                    @if ($level)
+                                        <div class="level__meter" role="img" aria-label="{{ $language['name'] }} : {{ $label }}">
+                                            @foreach (range(1, 6) as $tick)<i @class(['is-on' => $tick <= $level])></i>@endforeach
+                                        </div>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -365,11 +391,16 @@
     <div class="container">
         <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.interests_kicker') }}</p>
         <h2 id="interests-title" data-scroll-reveal>{{ __('portfolio.sections.interests') }}</h2>
-        <div class="trio">
+        <p class="lede" data-scroll-reveal>{{ __('portfolio.sections.interests_intro') }}</p>
+        <ol class="strips">
             @foreach (['aviation', 'cars', 'fishing'] as $interest)
-                <article class="card card--lift" data-scroll-reveal><span class="number">0{{ $loop->iteration }}</span><h3>{{ __('portfolio.interests.'.$interest) }}</h3><p>{{ __('portfolio.interests.'.$interest.'_text') }}</p></article>
+                <li class="strip" data-scroll-reveal>
+                    <span class="strip__code mono">{{ __('portfolio.interests.'.$interest.'_code') }}</span>
+                    <div class="strip__body"><h3>{{ __('portfolio.interests.'.$interest) }}</h3><p>{{ __('portfolio.interests.'.$interest.'_text') }}</p></div>
+                    <span class="strip__ref mono" aria-hidden="true">LOG 0{{ $loop->iteration }}</span>
+                </li>
             @endforeach
-        </div>
+        </ol>
     </div>
 </section>
 

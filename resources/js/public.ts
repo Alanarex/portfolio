@@ -1,4 +1,5 @@
 import './public/site';
+import './public/skillmap';
 import './three-preview/index';
 
 type Theme = 'dark' | 'light';
@@ -37,10 +38,65 @@ function applyTheme(theme: Theme): void {
     }
 }
 
+type ViewTransitionDocument = Document & {
+    startViewTransition?: (update: () => void) => { finished: Promise<unknown> };
+};
+
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Le nouveau thème se déploie en cercle depuis le bouton (View Transitions), sinon changement direct.
+function switchTheme(next: Theme, origin: HTMLElement): void {
+    const doc = document as ViewTransitionDocument;
+    if (reducedMotion || typeof doc.startViewTransition !== 'function') {
+        applyTheme(next);
+        return;
+    }
+
+    const rect = origin.getBoundingClientRect();
+    root.style.setProperty('--vt-x', `${rect.left + rect.width / 2}px`);
+    root.style.setProperty('--vt-y', `${rect.top + rect.height / 2}px`);
+    root.classList.add('theme-vt');
+    void doc.startViewTransition(() => applyTheme(next)).finished.finally(() => root.classList.remove('theme-vt'));
+}
+
 toggles.forEach((button) => {
     button.addEventListener('click', () => {
-        applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+        switchTheme(currentTheme() === 'dark' ? 'light' : 'dark', button);
     });
+});
+
+// Changement de langue : un rideau balaie l'écran, puis la page dans l'autre langue le révèle.
+const langSwitch = document.querySelector<HTMLAnchorElement>('.lang-switch');
+const wipe = document.querySelector<HTMLElement>('.lang-wipe');
+
+langSwitch?.addEventListener('click', (event) => {
+    if (reducedMotion || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+    }
+
+    event.preventDefault();
+    const target = (langSwitch.getAttribute('hreflang') ?? '').toUpperCase();
+    const destination = new URL(langSwitch.href, window.location.href);
+    destination.hash = window.location.hash;
+
+    try {
+        sessionStorage.setItem('portfolio-wipe', target);
+    } catch {
+        // Sans stockage, la page suivante apparaît simplement sans rideau.
+    }
+
+    const label = wipe?.querySelector('span');
+    if (label) {
+        label.textContent = target;
+    }
+    root.classList.add('lang-leaving');
+    window.setTimeout(() => window.location.assign(destination.toString()), 420);
+});
+
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        root.classList.remove('lang-leaving');
+    }
 });
 
 syncToggles(currentTheme());

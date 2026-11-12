@@ -50,10 +50,15 @@
     box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
 }
 
-.button--ghost::before { background: var(--color-surface); }
-.button--ghost:hover { box-shadow: inset 0 0 0 1.5px var(--color-accent-light); }
+.button--ghost::before { background: var(--color-surface-strong); }
+
+.button--ghost:hover {
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1.5px var(--color-accent-light);
+}
 .button--small { min-height: 2.5rem; padding: 0.6rem 1.2rem; font-size: 0.9rem; }
 .button--secondary { color: var(--color-text); background: var(--color-surface-strong); box-shadow: none; }
+.button--secondary:hover { color: var(--color-text); }
 
 .spinner {
     width: 1rem;
