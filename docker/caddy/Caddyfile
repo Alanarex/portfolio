@@ -16,8 +16,8 @@ www.{$APP_DOMAIN} {
     redir https://{$APP_DOMAIN}{uri} permanent
 }
 
-# Database administration (pgAdmin). Started on demand, see docs/operations/deployment.md §7.
-# Layer 1: HTTP basic auth here. Layer 2: pgAdmin's own login. PostgreSQL is never published.
+# Database administration (Adminer). Started on demand, see docs/operations/deployment.md §7.
+# Layer 1: HTTP basic auth here. Layer 2: the PostgreSQL login of Adminer. PostgreSQL is never published.
 # While PGADMIN_AUTH_USER and PGADMIN_AUTH_HASH are both empty in .env, Caddy still starts and every
 # request is answered 401 (checked on the VPS). Setting only one of them makes Caddy refuse to
 # start, which takes the whole site down: set both, then run `caddy validate` (see the guide).
@@ -28,12 +28,11 @@ db.{$APP_DOMAIN} {
         X-Robots-Tag "noindex, nofollow, noarchive"
         X-Frame-Options "DENY"
         X-Content-Type-Options "nosniff"
-        # pgAdmin's CSRF check requires a Referer on same-origin requests: "no-referrer" breaks it (401).
-        Referrer-Policy "same-origin"
+        Referrer-Policy "no-referrer"
         -Server
     }
     basic_auth {
         {$PGADMIN_AUTH_USER} {$PGADMIN_AUTH_HASH}
     }
-    reverse_proxy pgadmin:8080
+    reverse_proxy adminer:8080
 }
