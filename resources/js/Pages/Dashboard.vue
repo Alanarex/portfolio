@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import AppSwitch from '../Components/AppSwitch.vue';
 import DashboardLayout from '../Layouts/DashboardLayout.vue';
 import type { SharedProps } from '../types';
 defineProps<{ projects: Array<{ id: number; title: string }> }>();
 const page = usePage<SharedProps>();
 const user = computed(() => page.props.auth.user);
+const previewSwitch = ref(false);
 </script>
 <template>
   <Head title="Dashboard" />
@@ -47,6 +49,14 @@ const user = computed(() => page.props.auth.user);
         role="status"
       >
         <h3>Aucun projet</h3><p>Les projets apparaîtront ici une fois le module de contenu disponible.</p>
+      </div>
+      <div class="settings-list">
+        <AppSwitch
+          id="preview-switch"
+          v-model="previewSwitch"
+          label="Interrupteur du design system"
+          hint="Aperçu du composant : aucun réglage n’est enregistré."
+        />
       </div>
       <div class="table-wrap">
         <table>
