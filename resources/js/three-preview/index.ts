@@ -32,7 +32,10 @@ if (preview) {
 
     // Mobile / économiseur de données : le chargement reste à la demande.
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    const onDemandOnly = window.matchMedia('(pointer: coarse)').matches || connection?.saveData === true;
+    const onDemandOnly =
+        window.matchMedia('(pointer: coarse)').matches ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        connection?.saveData === true;
 
     if (!onDemandOnly) {
         // Chargement dès que la section approche du viewport. Le contrôle au défilement

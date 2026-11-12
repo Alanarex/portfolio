@@ -51,6 +51,15 @@
                 if (sessionStorage.getItem('loaded') || matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     root.classList.add('no-loader');
                 }
+                // Arrivée après un changement de langue : le rideau se retire pour révéler la page.
+                var wipe = sessionStorage.getItem('portfolio-wipe');
+                if (wipe) {
+                    sessionStorage.removeItem('portfolio-wipe');
+                    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        root.classList.add('lang-entering');
+                        root.setAttribute('data-wipe', wipe);
+                    }
+                }
             } catch (e) {
                 root.classList.add('no-loader');
             }
@@ -65,6 +74,15 @@
 @endphp
 <body class="public-portfolio" data-analytics-driver="null">
     <a href="#main-content" class="skip-link">{{ __('portfolio.skip') }}</a>
+    <div class="lang-wipe" aria-hidden="true"><span></span></div>
+    <script>
+        (function () {
+            var label = document.documentElement.getAttribute('data-wipe');
+            if (label) {
+                document.querySelector('.lang-wipe span').textContent = label;
+            }
+        })();
+    </script>
     @include('portfolio.partials.gauge-defs')
     <div class="scroll-progress" aria-hidden="true"></div>
 
@@ -90,7 +108,6 @@
                 <a href="{{ $homeUrl }}#projets">{{ __('portfolio.nav.projects') }}</a>
                 <a href="{{ $homeUrl }}#experience">{{ __('portfolio.nav.experience') }}</a>
                 <a href="{{ $homeUrl }}#competences">{{ __('portfolio.nav.skills') }}</a>
-                <a href="{{ $homeUrl }}#apercu">{{ __('portfolio.nav.three_d') }}</a>
                 <a href="{{ $homeUrl }}#contact">{{ __('portfolio.nav.contact') }}</a>
             </nav>
 

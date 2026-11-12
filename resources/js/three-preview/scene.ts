@@ -9,9 +9,14 @@ const CAR_LENGTH = 4.6;
 const ROAD_HALF_WIDTH = 4.4;
 const KERB_WIDTH = 0.5;
 const SHOULDER_WIDTH = 5;
-const SIGN_LABELS = ['Projets', 'Preuves', 'Aperçu 3D', 'Contact'];
-/** Progression de défilement (0-1) à laquelle la voiture passe devant chaque panneau. */
-const STOPS = [0.14, 0.38, 0.62, 0.86];
+interface SignContent {
+    kicker: string;
+    label: string;
+}
+
+/** Progression de défilement (0-1) à laquelle la voiture passe devant chaque panneau, répartie sur la route. */
+const stopsFor = (count: number): number[] =>
+    count <= 1 ? [0.5] : Array.from({ length: count }, (_, index) => 0.14 + (0.72 * index) / (count - 1));
 /** Portion de la courbe parcourue pendant le défilement. */
 const U_START = 0.03;
 const U_SPAN = 0.93;
@@ -98,7 +103,7 @@ const makeShadowTexture = (): THREE.CanvasTexture =>
         ctx.fillRect(0, 0, 128, 128);
     });
 
-const makeSign = (label: string, index: number): THREE.Group => {
+const makeSign = ({ kicker, label }: SignContent): THREE.Group => {
     const texture = canvasTexture(512, 256, (ctx) => {
         ctx.fillStyle = '#161a1d';
         ctx.fillRect(0, 0, 512, 256);
@@ -107,10 +112,16 @@ const makeSign = (label: string, index: number): THREE.Group => {
         ctx.strokeRect(12, 12, 488, 232);
         ctx.fillStyle = '#b1a7a6';
         ctx.font = '500 34px monospace';
-        ctx.fillText(`0${index + 1} / 0${SIGN_LABELS.length}`, 40, 76);
+        ctx.fillText(kicker.toUpperCase(), 40, 76, 430);
         ctx.fillStyle = '#f5f3f4';
-        ctx.font = '700 66px sans-serif';
-        ctx.fillText(label, 40, 170);
+        // Réduit la taille de police jusqu'à ce que le libellé tienne dans le panneau.
+        let size = 66;
+        ctx.font = `700 ${size}px sans-serif`;
+        while (size > 30 && ctx.measureText(label).width > 430) {
+            size -= 4;
+            ctx.font = `700 ${size}px sans-serif`;
+        }
+        ctx.fillText(label, 40, 170, 430);
     });
     const group = new THREE.Group();
     const panel = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 2.1), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
@@ -629,9 +640,15 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     sky.add(moon);
     scene.add(sky);
 
-    // Panneaux, un par section
-    const signs = SIGN_LABELS.map((label, index) => {
-        const sign = makeSign(label, index);
+    // Panneaux : un par étape décrite dans le HTML (data-sign / data-sign-kicker).
+    const stepItems = [...container.querySelectorAll<HTMLElement>('[data-step-index]')];
+    const signContents: SignContent[] = stepItems.map((item) => ({
+        kicker: item.dataset.signKicker ?? '',
+        label: item.dataset.sign ?? '',
+    }));
+    const STOPS = stopsFor(signContents.length);
+    const signs = signContents.map((content, index) => {
+        const sign = makeSign(content);
         const u = U_START + (STOPS[index] + 0.025) * U_SPAN;
         const point = curve.getPointAt(u);
         const tangent = curve.getTangentAt(u);
@@ -761,8 +778,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     };
 
     const updateSteps = (): void => {
-        let active = -1;
-        let best = 0.1;
+        let active = 0;
+        let best = Infinity;
         STOPS.forEach((stop, index) => {
             const distance = Math.abs(state.progress - stop);
             if (distance < best) {
@@ -773,6 +790,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         if (active !== state.activeStep) {
             state.activeStep = active;
             container.dataset.step = String(active);
+            stepItems.forEach((item, index) => item.classList.toggle('is-active', index === active));
         }
         container.style.setProperty('--journey', state.progress.toFixed(4));
         signs.forEach((sign, index) => {

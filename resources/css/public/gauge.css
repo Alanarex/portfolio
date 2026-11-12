@@ -124,24 +124,3 @@
         animation-range: 0 55vh;
     }
 }
-
-/* Section Preuves : compteur épinglé piloté par le scroll */
-.gauge--proof { --p: 0.72; --k: 230; }
-
-@keyframes proof-sweep { from { --p: 0; --k: 0; } to { --p: 0.94; --k: 301; } }
-
-@keyframes proof-lit { 0%, 100% { color: var(--color-text-muted); transform: none; } 50% { color: var(--color-text); transform: translateX(0.6rem); } }
-
-@media (prefers-reduced-motion: no-preference) {
-@supports (animation-timeline: view()) {
-    .gauge--proof {
-        animation: proof-sweep linear both;
-        animation-timeline: --proof;
-        animation-range: contain 0% contain 100%;
-    }
-
-    .proof__item:nth-child(1) { animation: proof-lit linear both; animation-timeline: --step-1; animation-range: cover 10% cover 90%; }
-    .proof__item:nth-child(2) { animation: proof-lit linear both; animation-timeline: --step-2; animation-range: cover 10% cover 90%; }
-    .proof__item:nth-child(3) { animation: proof-lit linear both; animation-timeline: --step-3; animation-range: cover 10% cover 90%; }
-}
-}

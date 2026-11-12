@@ -1,0 +1,286 @@
+/* Résultats vérifiés : cartes lisibles, chiffres mis en valeur */
+.proof__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--space-4); margin: var(--space-6) 0 0; padding: 0; list-style: none; }
+.proof__item { display: grid; align-content: start; gap: var(--space-4); padding: var(--space-6); }
+.proof__index { color: var(--color-accent-light); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.proof__text { margin: 0; color: var(--color-text); font-family: var(--font-display); font-size: clamp(1.2rem, 2vw, 1.55rem); line-height: 1.35; }
+.proof__text b { color: var(--color-accent-light); font-weight: 700; }
+
+/* Parcours : cartes d'étapes (liste complète par défaut, une carte à la fois avec la 3D) */
+.journey__stick { padding-block: var(--space-8); }
+
+.journey__stage,
+.journey__poster,
+.journey__scrim { display: none; }
+.journey__ui { position: relative; z-index: 2; display: grid; gap: var(--space-6); }
+.journey__steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+
+.journey__step {
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: rgb(var(--bg-rgb) / 78%);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    backdrop-filter: blur(0.75rem);
+    text-shadow: none;
+}
+
+.journey__period { margin: 0; color: var(--color-accent-light); font-size: 0.8rem; letter-spacing: 0.08em; }
+.journey__count { color: var(--color-text-muted); }
+.journey__step h3 { margin: var(--space-2) 0 0; font-size: clamp(1.4rem, 2.4vw, 2rem); }
+.journey__org { margin: 0.15rem 0 var(--space-3); color: var(--color-text-soft); font-weight: 600; }
+.journey__summary { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; }
+.journey__step .checklist { gap: var(--space-1); margin-top: var(--space-3); font-size: 0.9rem; }
+
+html:not(.js) [data-three-preview-load] { display: none; }
+
+/* Mode « scène » : la 3D est disponible, une carte d'étape à la fois */
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__stage,
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__poster,
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__scrim { display: block; }
+
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__stick {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 34rem;
+    padding-block: 0;
+    overflow: hidden;
+}
+
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__ui {
+    display: grid;
+    height: 100%;
+    padding-block: 6.5rem var(--space-6);
+    align-content: space-between;
+    gap: 0;
+    pointer-events: none;
+}
+
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__steps {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: grid;
+    width: min(27rem, 100%);
+    margin: 0;
+    pointer-events: auto;
+    transform: translateY(-50%);
+}
+
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__step {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateX(2rem);
+    transition: opacity 500ms var(--ease), transform 600ms var(--ease), visibility 0s 500ms;
+    visibility: hidden;
+}
+
+.js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__step.is-active {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
+    visibility: visible;
+}
+
+/* Carte des compétences : la voiture suit le tracé pendant le défilement */
+.skillmap { --p: 1; position: relative; background: var(--color-bg); }
+.skillmap__stick { padding-block: var(--space-8); }
+.skillmap__inner { display: grid; gap: var(--space-6); }
+.skillmap__head .lede { max-width: 42rem; }
+
+.map {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #100d0e;
+    box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.map svg { display: block; width: 100%; height: min(46svh, 34rem); }
+.map__relief { stroke: #1a1415; stroke-width: 1.5; }
+.map__kerb { stroke: #2a2527; stroke-width: 36; }
+.map__asphalt { stroke: #0f0c0d; stroke-width: 30; }
+.map__lane { stroke: #f5f3f4; stroke-dasharray: 12 12; stroke-opacity: 0.5; stroke-width: 2; }
+.map__draw { stroke: var(--color-accent-light); stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--p, 1)); stroke-width: 5; filter: drop-shadow(0 0 8px var(--color-accent-light)); }
+.map__car { offset-distance: calc(var(--p, 1) * 100%); offset-rotate: auto; }
+
+.map__ring {
+    fill: var(--color-surface);
+    stroke: var(--color-text-muted);
+    stroke-width: 3.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 450ms var(--ease-spring), stroke var(--transition-fast), fill var(--transition-fast);
+}
+
+.map__num { fill: var(--color-text); font-family: var(--font-display); font-size: 20px; font-weight: 700; pointer-events: none; }
+.map__label { fill: var(--color-text-soft); font-family: var(--font-display); font-size: 23px; font-weight: 600; transition: fill var(--transition-fast); }
+.map__tag { fill: var(--color-text-muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; }
+.map__stop { cursor: pointer; }
+.map__stop:focus-visible { outline: none; }
+
+.map__stop:hover .map__ring,
+.map__stop:focus-visible .map__ring,
+.map__stop.is-passed .map__ring { stroke: var(--color-accent-light); }
+
+.map__stop.is-active .map__ring { fill: var(--color-accent); stroke: var(--color-accent-light); transform: scale(1.25); }
+.map__stop.is-active .map__num { fill: var(--color-accent-ink); }
+
+.map__stop.is-active .map__label,
+.map__stop:hover .map__label,
+.map__stop:focus-visible .map__label { fill: var(--color-text); }
+
+.skillmap__panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+
+.skillmap__panel {
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.skillmap__panel h3 { margin: var(--space-2) 0 0; font-size: clamp(1.4rem, 2.4vw, 2rem); }
+.skillmap__meta { margin: 0; color: var(--color-accent-light); font-size: 0.8rem; letter-spacing: 0.08em; }
+.skillmap__panel .tag-row { margin-top: var(--space-3); }
+
+@media (prefers-reduced-motion: no-preference) and (width > 45rem) {
+    .js .skillmap { height: calc(100svh + var(--n, 5) * 40svh); }
+
+    .js .skillmap__stick {
+        position: sticky;
+        top: 0;
+        display: grid;
+        height: 100svh;
+        min-height: 36rem;
+        align-items: center;
+        padding-block: 5.5rem 1.5rem;
+        box-sizing: border-box;
+    }
+
+    .js .skillmap__inner { grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
+    .js .skillmap__head h2 { margin-bottom: 0.2em; font-size: clamp(1.8rem, 3.4vw, 3rem); }
+    .js .skillmap__head .lede { margin: 0; font-size: 1rem; }
+    .js .skillmap__panels { display: grid; min-height: 9.5rem; }
+
+    .js .skillmap__panel {
+        grid-area: 1 / 1;
+        opacity: 0;
+        transform: translateY(0.75rem);
+        transition: opacity 450ms var(--ease), transform 500ms var(--ease), visibility 0s 450ms;
+        visibility: hidden;
+    }
+
+    .js .skillmap__panel.is-active { opacity: 1; transform: none; transition-delay: 0s; visibility: visible; }
+}
+
+@media (width <= 45rem) {
+    .map { display: none; }
+}
+
+/* Certifications et langues */
+.credentials { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--space-7); margin-top: var(--space-6); }
+.credentials__title { margin: 0 0 var(--space-4); color: var(--color-accent-light); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+.plates,
+.levels { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+
+.plate {
+    display: grid;
+    grid-template-areas: "year name" "year issuer";
+    grid-template-columns: auto 1fr;
+    gap: 0.15rem var(--space-4);
+    align-items: center;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.plate:hover { box-shadow: inset 0 0 0 1px var(--color-accent-light); transform: translateX(0.35rem); }
+
+.plate__year {
+    display: grid;
+    grid-area: year;
+    min-width: 4.4rem;
+    padding: 0.8rem 0.6rem;
+    border-radius: 0.6rem;
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+    font-size: 1rem;
+    font-weight: 700;
+    place-items: center;
+}
+
+.plate__name { grid-area: name; font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; }
+.plate__issuer { grid-area: issuer; color: var(--color-text-muted); font-size: 0.8rem; }
+
+.level { padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-border); }
+.level__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+.level__name { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; }
+.level__label { color: var(--color-text-muted); font-size: 0.8rem; }
+.level__meter { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.level__meter i { height: 0.65rem; border-radius: 2px; background: var(--color-surface-strong); transform: skewX(-20deg); }
+.level__meter i.is-on { background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent-light)); }
+
+/* Carnet de vol : une bande de contrôle par centre d'intérêt */
+.strips { display: grid; gap: var(--space-3); margin: var(--space-6) 0 0; padding: 0; list-style: none; }
+
+.strip {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-5);
+    align-items: center;
+    padding: var(--space-4) var(--space-5) var(--space-4) var(--space-6);
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.strip::before { position: absolute; inset: 0 auto 0 0; width: 0.35rem; background: var(--color-accent-light); content: ""; }
+.strip:hover { box-shadow: inset 0 0 0 1px var(--color-accent-light); transform: translateX(0.5rem); }
+.strip__code { color: var(--color-accent-light); font-size: 1.6rem; font-weight: 600; letter-spacing: 0.14em; }
+.strip__body h3 { margin: 0; font-size: 1.3rem; }
+.strip__body p { margin: 0.2rem 0 0; color: var(--color-text-muted); }
+.strip__ref { padding-left: var(--space-5); border-left: 1px dashed var(--color-border-strong); color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.12em; }
+
+@media (width <= 44rem) {
+    .strip { grid-template-columns: auto 1fr; padding-left: var(--space-5); }
+    .strip__ref { display: none; }
+}
+
+/* Changement de langue : rideau qui balaie l'écran */
+.lang-wipe {
+    position: fixed;
+    z-index: 300;
+    inset: 0;
+    display: grid;
+    background: var(--color-accent-deep);
+    place-items: center;
+    pointer-events: none;
+    transform: translateX(-101%);
+}
+
+.lang-wipe span { color: #fff; font-family: var(--font-display); font-size: clamp(4rem, 16vw, 11rem); font-weight: 700; letter-spacing: -0.05em; }
+html.lang-leaving .lang-wipe { transform: none; transition: transform 380ms var(--ease); }
+html.lang-entering .lang-wipe { animation: wipe-out 560ms 80ms var(--ease) both; transform: none; }
+
+@keyframes wipe-out { to { transform: translateX(101%); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .lang-wipe { display: none; }
+}
+
+/* Changement de thème : le nouveau thème se déploie depuis le bouton */
+html.theme-vt::view-transition-old(root),
+html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+html.theme-vt::view-transition-new(root) { animation: theme-reveal 700ms var(--ease) both; }
+
+@keyframes theme-reveal {
+    from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0)); }
+    to { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0)); }
+}
