@@ -83,11 +83,16 @@ final class PublicPortfolioController extends Controller
         $project = $this->projects->findBySlug($locale, $slug);
         abort_if($project === null, 404);
         $data = $this->sharedData($locale);
+        $slugs = array_map(static fn (PublicProjectData $item): string => $item->slug, $this->projects->all($locale));
+        $position = array_search($project->slug, $slugs, true);
+        $neighbours = $this->projects->all($locale);
 
         return view('portfolio.projects.show', [
             ...$data,
             'page' => 'project',
             'project' => $project,
+            'previousProject' => is_int($position) ? ($neighbours[$position - 1] ?? null) : null,
+            'nextProject' => is_int($position) ? ($neighbours[$position + 1] ?? null) : null,
             'alternateUrl' => $this->alternateProjectUrl($data['alternateLocale'], $project->slug),
             'meta' => $this->meta(
                 title: __('portfolio.meta.project_title', ['project' => $project->title]),
@@ -112,6 +117,27 @@ final class PublicPortfolioController extends Controller
             'meta' => $this->meta(
                 title: __('portfolio.meta.privacy_title'),
                 description: __('portfolio.meta.privacy_description'),
+                canonical: $canonical,
+            ),
+            'structuredData' => $this->structuredData($data, $canonical),
+        ]);
+    }
+
+    public function legal(string $locale): View
+    {
+        $this->activateLocale($locale);
+        $this->analytics->pageViewed('portfolio.legal', $locale);
+        $data = $this->sharedData($locale);
+        $canonical = route('portfolio.legal', compact('locale'));
+
+        return view('portfolio.legal', [
+            ...$data,
+            'page' => 'legal',
+            'legal' => config('legal'),
+            'alternateUrl' => route('portfolio.legal', ['locale' => $data['alternateLocale']]),
+            'meta' => $this->meta(
+                title: __('portfolio.meta.legal_title'),
+                description: __('portfolio.meta.legal_description'),
                 canonical: $canonical,
             ),
             'structuredData' => $this->structuredData($data, $canonical),

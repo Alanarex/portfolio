@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $meta['title'] }}</title>
     <meta name="description" content="{{ $meta['description'] }}">
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0b1426" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#faf6f6" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b090a" media="(prefers-color-scheme: dark)">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $settings?->siteName ?? __('portfolio.brand_fallback') }}">
     <meta property="og:locale" content="{{ $locale === 'fr' ? 'fr_FR' : 'en_GB' }}">
@@ -35,199 +36,94 @@
     <link rel="alternate" hreflang="fr" href="{{ $frUrl }}">
     <link rel="alternate" hreflang="en" href="{{ $enUrl }}">
     <link rel="alternate" hreflang="x-default" href="{{ $frUrl }}">
-    <title>{{ $meta['title'] }}</title>
     <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
     <script>
-        document.documentElement.classList.remove('no-js');
-        try {
-            const theme = localStorage.getItem('portfolio-theme');
-            const dark = theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.classList.toggle('dark', dark);
-        } catch (_) {}
+        (function () {
+            var root = document.documentElement;
+            root.classList.remove('no-js');
+            root.classList.add('js');
+            try {
+                var theme = localStorage.getItem('portfolio-theme');
+                if (theme !== 'dark' && theme !== 'light') {
+                    theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+                }
+                root.setAttribute('data-theme', theme);
+                if (sessionStorage.getItem('loaded') || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    root.classList.add('no-loader');
+                }
+            } catch (e) {
+                root.classList.add('no-loader');
+            }
+        })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/public.ts'])
+    @vite(['resources/css/public.css', 'resources/js/public.ts'])
 </head>
 @php
     $brandName = $profile?->displayName ?? $settings?->siteName ?? __('portfolio.brand_fallback');
-    $primaryTitle = $profile?->professionalTitles[0] ?? null;
-    $allSkillNames = collect($skills?->categories ?? [])
-        ->flatMap(fn (array $category): array => $category['skills'] ?? [])
-        ->pluck('name')
-        ->filter()
-        ->take(10);
+    $homeUrl = route('portfolio.home', ['locale' => $locale]);
+    $socialLinks = $settings?->socialLinks ?? [];
 @endphp
 <body class="public-portfolio" data-analytics-driver="null">
     <a href="#main-content" class="skip-link">{{ __('portfolio.skip') }}</a>
+    @include('portfolio.partials.gauge-defs')
+    <div class="scroll-progress" aria-hidden="true"></div>
 
-    <div class="portfolio-shell">
-        <aside class="profile-rail" aria-label="{{ __('portfolio.navigation') }}">
-            <div class="rail-brand">
-                <a href="{{ route('portfolio.home', ['locale' => $locale]) }}" class="brand-link" aria-label="{{ $brandName }}">
-                    <span class="brand-mark" aria-hidden="true">
-                        <img src="{{ asset('assets/brand/logo-light-96.webp') }}" class="logo-for-light" width="40" height="40" alt="">
-                        <img src="{{ asset('assets/brand/logo-dark-96.webp') }}" class="logo-for-dark" width="40" height="40" alt="">
-                    </span>
-                    <span>
-                        <strong>{{ $brandName }}</strong>
-                        <small>{{ $primaryTitle ?? __('portfolio.brand_fallback') }}</small>
-                    </span>
-                </a>
+    @if (($page ?? 'home') === 'home')
+        <div class="loader theme-dark" role="status" aria-label="{{ __('portfolio.loading') }}">
+            <div class="loader__inner">
+                <img class="loader__logo" src="{{ asset('assets/brand/logo-dark-96.webp') }}" width="56" height="56" alt="">
+                @include('portfolio.partials.gauge', ['class' => 'gauge--loader'])
+                <div class="loader__meter" aria-hidden="true"><i></i></div>
             </div>
-
-            <div class="rail-scroll">
-                <section class="profile-card" aria-labelledby="profile-card-title">
-                    <div class="profile-card-cover" aria-hidden="true"></div>
-                    <picture class="profile-avatar">
-                        <source type="image/webp" srcset="{{ asset('assets/brand/portrait-avatar-160.webp') }} 160w, {{ asset('assets/brand/portrait-avatar-320.webp') }} 320w" sizes="72px">
-                        <img src="{{ asset('assets/brand/portrait-avatar-160.webp') }}" width="160" height="160" alt="{{ __('portfolio.hero.portrait_alt') }}" loading="eager" decoding="async">
-                    </picture>
-                    <div class="profile-card-body">
-                        <h2 id="profile-card-title">{{ $brandName }}</h2>
-                        @if ($profile)
-                            @if ($primaryTitle)<p>{{ $primaryTitle }}</p>@endif
-                            @if ($profile->location)<p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ $profile->location }}</p>@endif
-                            @if ($profile->availability)
-                                <p class="availability"><span aria-hidden="true"></span>{{ $profile->availability }}</p>
-                            @endif
-                        @else
-                            <p>{{ __('portfolio.profile.unavailable') }}</p>
-                        @endif
-                        <dl class="profile-stats">
-                            <div>
-                                <dt>{{ __('portfolio.profile.projects_count') }}</dt>
-                                <dd>{{ $projectsCount }}</dd>
-                            </div>
-                            <div>
-                                <dt>{{ __('portfolio.nav.skills') }}</dt>
-                                <dd>{{ $allSkillNames->count() }}</dd>
-                            </div>
-                        </dl>
-                    </div>
-                </section>
-
-                <nav class="rail-navigation" aria-label="{{ __('portfolio.navigation') }}">
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]) }}" @class(['is-active' => $page === 'home'])>
-                        <i class="fa-solid fa-house" aria-hidden="true"></i><span>{{ __('portfolio.nav.home') }}</span>
-                    </a>
-                    <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}" @class(['is-active' => in_array($page, ['projects', 'project'], true)])>
-                        <i class="fa-solid fa-rocket" aria-hidden="true"></i><span>{{ __('portfolio.nav.projects') }}</span>
-                    </a>
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]).'#experience' }}">
-                        <i class="fa-solid fa-briefcase" aria-hidden="true"></i><span>{{ __('portfolio.nav.experience') }}</span>
-                    </a>
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]).'#skills' }}">
-                        <i class="fa-solid fa-brain" aria-hidden="true"></i><span>{{ __('portfolio.nav.skills') }}</span>
-                    </a>
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]).'#education' }}">
-                        <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>{{ __('portfolio.nav.education') }}</span>
-                    </a>
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]).'#contact' }}">
-                        <i class="fa-regular fa-message" aria-hidden="true"></i><span>{{ __('portfolio.nav.contact') }}</span>
-                    </a>
-                </nav>
-            </div>
-
-            <div class="rail-controls">
-                <div class="segmented-control" role="group" aria-label="{{ __('portfolio.theme.label') }}">
-                    <button type="button" data-theme-choice="dark" aria-pressed="false">
-                        <i class="fa-solid fa-moon" aria-hidden="true"></i>{{ __('portfolio.theme.dark') }}
-                    </button>
-                    <button type="button" data-theme-choice="light" aria-pressed="false">
-                        <i class="fa-solid fa-sun" aria-hidden="true"></i>{{ __('portfolio.theme.light') }}
-                    </button>
-                </div>
-                <a class="language-switch" href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}">
-                    <i class="fa-solid fa-language" aria-hidden="true"></i>
-                    {{ __('portfolio.language_switch') }}
-                </a>
-            </div>
-        </aside>
-
-        <main id="main-content" class="main-column" tabindex="-1">
-            @yield('content')
-
-            <footer class="site-footer">
-                <a href="{{ route('portfolio.home', ['locale' => $locale]) }}" class="footer-brand">
-                    <img src="{{ asset('assets/brand/logo-light-96.webp') }}" class="logo-for-light" width="28" height="28" alt="">
-                    <img src="{{ asset('assets/brand/logo-dark-96.webp') }}" class="logo-for-dark" width="28" height="28" alt="">
-                    <span><strong>{{ $brandName }}</strong><small>© {{ date('Y') }} · {{ __('portfolio.footer.rights') }}</small></span>
-                </a>
-                <nav aria-label="{{ __('portfolio.navigation') }}">
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]) }}">{{ __('portfolio.nav.home') }}</a>
-                    <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">{{ __('portfolio.nav.projects') }}</a>
-                    <a href="{{ route('portfolio.home', ['locale' => $locale]).'#contact' }}">{{ __('portfolio.nav.contact') }}</a>
-                    <a href="{{ route('portfolio.privacy', ['locale' => $locale]) }}">{{ __('portfolio.footer.privacy') }}</a>
-                </nav>
-            </footer>
-        </main>
-
-        <aside class="context-rail" aria-label="{{ __('portfolio.sections.projects') }}">
-            @if ($featuredProjects !== [])
-                <section class="context-card">
-                    <p class="context-label">{{ __('portfolio.sections.projects') }}</p>
-                    <ul class="mini-projects">
-                        @foreach (array_slice($featuredProjects, 0, 3) as $featuredProject)
-                            <li>
-                                <span class="mini-project-icon mini-project-icon-{{ $loop->index % 3 }}" aria-hidden="true">
-                                    <i class="fa-solid fa-code"></i>
-                                </span>
-                                <a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $featuredProject->slug]) }}">
-                                    <strong>{{ $featuredProject->title }}</strong>
-                                    <span>{{ $featuredProject->summary }}</span>
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($allSkillNames->isNotEmpty())
-                <section class="context-card">
-                    <p class="context-label">{{ __('portfolio.sections.skills') }}</p>
-                    <div class="skill-cloud">
-                        @foreach ($allSkillNames as $skillName)
-                            <span>{{ $skillName }}</span>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
-
-            @if (($settings?->featureFlags['activity'] ?? false) === true)
-                <section class="context-card activity-card">
-                    <p class="context-label">{{ __('portfolio.sections.activity') }}</p>
-                    <p>{{ __('portfolio.sections.activity_pending') }}</p>
-                </section>
-            @endif
-        </aside>
-    </div>
-
-    <div class="mobile-preferences">
-        <div class="segmented-control" role="group" aria-label="{{ __('portfolio.theme.label') }}">
-            <button type="button" data-theme-choice="dark" aria-pressed="false" aria-label="{{ __('portfolio.theme.dark') }}">
-                <i class="fa-solid fa-moon" aria-hidden="true"></i>
-            </button>
-            <button type="button" data-theme-choice="light" aria-pressed="false" aria-label="{{ __('portfolio.theme.light') }}">
-                <i class="fa-solid fa-sun" aria-hidden="true"></i>
-            </button>
         </div>
-        <a href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}" aria-label="{{ __('portfolio.language_switch') }}">
-            {{ strtoupper($alternateLocale) }}
-        </a>
-    </div>
+    @endif
 
-    <nav class="mobile-navigation" aria-label="{{ __('portfolio.navigation') }}">
-        <a href="{{ route('portfolio.home', ['locale' => $locale]) }}" @class(['is-active' => $page === 'home'])>
-            <i class="fa-solid fa-house" aria-hidden="true"></i><span>{{ __('portfolio.nav.home') }}</span>
-        </a>
-        <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}" @class(['is-active' => in_array($page, ['projects', 'project'], true)])>
-            <i class="fa-solid fa-rocket" aria-hidden="true"></i><span>{{ __('portfolio.nav.projects') }}</span>
-        </a>
-        <a href="{{ route('portfolio.home', ['locale' => $locale]).'#skills' }}">
-            <i class="fa-solid fa-brain" aria-hidden="true"></i><span>{{ __('portfolio.nav.skills') }}</span>
-        </a>
-        <a href="{{ route('portfolio.home', ['locale' => $locale]).'#contact' }}">
-            <i class="fa-regular fa-message" aria-hidden="true"></i><span>{{ __('portfolio.nav.contact') }}</span>
-        </a>
-    </nav>
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" href="{{ $homeUrl }}" aria-label="{{ $brandName }} — {{ __('portfolio.nav.home') }}">
+                <img class="brand__logo logo-for-light" src="{{ asset('assets/brand/logo-light-96.webp') }}" width="36" height="36" alt="">
+                <img class="brand__logo logo-for-dark" src="{{ asset('assets/brand/logo-dark-96.webp') }}" width="36" height="36" alt="">
+                <span class="brand__name">{{ $brandName }}</span>
+            </a>
+
+            <nav class="site-nav" id="site-nav" aria-label="{{ __('portfolio.navigation') }}">
+                <a href="{{ $homeUrl }}#projets">{{ __('portfolio.nav.projects') }}</a>
+                <a href="{{ $homeUrl }}#experience">{{ __('portfolio.nav.experience') }}</a>
+                <a href="{{ $homeUrl }}#competences">{{ __('portfolio.nav.skills') }}</a>
+                <a href="{{ $homeUrl }}#apercu">{{ __('portfolio.nav.three_d') }}</a>
+                <a href="{{ $homeUrl }}#contact">{{ __('portfolio.nav.contact') }}</a>
+            </nav>
+
+            <div class="site-tools">
+                <a class="lang-switch" href="{{ $alternateUrl }}" hreflang="{{ $alternateLocale }}" lang="{{ $alternateLocale }}" aria-label="{{ __('portfolio.language_switch') }}">
+                    <span @if ($locale === 'fr') aria-current="true" @endif>FR</span><span @if ($locale === 'en') aria-current="true" @endif>EN</span>
+                </a>
+                <button class="theme-toggle" type="button" data-theme-toggle aria-label="{{ __('portfolio.theme.label') }}" data-label-dark="{{ __('portfolio.theme.to_dark') }}" data-label-light="{{ __('portfolio.theme.to_light') }}">
+                    <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                    <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="currentColor"/></svg>
+                </button>
+                <a class="button button--small site-cta" href="{{ $homeUrl }}#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+        @yield('content')
+    </main>
+
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <p>© {{ date('Y') }} {{ $brandName }} · {{ __('portfolio.footer.rights') }}</p>
+            <nav class="site-footer__links" aria-label="{{ __('portfolio.footer.label') }}">
+                <a href="{{ $homeUrl }}">{{ __('portfolio.nav.home') }}</a>
+                <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">{{ __('portfolio.nav.projects') }}</a>
+                @foreach ($socialLinks as $platform => $url)
+                    <a href="{{ $url }}" rel="noopener noreferrer">{{ ucfirst($platform) }}</a>
+                @endforeach
+                <a href="{{ route('portfolio.privacy', ['locale' => $locale]) }}">{{ __('portfolio.footer.privacy') }}</a>
+                <a href="{{ route('portfolio.legal', ['locale' => $locale]) }}">{{ __('portfolio.footer.legal') }}</a>
+            </nav>
+        </div>
+    </footer>
 </body>
 </html>

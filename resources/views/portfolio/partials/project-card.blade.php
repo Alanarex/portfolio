@@ -2,53 +2,28 @@
     $cover = collect($project->media)->first(
         fn (array $media): bool => in_array($media['kind'] ?? null, ['image', 'screenshot', 'poster'], true),
     );
-    $status = __('portfolio.lifecycle.'.$project->lifecycleStatus);
+    $url = route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]);
 @endphp
-<article class="project-card" data-project-style="{{ $index % 6 }}">
-    <div class="project-cover">
-        @if ($cover)
-            <img
-                src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $cover['delivery_key']]) }}"
-                width="{{ $cover['width'] ?? 1200 }}"
-                height="{{ $cover['height'] ?? 675 }}"
-                alt="{{ $cover['alt_text'] }}"
-                loading="lazy"
-                decoding="async"
-            >
-        @else
-            <span class="project-glyph" aria-hidden="true"><i class="fa-solid fa-code"></i></span>
-        @endif
-        <span class="project-status">{{ $status }}</span>
-    </div>
-    <div class="project-card-body">
-        <div class="project-card-heading">
-            <h3><a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]) }}">{{ $project->title }}</a></h3>
-            <span>{{ $project->role }}</span>
+<article class="card card--lift project-card" data-scroll-reveal>
+    @if ($cover)
+        <div class="project-card__cover">
+            <img src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $cover['delivery_key']]) }}" width="{{ $cover['width'] ?? 1200 }}" height="{{ $cover['height'] ?? 675 }}" alt="{{ $cover['alt_text'] }}" loading="lazy" decoding="async">
         </div>
-        <p>{{ $project->summary }}</p>
-        @if ($project->technologies !== [])
-            <ul class="tag-list" aria-label="{{ __('portfolio.projects.technologies') }}">
-                @foreach (array_slice($project->technologies, 0, 6) as $technology)
-                    <li>{{ $technology }}</li>
-                @endforeach
-            </ul>
-        @endif
-        <div class="project-card-actions">
-            <a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]) }}">
-                {{ __('portfolio.projects.view') }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            </a>
-            <span>
-                @if ($project->repositoryUrl)
-                    <a href="{{ $project->repositoryUrl }}" rel="noopener noreferrer" aria-label="{{ __('portfolio.projects.repository') }}">
-                        <i class="fa-brands fa-github" aria-hidden="true"></i>
-                    </a>
-                @endif
-                @if ($project->demoUrl)
-                    <a href="{{ $project->demoUrl }}" rel="noopener noreferrer" aria-label="{{ __('portfolio.projects.demo') }}">
-                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                    </a>
-                @endif
-            </span>
-        </div>
+    @endif
+    <div class="project-card__top">
+        <span class="number">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+        <span class="tag">{{ strtoupper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
     </div>
+    <h3><a class="project-card__link" href="{{ $url }}">{{ $project->title }}</a></h3>
+    <p>{{ $project->summary }}</p>
+    @if ($project->technologies !== [])
+        <ul class="tag-row" aria-label="{{ __('portfolio.projects.technologies') }}">
+            @foreach (array_slice($project->technologies, 0, 5) as $technology)<li class="chip">{{ $technology }}</li>@endforeach
+        </ul>
+    @endif
+    <p class="project-card__actions">
+        <a href="{{ $url }}">{{ __('portfolio.projects.view') }} <span aria-hidden="true">→</span></a>
+        @if ($project->repositoryUrl)<a class="mono" href="{{ $project->repositoryUrl }}" rel="noopener noreferrer">{{ __('portfolio.projects.repository') }}</a>@endif
+        @if ($project->demoUrl)<a class="mono" href="{{ $project->demoUrl }}" rel="noopener noreferrer">{{ __('portfolio.projects.demo') }}</a>@endif
+    </p>
 </article>

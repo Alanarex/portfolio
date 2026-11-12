@@ -44,22 +44,28 @@ final class PublicPortfolioTest extends TestCase
             ->assertSee('385 requêtes SQL à 6')
             ->assertDontSee('Scène interactive en préparation')
             ->assertDontSee('CV bientôt disponible')
-            ->assertSee('Aucune activité privée n’est exposée')
             ->assertSeeInOrder([
                 'Positionnement',
                 'Projets à la une',
-                'Résultats vérifiés',
-                'Forces techniques',
                 'Expérience',
                 'Compétences et stack',
-                'Activité GitHub & GitLab',
-                'Formation et certifications',
+                'Formation, certifications et langues',
                 'En dehors du code',
                 'Construisons quelque chose d’utile',
             ]);
 
         self::assertStringNotContainsString('id="portfolio-app"', $response->getContent());
         self::assertStringNotContainsString('Alex Karim', $response->getContent());
+    }
+
+    public function test_legal_notice_is_localized_and_listed_in_the_sitemap(): void
+    {
+        $this->bindReaders([$this->projectData('portfolio', 'Portfolio V3')]);
+
+        $this->get('/fr/legal')->assertOk()->assertSee('Mentions légales')->assertSee('Hébergement');
+        $this->get('/en/legal')->assertOk()->assertSee('Legal notice')->assertSee('Hosting');
+        $this->get('/fr/legal')->assertSee('/en/legal', false);
+        $this->get('/sitemap.xml')->assertOk()->assertSee('/fr/legal', false)->assertSee('/en/legal', false);
     }
 
     public function test_public_email_is_obfuscated_in_the_html_and_revealed_on_demand(): void
@@ -95,7 +101,7 @@ final class PublicPortfolioTest extends TestCase
 
         $this->get('/fr/projects/stable-project')
             ->assertOk()
-            ->assertSee('<h1>Projet stable</h1>', false)
+            ->assertSee('Projet stable')
             ->assertSee('Contexte vérifié')
             ->assertSee('Code source')
             ->assertSee('Voir la démo');

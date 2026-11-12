@@ -1,21 +1,19 @@
 @extends('portfolio.layout')
 
 @section('content')
-    <article class="legal-page">
-        <p class="eyebrow">{{ __('portfolio.footer.privacy') }}</p>
-        <h1>{{ __('portfolio.privacy.title') }}</h1>
-        <p>{{ __('portfolio.privacy.intro') }}</p>
-        <section>
-            <h2>{{ __('portfolio.privacy.contact_title') }}</h2>
-            <p>{{ __('portfolio.privacy.contact_text') }}</p>
-        </section>
-        <section>
-            <h2>{{ __('portfolio.privacy.analytics_title') }}</h2>
-            <p>{{ __('portfolio.privacy.analytics_text') }}</p>
-        </section>
-        <section>
-            <h2>{{ __('portfolio.privacy.visibility_title') }}</h2>
-            <p>{{ __('portfolio.privacy.visibility_text') }}</p>
-        </section>
-    </article>
+<article class="legal container" aria-labelledby="legal-title">
+    <header>
+        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.footer.privacy') }}</p>
+        <h1 id="legal-title" data-reveal style="--i: 1">{{ __('portfolio.privacy.title') }}</h1>
+        <p class="lede" data-reveal style="--i: 2">{{ __('portfolio.privacy.intro') }}</p>
+    </header>
+    <div class="legal__list">
+        @foreach (['contact', 'analytics', 'visibility'] as $topic)
+            <section class="legal__item" data-scroll-reveal>
+                <h2>{{ __('portfolio.privacy.'.$topic.'_title') }}</h2>
+                <p>{{ __('portfolio.privacy.'.$topic.'_text') }}</p>
+            </section>
+        @endforeach
+    </div>
+</article>
 @endsection

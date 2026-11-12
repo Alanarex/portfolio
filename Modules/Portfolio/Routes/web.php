@@ -16,6 +16,7 @@ Route::prefix('{locale}')
         Route::get('/', [PublicPortfolioController::class, 'home'])->name('portfolio.home');
         Route::get('/projects', [PublicPortfolioController::class, 'index'])->name('portfolio.projects.index');
         Route::get('/privacy', [PublicPortfolioController::class, 'privacy'])->name('portfolio.privacy');
+        Route::get('/legal', [PublicPortfolioController::class, 'legal'])->name('portfolio.legal');
         Route::get('/projects/{slug}', [PublicPortfolioController::class, 'show'])
             ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
             ->name('portfolio.projects.show');

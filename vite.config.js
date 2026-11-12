@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.tsx',
                 'resources/js/admin.ts',
+                'resources/css/public.css',
                 'resources/js/public.ts',
             ],
             refresh: true,
