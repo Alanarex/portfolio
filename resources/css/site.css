@@ -75,7 +75,6 @@
     position: relative;
     padding-block: var(--space-8) var(--space-8);
     overflow: clip;
-    view-timeline: --hero block;
 }
 
 .hero__grid {
@@ -165,14 +164,16 @@
 .marquee__track {
     display: flex;
     width: max-content;
-    gap: 3.5rem;
     padding-block: 1.1rem;
-    animation: marquee 32s linear infinite;
+    animation: marquee 40s linear infinite;
 }
+
+/* Chaque groupe porte son propre espacement final : -50 % tombe exactement sur le début du 2e groupe. */
+.marquee__group { display: flex; flex: none; gap: 3.5rem; padding-right: 3.5rem; }
 
 .marquee:hover .marquee__track { animation-play-state: paused; }
 
-.marquee__track span {
+.marquee__group span {
     color: var(--color-border-strong);
     font-family: var(--font-display);
     font-size: 1.75rem;
@@ -181,7 +182,7 @@
     transition: color var(--transition-base);
 }
 
-.marquee__track span:hover { color: var(--color-accent-light); }
+.marquee__group span:hover { color: var(--color-accent-light); }
 
 /* Positionnement */
 .statement { max-width: 20ch; font-size: clamp(2rem, 4.4vw, 3.75rem); line-height: 1.08; }
@@ -349,8 +350,8 @@
 @keyframes map-drive { from { offset-distance: 0%; } to { offset-distance: 100%; } }
 
 @supports (animation-timeline: view()) {
-    .map__draw { stroke-dashoffset: 1; animation: map-draw linear both; animation-timeline: --map; animation-range: entry 25% cover 50%; }
-    .map__car { offset-distance: 0%; animation: map-drive linear both; animation-timeline: --map; animation-range: entry 25% cover 50%; }
+    .map__draw { stroke-dashoffset: 1; animation: map-draw linear both; animation-timeline: --map; animation-range: entry 100% cover 60%; }
+    .map__car { offset-distance: 0%; animation: map-drive linear both; animation-timeline: --map; animation-range: entry 100% cover 60%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

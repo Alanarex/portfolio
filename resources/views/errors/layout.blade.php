@@ -1,5 +1,6 @@
 @extends('layouts.public')
 @section('no_loader', '1')
+@section('robots', 'noindex, nofollow')
 @section('title', $code.' — '.$title.' — Alan')
 @section('description', $message)
 @section('content')

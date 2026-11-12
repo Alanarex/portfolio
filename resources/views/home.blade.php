@@ -1,6 +1,31 @@
 @extends('layouts.public')
 @section('title', 'Alan — Développeur full-stack PHP / Laravel')
 @section('description', 'Portfolio d’Alan, développeur full-stack PHP et Laravel spécialisé dans les applications accessibles et maintenables.')
+@push('structured-data')
+@php
+    $jsonLd = [
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'WebSite',
+                '@id' => url('/').'#website',
+                'url' => url('/'),
+                'name' => 'Alan — Développeur full-stack',
+                'inLanguage' => 'fr-FR',
+            ],
+            array_filter([
+                '@type' => 'Person',
+                '@id' => url('/').'#person',
+                'name' => config('legal.publisher_name') ?: 'Alan',
+                'jobTitle' => 'Développeur full-stack PHP / Laravel',
+                'url' => url('/'),
+                'knowsAbout' => ['PHP', 'Laravel', 'PostgreSQL', 'Vue.js', 'Docker', 'Three.js'],
+            ]),
+        ],
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
+@endpush
 @section('content')
 <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
     <div class="hero__veil" aria-hidden="true"></div><div class="hero__glow" aria-hidden="true"></div>
@@ -24,8 +49,8 @@
 
 <div class="marquee" aria-hidden="true">
     <div class="marquee__track">
-        @foreach (range(1, 2) as $loop_index)
-            <span>PHP</span><span>Laravel 13</span><span>PostgreSQL</span><span>Redis</span><span>Vue 3</span><span>Inertia</span><span>Three.js</span><span>Docker</span>
+        @foreach (range(1, 2) as $group)
+            <div class="marquee__group">@foreach (range(1, 2) as $repeat)<span>PHP</span><span>Laravel 13</span><span>PostgreSQL</span><span>Redis</span><span>Vue 3</span><span>Inertia</span><span>Three.js</span><span>Docker</span>@endforeach</div>
         @endforeach
     </div>
 </div>

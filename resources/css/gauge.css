@@ -107,7 +107,7 @@
     transform-origin: left;
 }
 
-/* Hero : l'aiguille monte dès le premier défilement */
+/* Hero : l'aiguille monte jusqu'à 160 km/h pendant le défilement dans la section */
 .gauge--hero {
     --p: 0.09;
     --k: 29;
@@ -115,13 +115,13 @@
     filter: drop-shadow(0 1.8rem 3.5rem rgb(164 22 26 / 35%));
 }
 
-@keyframes hero-sweep { from { --p: 0.09; --k: 29; } to { --p: 0.86; --k: 275; } }
+@keyframes hero-sweep { from { --p: 0.09; --k: 29; } to { --p: 0.5; --k: 160; } }
 
 @supports (animation-timeline: view()) {
     .gauge--hero {
         animation: hero-sweep linear both;
-        animation-timeline: --hero;
-        animation-range: exit 0% exit 100%;
+        animation-timeline: scroll(root block);
+        animation-range: 0 55vh;
     }
 }
 
