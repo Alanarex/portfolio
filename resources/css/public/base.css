@@ -37,7 +37,7 @@ button, input, textarea { font: inherit; }
     translate: 0 -200%;
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-sm);
-    color: var(--color-bg);
+    color: #0b090a;
     background: #fff;
     font-weight: 800;
 }

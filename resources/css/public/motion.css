@@ -108,6 +108,7 @@
         transition-duration: 0.01ms !important;
     }
 
+    .proof__item,
     [data-reveal],
     [data-scroll-reveal] {
         animation: none !important;
