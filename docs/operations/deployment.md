@@ -94,7 +94,19 @@ Vérifie : `curl https://ton-domaine.fr/health`.
 mkdir -p /opt/portfolio-backups
 crontab -e
 # Ajouter la ligne :
-15 3 * * * cd /opt/portfolio && docker compose -f compose.prod.yaml exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > /opt/portfolio-backups/db-$(date +\%F).sql.gz && find /opt/portfolio-backups -name 'db-*.sql.gz' -mtime +14 -delete
+15 3 * * * /opt/portfolio-backups/backup-db.sh   # sauvegarde chaque nuit, garde les 3 plus récentes
+```
+
+Le script `/opt/portfolio-backups/backup-db.sh` (`chmod +x`) :
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd /opt/portfolio
+out="/opt/portfolio-backups/db-$(date +%F).sql.gz"
+docker compose -f compose.prod.yaml exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$out"
+# garde les 3 plus récentes
+ls -1t /opt/portfolio-backups/db-*.sql.gz | tail -n +4 | xargs -r rm --
 ```
 
 Télécharge une sauvegarde de temps en temps sur ton PC (`scp`) : une sauvegarde qui reste sur le
@@ -191,6 +203,16 @@ docker compose -f compose.prod.yaml stop adminer                    # arrêter a
 Ouvre `https://db.ton-domaine.fr`, passe le mot de passe Caddy, puis connecte-toi à Adminer :
 système *PostgreSQL*, serveur `postgres` (déjà rempli), utilisateur et base = `DB_USERNAME` / `DB_DATABASE`
 du `.env`, mot de passe = `DB_PASSWORD`.
+
+**Après toute modification du Caddyfile** (déployée par GitHub), ne fais pas `caddy reload` : le
+fichier est monté seul dans le conteneur et Git le remplace à chaque déploiement, donc le
+conteneur garde l'ancienne version et un rechargement relit l'ancienne configuration (symptôme :
+502 ou ancien comportement). Valide dans un conteneur neuf, puis recrée Caddy :
+
+```bash
+docker compose -f compose.prod.yaml run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile
+docker compose -f compose.prod.yaml up -d --force-recreate caddy
+```
 
 **Pour durcir encore** : si ton IP est fixe, ajoute dans le bloc `db.{$APP_DOMAIN}` du Caddyfile
 `@interdit not remote_ip TON.IP.ICI` suivi de `respond @interdit 403`, avant `basic_auth`.
