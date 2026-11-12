@@ -9,6 +9,9 @@ const props = defineProps<{
   error?: string;
   required?: boolean;
   autofocus?: boolean;
+  multiline?: boolean;
+  rows?: number;
+  maxlength?: number;
 }>();
 const model = defineModel<string>({ default: '' });
 const revealed = ref(false);
@@ -20,7 +23,20 @@ const inputType = computed(() => (isPassword.value && revealed.value ? 'text' : 
     class="field"
     :class="{ 'field--error': error, 'field--with-action': isPassword }"
   >
+    <textarea
+      v-if="multiline"
+      :id="id"
+      v-model="model"
+      class="field__input field__input--multiline"
+      placeholder=" "
+      :rows="rows ?? 5"
+      :maxlength="maxlength"
+      :required="required"
+      :aria-invalid="Boolean(error)"
+      :aria-describedby="error ? `${id}-error` : undefined"
+    />
     <input
+      v-else
       :id="id"
       v-model="model"
       class="field__input"
