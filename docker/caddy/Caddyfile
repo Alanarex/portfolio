@@ -28,15 +28,12 @@ db.{$APP_DOMAIN} {
         X-Robots-Tag "noindex, nofollow, noarchive"
         X-Frame-Options "DENY"
         X-Content-Type-Options "nosniff"
-        Referrer-Policy "no-referrer"
+        # pgAdmin's CSRF check requires a Referer on same-origin requests: "no-referrer" breaks it (401).
+        Referrer-Policy "same-origin"
         -Server
     }
     basic_auth {
         {$PGADMIN_AUTH_USER} {$PGADMIN_AUTH_HASH}
     }
-    # The browser resends the Caddy basic-auth credentials on every request. pgAdmin would treat that
-    # header as its own HTTP auth and answer 401 to its API calls, so strip it before proxying.
-    reverse_proxy pgadmin:8080 {
-        header_up -Authorization
-    }
+    reverse_proxy pgadmin:8080
 }
