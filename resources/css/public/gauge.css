@@ -1,0 +1,145 @@
+/* Compteur de vitesse sportif (SVG) : --p pilote l'aiguille, --k la vitesse affichée */
+.gauge {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    aspect-ratio: 1;
+}
+
+.gauge svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+.gauge__needle {
+    transform-origin: 200px 200px;
+    transform: rotate(calc(-135deg + 270deg * var(--p)));
+    filter: drop-shadow(0 0 6px rgb(229 56 59 / 80%));
+}
+
+.gauge__idle { transform-origin: 200px 200px; animation: idle 220ms linear infinite; }
+
+.gauge__readout {
+    position: absolute;
+    top: 69%;
+    left: 50%;
+    color: #fff;
+    font-family: var(--font-display);
+    line-height: 1;
+    text-align: center;
+    transform: translateX(-50%);
+}
+
+.gauge__speed {
+    display: block;
+    font-size: clamp(1.6rem, 6vw, 2.9rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    counter-reset: kmh var(--k);
+}
+
+.gauge__speed::before { content: counter(kmh); }
+
+.gauge__unit {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+}
+
+@keyframes idle {
+    0%,
+    100% { transform: rotate(0); }
+
+    25% { transform: rotate(0.9deg); }
+    50% { transform: rotate(-0.6deg); }
+    75% { transform: rotate(0.7deg); }
+}
+
+/* Loader : montée à fond puis retour au ralenti */
+@keyframes boot {
+    0% { --p: 0; --k: 0; }
+    52% { --p: 1; --k: 320; }
+
+    78%,
+    100% { --p: 0.09; --k: 29; }
+}
+
+@keyframes boot-pct { from { --pct: 0; } to { --pct: 100; } }
+
+@keyframes loader-out {
+    0%,
+    90% { opacity: 1; visibility: visible; }
+
+    100% { opacity: 0; visibility: hidden; }
+}
+
+@keyframes loader-lift { to { filter: blur(6px); transform: scale(1.12); } }
+
+.loader {
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: var(--color-bg);
+}
+
+.js:not(.no-loader) .loader {
+    display: grid;
+    animation: loader-out 3.9s linear both, boot 3.4s cubic-bezier(0.45, 0, 0.2, 1) both, boot-pct 3.4s linear both;
+}
+
+.loader__inner {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: center;
+    width: min(22rem, 80%);
+    animation: loader-lift 700ms 3.2s var(--ease) both;
+}
+
+.loader__meter { width: 100%; height: 3px; overflow: hidden; border-radius: 3px; background: var(--color-border); }
+
+.loader__meter i {
+    display: block;
+    height: 100%;
+    background: var(--color-accent-light);
+    box-shadow: 0 0 12px var(--color-accent-light);
+    transform: scaleX(calc(var(--pct) / 100));
+    transform-origin: left;
+}
+
+/* Hero : l'aiguille monte jusqu'à 160 km/h pendant le défilement dans la section */
+.gauge--hero {
+    --p: 0.09;
+    --k: 29;
+
+    filter: drop-shadow(0 1.8rem 3.5rem rgb(164 22 26 / 35%));
+}
+
+@keyframes hero-sweep { from { --p: 0.09; --k: 29; } to { --p: 0.5; --k: 160; } }
+
+@supports (animation-timeline: view()) {
+    .gauge--hero {
+        animation: hero-sweep linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 55vh;
+    }
+}
+
+/* Section Preuves : compteur épinglé piloté par le scroll */
+.gauge--proof { --p: 0.72; --k: 230; }
+
+@keyframes proof-sweep { from { --p: 0; --k: 0; } to { --p: 0.94; --k: 301; } }
+
+@keyframes proof-lit { 0%, 100% { opacity: 0.22; transform: none; } 50% { opacity: 1; transform: translateX(0.6rem); } }
+
+@supports (animation-timeline: view()) {
+    .gauge--proof {
+        animation: proof-sweep linear both;
+        animation-timeline: --proof;
+        animation-range: contain 0% contain 100%;
+    }
+
+    .proof__item:nth-child(1) { animation: proof-lit linear both; animation-timeline: --step-1; animation-range: cover 10% cover 90%; }
+    .proof__item:nth-child(2) { animation: proof-lit linear both; animation-timeline: --step-2; animation-range: cover 10% cover 90%; }
+    .proof__item:nth-child(3) { animation: proof-lit linear both; animation-timeline: --step-3; animation-range: cover 10% cover 90%; }
+}

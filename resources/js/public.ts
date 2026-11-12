@@ -1,37 +1,49 @@
+import './public/site';
+import './three-preview/index';
+
 type Theme = 'dark' | 'light';
 
 const root = document.documentElement;
-const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')];
+const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
 
 function currentTheme(): Theme {
-    return root.classList.contains('dark') ? 'dark' : 'light';
+    const set = root.dataset.theme;
+    if (set === 'dark' || set === 'light') {
+        return set;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
-function applyTheme(theme: Theme, persist = true): void {
-    root.classList.toggle('dark', theme === 'dark');
-    buttons.forEach((button) => {
-        button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
-    });
-
-    if (persist) {
-        try {
-            localStorage.setItem('portfolio-theme', theme);
-        } catch {
-            // The visual preference remains applied when storage is unavailable.
+function syncToggles(theme: Theme): void {
+    toggles.forEach((button) => {
+        const label = theme === 'dark' ? button.dataset.labelDark : button.dataset.labelLight;
+        if (label) {
+            button.setAttribute('aria-label', label);
+            button.setAttribute('title', label);
         }
+        button.setAttribute('aria-pressed', String(theme === 'light'));
+    });
+}
+
+function applyTheme(theme: Theme): void {
+    root.dataset.theme = theme;
+    syncToggles(theme);
+
+    try {
+        localStorage.setItem('portfolio-theme', theme);
+    } catch {
+        // The visual preference remains applied when storage is unavailable.
     }
 }
 
-buttons.forEach((button) => {
+toggles.forEach((button) => {
     button.addEventListener('click', () => {
-        const theme = button.dataset.themeChoice;
-        if (theme === 'dark' || theme === 'light') {
-            applyTheme(theme);
-        }
+        applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
     });
 });
 
-applyTheme(currentTheme(), false);
+syncToggles(currentTheme());
 
 // Contact details are kept out of the HTML (see App\Support\ContactObfuscator) and decoded on click.
 function decodeContact(payload: string): { h: string; l: string } | null {

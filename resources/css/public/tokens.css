@@ -1,0 +1,151 @@
+:root {
+    /* Palette de marque : onyx, garnet et strawberry */
+    --onyx: #0b090a;
+    --carbon-black: #161a1d;
+    --dark-garnet: #660708;
+    --mahogany-red: #a4161a;
+    --mahogany-red-2: #ba181b;
+    --strawberry-red: #e5383b;
+    --silver: #b1a7a6;
+    --dust-grey: #d3d3d3;
+    --white-smoke: #f5f3f4;
+
+    /* Typographie (polices auto-hébergées) */
+    --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", consolas, monospace;
+
+    /* Ombres et rayons */
+    --shadow-sm: 0 0.5rem 1.5rem rgb(0 0 0 / 30%);
+    --shadow-lg: 0 1.5rem 4rem rgb(0 0 0 / 50%);
+    --shadow-glow: 0 1rem 2.2rem -0.75rem var(--color-glow);
+    --radius-sm: 0.75rem;
+    --radius-md: 1.25rem;
+    --radius-lg: 1.75rem;
+    --radius-pill: 999px;
+
+    /* Espacements */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 5rem;
+    --space-9: 7.5rem;
+    --content-width: 75rem;
+
+    /* Mouvement : une seule courbe pour tout le site */
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-fast: 200ms var(--ease);
+    --transition-base: 400ms var(--ease);
+    --transition-slow: 800ms var(--ease);
+}
+
+/* Thème sombre par défaut ; le thème clair suit le choix du visiteur, sinon la préférence système. */
+:root,
+.theme-dark {
+    color-scheme: dark;
+
+    --color-bg: var(--onyx);
+    --color-bg-elevated: #100d0e;
+    --color-surface: var(--carbon-black);
+    --color-surface-strong: #1d2226;
+    --color-surface-muted: #262b2f;
+    --color-text: var(--white-smoke);
+    --color-text-muted: var(--silver);
+    --color-text-soft: var(--dust-grey);
+    --color-border: #2a2527;
+    --color-border-strong: #4a4042;
+    --color-accent: var(--mahogany-red-2);
+    --color-accent-hover: var(--dark-garnet);
+    --color-accent-light: var(--strawberry-red);
+    --color-accent-deep: var(--dark-garnet);
+    --color-accent-ink: #fff;
+    --color-focus: #fff;
+    --color-danger: #ff8a8c;
+    --color-danger-surface: #2a1011;
+    --color-success: #8fe0ae;
+    --color-success-surface: #15291e;
+    --color-glow: rgb(229 56 59 / 45%);
+
+    --bg-rgb: 11 9 10;
+    --ink-rgb: 255 255 255;
+    --color-line: #221e20;
+    --color-danger-border: #5a1d1f;
+    --shadow-sm: 0 0.5rem 1.5rem rgb(0 0 0 / 30%);
+    --shadow-lg: 0 1.5rem 4rem rgb(0 0 0 / 50%);
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --color-bg: #faf6f6;
+    --color-bg-elevated: #fff;
+    --color-surface: #fff;
+    --color-surface-strong: #f4ecec;
+    --color-surface-muted: #ebe1e1;
+    --color-text: #1a1214;
+    --color-text-muted: #5f5356;
+    --color-text-soft: #3b3034;
+    --color-border: #e8dcdc;
+    --color-border-strong: #cbb8b9;
+    --color-accent: #ba181b;
+    --color-accent-hover: #a4161a;
+    --color-accent-light: #b3141a;
+    --color-accent-deep: #8e1014;
+    --color-accent-ink: #fff;
+    --color-focus: #1a1214;
+    --color-danger: #a4161a;
+    --color-danger-surface: #fdeaea;
+    --color-success: #1c6b3b;
+    --color-success-surface: #e4f4ea;
+    --color-glow: rgb(186 24 27 / 30%);
+    --bg-rgb: 250 246 246;
+    --ink-rgb: 26 18 20;
+    --color-line: #eadfdf;
+    --color-danger-border: #f0b9bb;
+    --shadow-sm: 0 0.5rem 1.5rem rgb(60 20 24 / 10%);
+    --shadow-lg: 0 1.5rem 4rem rgb(60 20 24 / 16%);
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+        color-scheme: light;
+
+        --color-bg: #faf6f6;
+        --color-bg-elevated: #fff;
+        --color-surface: #fff;
+        --color-surface-strong: #f4ecec;
+        --color-surface-muted: #ebe1e1;
+        --color-text: #1a1214;
+        --color-text-muted: #5f5356;
+        --color-text-soft: #3b3034;
+        --color-border: #e8dcdc;
+        --color-border-strong: #cbb8b9;
+        --color-accent: #ba181b;
+        --color-accent-hover: #a4161a;
+        --color-accent-light: #b3141a;
+        --color-accent-deep: #8e1014;
+        --color-accent-ink: #fff;
+        --color-focus: #1a1214;
+        --color-danger: #a4161a;
+        --color-danger-surface: #fdeaea;
+        --color-success: #1c6b3b;
+        --color-success-surface: #e4f4ea;
+        --color-glow: rgb(186 24 27 / 30%);
+        --bg-rgb: 250 246 246;
+        --ink-rgb: 26 18 20;
+        --color-line: #eadfdf;
+        --color-danger-border: #f0b9bb;
+        --shadow-sm: 0 0.5rem 1.5rem rgb(60 20 24 / 10%);
+        --shadow-lg: 0 1.5rem 4rem rgb(60 20 24 / 16%);
+    }
+}
+
+/* Surfaces toujours sombres (scène 3D, carte nocturne, chargeur), quel que soit le thème. */
+.theme-dark {
+    color: var(--color-text);
+}

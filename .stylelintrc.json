@@ -12,6 +12,9 @@
         "import-notation": null,
         "lightness-notation": null,
         "no-invalid-position-at-import-rule": null,
-        "property-no-vendor-prefix": null
+        "property-no-vendor-prefix": null,
+        "selector-class-pattern": ["^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$", {
+            "message": "Expected class selector to be kebab-case or BEM (block__element--modifier)"
+        }]
     }
 }

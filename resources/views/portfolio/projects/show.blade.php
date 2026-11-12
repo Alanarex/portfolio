@@ -1,110 +1,102 @@
 @extends('portfolio.layout')
 
 @section('content')
-    @php
-        $cover = collect($project->media)->first(
-            fn (array $media): bool => in_array($media['kind'] ?? null, ['image', 'screenshot', 'poster'], true),
-        );
-        $start = $project->dates['start'];
-        $end = $project->dates['end'];
-        $period = $start['year'] ?? null;
-        if ($period && ($project->dates['ongoing'] ?? false)) {
-            $period .= ' — '.__('portfolio.projects.ongoing');
-        } elseif ($period && ($end['year'] ?? null)) {
-            $period .= ' — '.$end['year'];
-        }
-    @endphp
-    <article class="case-study">
-        <header class="case-study-hero" data-project-style="{{ crc32($project->slug) % 6 }}">
-            @if ($cover)
-                <img
-                    src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $cover['delivery_key']]) }}"
-                    width="{{ $cover['width'] ?? 1600 }}"
-                    height="{{ $cover['height'] ?? 900 }}"
-                    alt="{{ $cover['alt_text'] }}"
-                    fetchpriority="high"
-                    decoding="async"
-                >
+@php
+    $cover = collect($project->media)->first(
+        fn (array $media): bool => in_array($media['kind'] ?? null, ['image', 'screenshot', 'poster'], true),
+    );
+    $start = $project->dates['start'];
+    $end = $project->dates['end'];
+    $period = $start['year'] ?? null;
+    if ($period && ($project->dates['ongoing'] ?? false)) {
+        $period .= ' — '.__('portfolio.projects.ongoing');
+    } elseif ($period && ($end['year'] ?? null)) {
+        $period .= ' — '.$end['year'];
+    }
+    $sections = array_values($project->sections);
+    $gallery = collect($project->media)->filter(
+        fn (array $media): bool => in_array($media['kind'] ?? null, ['image', 'screenshot', 'poster'], true),
+    )->values();
+@endphp
+<article class="case container" aria-labelledby="case-title">
+    <a class="case__back" href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">← {{ __('portfolio.projects.back') }}</a>
+
+    <header class="case__header">
+        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.projects.case_study') }} · {{ __('portfolio.lifecycle.'.$project->lifecycleStatus) }}</p>
+        <h1 id="case-title" data-reveal style="--i: 1">{{ $project->title }}</h1>
+        <p class="lede" data-reveal style="--i: 2">{{ $project->summary }}</p>
+    </header>
+
+    @if ($cover)
+        <figure class="case__cover" data-reveal style="--i: 3">
+            <img src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $cover['delivery_key']]) }}" alt="{{ $cover['alt_text'] }}" width="{{ $cover['width'] ?? 1600 }}" height="{{ $cover['height'] ?? 900 }}" fetchpriority="high" decoding="async">
+        </figure>
+    @endif
+
+    <dl class="case__meta" data-scroll-reveal>
+        @if ($project->role)<div><dt class="mono">{{ __('portfolio.projects.role') }}</dt><dd>{{ $project->role }}</dd></div>@endif
+        @if ($period)<div><dt class="mono">{{ __('portfolio.projects.period') }}</dt><dd>{{ $period }}</dd></div>@endif
+        @if ($project->technologies !== [])<div><dt class="mono">{{ __('portfolio.projects.technologies') }}</dt><dd>{{ implode(' · ', $project->technologies) }}</dd></div>@endif
+    </dl>
+
+    <div class="case__body">
+        @if (count($sections) > 0)
+            <nav class="case__toc" aria-label="{{ __('portfolio.projects.toc') }}" data-case-toc>
+                @foreach ($sections as $section)
+                    <a href="#section-{{ $loop->iteration }}">{{ $section['heading'] }}</a>
+                @endforeach
+                @if ($gallery->count() > 1)<a href="#galerie">{{ __('portfolio.projects.media') }}</a>@endif
+            </nav>
+        @endif
+
+        <div class="case__content">
+            @forelse ($sections as $section)
+                <section id="section-{{ $loop->iteration }}" aria-labelledby="section-{{ $loop->iteration }}-title" data-scroll-reveal>
+                    <p class="mono">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
+                    <h2 id="section-{{ $loop->iteration }}-title">{{ $section['heading'] }}</h2>
+                    <p>{{ $section['body'] }}</p>
+                </section>
+            @empty
+                <p class="state">{{ __('portfolio.projects.case_study_empty') }}</p>
+            @endforelse
+
+            @if ($gallery->count() > 1)
+                <section id="galerie" aria-labelledby="galerie-title" data-scroll-reveal>
+                    <p class="mono">{{ str_pad((string) (count($sections) + 1), 2, '0', STR_PAD_LEFT) }}</p>
+                    <h2 id="galerie-title">{{ __('portfolio.projects.media') }}</h2>
+                    <ul class="case__gallery">
+                        @foreach ($gallery as $media)
+                            <li>
+                                <img src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $media['delivery_key']]) }}" alt="{{ $media['alt_text'] }}" loading="lazy" decoding="async" width="{{ $media['width'] ?? 1280 }}" height="{{ $media['height'] ?? 800 }}">
+                                @if ($media['caption'] ?? null)<span class="hint">{{ $media['caption'] }}</span>@endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
             @endif
-            <a class="back-link" href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>{{ __('portfolio.projects.back') }}
-            </a>
-            <div class="case-study-title">
-                <span class="project-status">{{ __('portfolio.lifecycle.'.$project->lifecycleStatus) }}</span>
-                <h1>{{ $project->title }}</h1>
-                <p>{{ $project->summary }}</p>
-            </div>
-        </header>
 
-        <div class="case-study-body">
-            <dl class="project-facts">
-                @if ($project->role)
-                    <div><dt>{{ __('portfolio.projects.role') }}</dt><dd>{{ $project->role }}</dd></div>
-                @endif
-                @if ($period)
-                    <div><dt>{{ __('portfolio.projects.period') }}</dt><dd>{{ $period }}</dd></div>
-                @endif
-                @if ($project->technologies !== [])
-                    <div>
-                        <dt>{{ __('portfolio.projects.technologies') }}</dt>
-                        <dd><ul class="tag-list">@foreach ($project->technologies as $technology)<li>{{ $technology }}</li>@endforeach</ul></dd>
-                    </div>
-                @endif
-            </dl>
-
-            @if ($project->repositoryUrl || $project->demoUrl)
-                <div class="case-study-actions">
+            @if ($project->demoUrl || $project->repositoryUrl)
+                <div class="case__links">
                     @if ($project->demoUrl)
-                        <a class="button button-primary" href="{{ $project->demoUrl }}" rel="noopener noreferrer">
-                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>{{ __('portfolio.projects.demo') }}
-                        </a>
+                        <a class="button" href="{{ $project->demoUrl }}" rel="noopener noreferrer"><span>{{ __('portfolio.projects.demo') }}</span><span class="button__arrow" aria-hidden="true">↗</span></a>
                     @endif
                     @if ($project->repositoryUrl)
-                        <a class="button button-secondary" href="{{ $project->repositoryUrl }}" rel="noopener noreferrer">
-                            <i class="fa-brands fa-github" aria-hidden="true"></i>{{ __('portfolio.projects.repository') }}
-                        </a>
+                        <a class="button button--ghost" href="{{ $project->repositoryUrl }}" rel="noopener noreferrer"><span>{{ __('portfolio.projects.repository') }}</span></a>
                     @endif
                 </div>
             @endif
-
-            <section aria-labelledby="case-study-sections-title">
-                <header class="section-heading"><h2 id="case-study-sections-title">{{ __('portfolio.projects.case_study') }}</h2></header>
-                @if ($project->sections !== [])
-                    <div class="case-study-sections">
-                        @foreach ($project->sections as $section)
-                            <section>
-                                <span class="section-number" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                <div><h3>{{ $section['heading'] }}</h3><p>{{ $section['body'] }}</p></div>
-                            </section>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="empty-state">{{ __('portfolio.projects.case_study_empty') }}</div>
-                @endif
-            </section>
-
-            @if (count($project->media) > 1)
-                <section aria-labelledby="project-gallery-title">
-                    <header class="section-heading"><h2 id="project-gallery-title">{{ __('portfolio.projects.media') }}</h2></header>
-                    <div class="project-gallery">
-                        @foreach ($project->media as $media)
-                            @if (in_array($media['kind'] ?? null, ['image', 'screenshot', 'poster'], true))
-                                <figure>
-                                    <img
-                                        src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $media['delivery_key']]) }}"
-                                        width="{{ $media['width'] ?? 1200 }}"
-                                        height="{{ $media['height'] ?? 675 }}"
-                                        alt="{{ $media['alt_text'] }}"
-                                        loading="lazy"
-                                        decoding="async"
-                                    >
-                                    @if ($media['caption'] ?? null)<figcaption>{{ $media['caption'] }}</figcaption>@endif
-                                </figure>
-                            @endif
-                        @endforeach
-                    </div>
-                </section>
-            @endif
         </div>
-    </article>
+    </div>
+
+    @if ($previousProject || $nextProject)
+        <nav class="case__pager" aria-label="{{ __('portfolio.projects.other') }}">
+            @if ($previousProject)
+                <a class="card card--lift" href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $previousProject->slug]) }}" rel="prev"><span class="mono">← {{ __('portfolio.projects.previous') }}</span><h3>{{ $previousProject->title }}</h3></a>
+            @endif
+            @if ($nextProject)
+                <a class="card card--lift case__pager-next" href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $nextProject->slug]) }}" rel="next"><span class="mono">{{ __('portfolio.projects.next') }} →</span><h3>{{ $nextProject->title }}</h3></a>
+            @endif
+        </nav>
+    @endif
+</article>
 @endsection
