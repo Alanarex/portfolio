@@ -314,3 +314,51 @@
 .legal__item { padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
 .legal__list dd { margin: var(--space-1) 0 0; }
 .legal__credits { display: grid; gap: var(--space-2); margin: var(--space-3) 0; padding-left: var(--space-5); color: var(--color-text-soft); }
+
+/* Plan de route */
+.map { position: relative; margin-top: var(--space-6); overflow: hidden; border-radius: var(--radius-lg); background: #100d0e; box-shadow: inset 0 0 0 1px var(--color-border); view-timeline: --map block; }
+.map svg { display: block; width: 100%; height: auto; }
+.map__relief { stroke: #1a1415; stroke-width: 1.5; }
+.map__kerb { stroke: #2a2527; stroke-width: 36; }
+.map__asphalt { stroke: #0f0c0d; stroke-width: 30; }
+.map__lane { stroke: #f5f3f4; stroke-opacity: 0.5; stroke-width: 2; stroke-dasharray: 12 12; }
+.map__draw { stroke: var(--color-accent-light); stroke-width: 5; stroke-dasharray: 1; stroke-dashoffset: 0; filter: drop-shadow(0 0 8px var(--color-accent-light)); }
+.map__car { offset-path: path("M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100"); offset-rotate: auto; offset-distance: 100%; }
+.map__ring { fill: var(--color-surface); stroke: var(--color-text); stroke-width: 3.5; transform-box: fill-box; transform-origin: center; transition: transform 450ms var(--ease-spring), stroke var(--transition-fast), fill var(--transition-fast); }
+.map__stop--end .map__ring { stroke: var(--color-accent-light); }
+.map__num { fill: #fff; font-family: var(--font-display); font-size: 20px; font-weight: 700; pointer-events: none; }
+.map__label { fill: var(--color-text); font-family: var(--font-display); font-size: 26px; font-weight: 600; transition: fill var(--transition-fast); }
+.map__tag { fill: var(--color-text-muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; }
+.map__stop { cursor: pointer; }
+
+.map__stop:hover .map__ring,
+.map__stop:focus-visible .map__ring { fill: #2a1011; stroke: var(--color-accent-light); transform: scale(1.25); }
+
+.map__stop:hover .map__label,
+.map__stop:focus-visible .map__label { fill: var(--color-accent-light); }
+.map__stop:focus-visible { outline: none; }
+.map__stop:focus-visible .map__ring { stroke-width: 5; }
+.map__list { display: none; margin: var(--space-6) 0 0; padding: 0; list-style: none; }
+.map__list li { border-top: 1px solid var(--color-border); }
+.map__link { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-4) var(--space-1); text-decoration: none; }
+.map__index { color: var(--color-accent-light); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 500; }
+.map__name { color: var(--color-text); font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; }
+
+@keyframes map-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+@keyframes map-drive { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+@supports (animation-timeline: view()) {
+    .map__draw { stroke-dashoffset: 1; animation: map-draw linear both; animation-timeline: --map; animation-range: entry 25% cover 50%; }
+    .map__car { offset-distance: 0%; animation: map-drive linear both; animation-timeline: --map; animation-range: entry 25% cover 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .map__draw { animation: none; stroke-dashoffset: 0; }
+    .map__car { animation: none; offset-distance: 100%; }
+}
+
+@media (width <= 720px) {
+    .map { display: none; }
+    .map__list { display: block; }
+}

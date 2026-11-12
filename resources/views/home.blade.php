@@ -96,6 +96,41 @@
     </div>
 </section>
 
+<section class="section" id="plan" aria-labelledby="plan-title" style="padding-top: 0">
+    <div class="container">
+        <p class="eyebrow" data-scroll-reveal>Plan de route</p>
+        <h2 id="plan-title" data-scroll-reveal>La route comme sommaire.</h2>
+        <p class="lede" data-scroll-reveal>Suivez le trajet d’étape en étape : chaque arrêt est un lien vers une section de la page.</p>
+        <div class="map" data-scroll-reveal>
+            <svg viewBox="0 0 1000 520" role="group" aria-label="Carte du site avec quatre étapes">
+                <defs>
+                    <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1b1718"/></pattern>
+                    <radialGradient id="map-beam" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+                </defs>
+                <rect width="1000" height="520" fill="url(#map-grid)"/>
+                <g class="map__relief" fill="none"><ellipse cx="180" cy="140" rx="150" ry="90"/><ellipse cx="180" cy="140" rx="100" ry="58"/><ellipse cx="820" cy="400" rx="170" ry="100"/><ellipse cx="820" cy="400" rx="110" ry="62"/><ellipse cx="560" cy="120" rx="90" ry="50"/></g>
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="map__kerb" d="M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100"/>
+                    <path class="map__asphalt" d="M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100"/>
+                    <path class="map__lane" d="M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100"/>
+                    <path class="map__draw" pathLength="1" d="M70 430 C170 430 200 300 300 300 S430 390 520 390 S640 200 730 200 S860 100 930 100"/>
+                </g>
+                <g class="map__car"><path d="M10 -5 L70 -20 L70 20 L10 5Z" fill="url(#map-beam)" opacity=".7"/><rect x="-14" y="-8" width="28" height="16" rx="5" fill="#f5f3f4"/><rect x="-6" y="-5" width="12" height="10" rx="3" fill="#161a1d"/><rect x="-15" y="-7" width="3" height="4" fill="#e5383b"/><rect x="-15" y="3" width="3" height="4" fill="#e5383b"/></g>
+            <a class="map__stop" href="#projets" aria-label="Étape 1, projets"><circle class="map__ring" cx="70" cy="430" r="22"/><text class="map__num" x="70" y="437" text-anchor="middle">1</text><text class="map__label" x="40" y="488" text-anchor="start">Projets</text><text class="map__tag" x="40" y="506" text-anchor="start">DÉPART</text></a>
+            <a class="map__stop" href="#preuves" aria-label="Étape 2, preuves"><circle class="map__ring" cx="300" cy="300" r="22"/><text class="map__num" x="300" y="307" text-anchor="middle">2</text><text class="map__label" x="300" y="250" text-anchor="middle">Preuves</text><text class="map__tag" x="300" y="268" text-anchor="middle">ÉTAPE 02</text></a>
+            <a class="map__stop" href="#apercu" aria-label="Étape 3, aperçu 3d"><circle class="map__ring" cx="730" cy="200" r="22"/><text class="map__num" x="730" y="207" text-anchor="middle">3</text><text class="map__label" x="730" y="150" text-anchor="middle">Aperçu 3D</text><text class="map__tag" x="730" y="168" text-anchor="middle">ÉTAPE 03</text></a>
+            <a class="map__stop map__stop--end" href="#contact" aria-label="Étape 4, contact, arrivée"><circle class="map__ring" cx="930" cy="100" r="22"/><text class="map__num" x="930" y="107" text-anchor="middle">4</text><text class="map__label" x="930" y="160" text-anchor="middle">Contact</text><text class="map__tag" x="930" y="178" text-anchor="middle">ARRIVÉE</text></a>
+            </svg>
+        </div>
+        <ol class="map__list" aria-label="Étapes du plan de route">
+            <li><a class="map__link" href="#projets"><b class="map__index">01</b><span class="map__name">Projets</span></a></li>
+            <li><a class="map__link" href="#preuves"><b class="map__index">02</b><span class="map__name">Preuves</span></a></li>
+            <li><a class="map__link" href="#apercu"><b class="map__index">03</b><span class="map__name">Aperçu 3D</span></a></li>
+            <li><a class="map__link" href="#contact"><b class="map__index">04</b><span class="map__name">Contact</span></a></li>
+        </ol>
+    </div>
+</section>
+
 <section class="section" id="forces" aria-labelledby="strengths-title" style="padding-top: 0">
     <div class="container">
         <p class="eyebrow" data-scroll-reveal>Points forts techniques</p>
