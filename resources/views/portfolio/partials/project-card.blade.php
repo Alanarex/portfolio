@@ -11,7 +11,7 @@
         </div>
     @endif
     <div class="project-card__top">
-        <span class="number">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+        @include('portfolio.partials.project-logo', ['project' => $project, 'class' => 'logo--mark'])
         <span class="tag">{{ strtoupper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
     </div>
     <h3><a class="project-card__link" href="{{ $url }}">{{ $project->title }}</a></h3>

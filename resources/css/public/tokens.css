@@ -1,4 +1,6 @@
 :root {
+    --header-h: 4.3rem;
+
     /* Palette de marque : onyx, garnet et strawberry */
     --onyx: #0b090a;
     --carbon-black: #161a1d;

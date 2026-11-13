@@ -8,7 +8,7 @@
 <article class="stack__card" style="--n: {{ $index }}">
     <div class="stack__body">
         <div>
-            <span class="number">{{ $number }}</span>
+            @if ($cover)@include('portfolio.partials.project-logo', ['project' => $project, 'class' => 'logo--mark'])@endif
             <h3><a class="stack__link" href="{{ $url }}">{{ $project->title }}</a></h3>
             <p class="stack__summary">{{ $project->summary }}</p>
             @if ($project->technologies !== [])
@@ -26,7 +26,7 @@
         @if ($cover)
             <img src="{{ route('portfolio.media.show', ['locale' => $locale, 'deliveryKey' => $cover['delivery_key']]) }}" width="{{ $cover['width'] ?? 1200 }}" height="{{ $cover['height'] ?? 675 }}" alt="{{ $cover['alt_text'] }}" loading="lazy" decoding="async">
         @else
-            <b aria-hidden="true">{{ $number }}</b>
+            @include('portfolio.partials.project-logo', ['project' => $project, 'class' => 'logo--stack'])
         @endif
     </div>
 </article>
