@@ -82,8 +82,44 @@ html:not(.js) [data-three-preview-load] { display: none; }
     visibility: visible;
 }
 
+/* Scène prête : les étapes deviennent des panneaux sur la route, la liste reste lisible par les lecteurs d'écran */
+.js .journey[data-three-preview][data-state="ready"] .journey__steps {
+    top: auto;
+    right: auto;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    transform: none;
+}
+
+.journey__hud { display: none; }
+
+.journey[data-state="ready"] .journey__hud {
+    position: absolute;
+    top: 6.5rem;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+}
+
+.journey__hud-count { color: var(--color-text-soft); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.journey__dots { display: flex; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.journey__dots li { width: 0.6rem; height: 0.6rem; border-radius: 1rem; background: rgb(255 255 255 / 25%); transition: width 500ms var(--ease), background 500ms var(--ease); }
+.journey__dots li.is-done { background: var(--color-accent-light); }
+.journey__dots li.is-active { width: 2rem; background: var(--color-accent-light); box-shadow: 0 0 0.8rem var(--color-accent-light); }
+
+.journey[data-state="ready"] .journey__copy { transition: opacity 400ms var(--ease); }
+.journey[data-state="ready"][data-focus="true"] .journey__copy { opacity: 0; }
+.journey[data-state="ready"] .journey__copy h2 { font-size: clamp(1.5rem, 2.8vw, 2.5rem); }
+.journey[data-state="ready"] .journey__lede { transition: opacity 500ms var(--ease), transform 500ms var(--ease); }
+.journey[data-state="ready"][data-moving="true"] .journey__lede { opacity: 0; transform: translateY(-0.5rem); }
+
 /* Carte des compétences : la voiture suit le tracé pendant le défilement */
-.skillmap { --p: 1; position: relative; background: var(--color-bg); }
+.skillmap { --p: 1; position: relative; overflow-x: clip; background: var(--color-bg); }
 .skillmap__stick { padding-block: var(--space-8); }
 .skillmap__inner { display: grid; gap: var(--space-6); }
 .skillmap__head .lede { max-width: 42rem; }
@@ -144,7 +180,7 @@ html:not(.js) [data-three-preview-load] { display: none; }
 .skillmap__panel .tag-row { margin-top: var(--space-3); }
 
 @media (prefers-reduced-motion: no-preference) and (width > 45rem) {
-    .js .skillmap { height: calc(100svh + var(--n, 5) * 40svh); }
+    .js .skillmap { height: calc(100svh + var(--n, 5) * 48svh); }
 
     .js .skillmap__stick {
         position: sticky;
@@ -160,17 +196,85 @@ html:not(.js) [data-three-preview-load] { display: none; }
     .js .skillmap__inner { grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
     .js .skillmap__head h2 { margin-bottom: 0.2em; font-size: clamp(1.8rem, 3.4vw, 3rem); }
     .js .skillmap__head .lede { margin: 0; font-size: 1rem; }
-    .js .skillmap__panels { display: grid; min-height: 9.5rem; }
+    .js .skillmap__panels { display: grid; min-height: 10.5rem; perspective: 1400px; }
 
     .js .skillmap__panel {
+        position: relative;
         grid-area: 1 / 1;
+        overflow: hidden;
         opacity: 0;
-        transform: translateY(0.75rem);
-        transition: opacity 450ms var(--ease), transform 500ms var(--ease), visibility 0s 450ms;
+        transform: translate3d(7rem, 1.5rem, 0) rotateY(-26deg) rotateZ(3deg) scale(0.9);
+        transition: opacity 520ms var(--ease), transform 820ms var(--ease-spring), box-shadow 600ms var(--ease), visibility 0s 520ms;
         visibility: hidden;
     }
 
-    .js .skillmap__panel.is-active { opacity: 1; transform: none; transition-delay: 0s; visibility: visible; }
+    /* Carte déjà passée : elle part vers la gauche, comme une carte distribuée */
+    .js .skillmap__panel.is-passed { transform: translate3d(-7rem, -1rem, 0) rotateY(26deg) rotateZ(-3deg) scale(0.9); }
+
+    .js .skillmap__panel.is-active {
+        opacity: 1;
+        box-shadow: inset 0 0 0 1px var(--color-accent-light), 0 1.5rem 4rem -2rem rgb(229 56 59 / 55%);
+        transform: none;
+        transition-delay: 0s;
+        visibility: visible;
+    }
+
+    /* Grand numéro en filigrane et reflet qui balaie la carte à son arrivée */
+    .js .skillmap__panel::before {
+        position: absolute;
+        top: -1.2rem;
+        right: 1.2rem;
+        color: transparent;
+        content: attr(data-num);
+        font-family: var(--font-display);
+        font-size: 8rem;
+        font-weight: 700;
+        line-height: 1;
+        -webkit-text-stroke: 1.5px rgb(255 255 255 / 12%);
+        pointer-events: none;
+    }
+
+    .js .skillmap__panel::after {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -40%;
+        width: 35%;
+        background: linear-gradient(100deg, transparent, rgb(229 56 59 / 24%), transparent);
+        content: "";
+        opacity: 0;
+        pointer-events: none;
+        transform: skewX(-18deg);
+    }
+
+    .js .skillmap__panel.is-active::after { animation: card-sweep 1.1s 120ms var(--ease) both; }
+
+    /* Les compétences se posent une à une, en rebondissant */
+    .js .skillmap__panel .chip {
+        opacity: 0;
+        transform: translateY(1rem) scale(0.7) rotate(-6deg);
+        transition: opacity 400ms var(--ease), transform 600ms var(--ease-spring);
+    }
+
+    .js .skillmap__panel.is-active .chip {
+        opacity: 1;
+        transform: none;
+        transition-delay: calc(180ms + var(--i, 0) * 60ms);
+    }
+
+    .map__pulse { fill: none; stroke: var(--color-accent-light); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; }
+    .map__stop.is-active .map__pulse { animation: ring-pulse 1.8s var(--ease) infinite; }
+}
+
+@keyframes card-sweep {
+    0% { left: -40%; opacity: 0; }
+    20% { opacity: 1; }
+    100% { left: 120%; opacity: 0; }
+}
+
+@keyframes ring-pulse {
+    0% { opacity: 0.9; transform: scale(1); }
+    100% { opacity: 0; transform: scale(2.6); }
 }
 
 @media (width <= 45rem) {
@@ -186,7 +290,7 @@ html:not(.js) [data-three-preview-load] { display: none; }
 
 .plate {
     display: grid;
-    grid-template-areas: "year name" "year issuer";
+    grid-template-areas: "year name" "year issuer" "year score";
     grid-template-columns: auto 1fr;
     gap: 0.15rem var(--space-4);
     align-items: center;
@@ -241,11 +345,11 @@ html:not(.js) [data-three-preview-load] { display: none; }
 }
 
 .strip::before { position: absolute; inset: 0 auto 0 0; width: 0.35rem; background: var(--color-accent-light); content: ""; }
+.strip > :not(.strip__stage) { position: relative; z-index: 1; }
 .strip:hover { box-shadow: inset 0 0 0 1px var(--color-accent-light); transform: translateX(0.5rem); }
 .strip__code { color: var(--color-accent-light); font-size: 1.6rem; font-weight: 600; letter-spacing: 0.14em; }
 .strip__body h3 { margin: 0; font-size: 1.3rem; }
 .strip__body p { margin: 0.2rem 0 0; color: var(--color-text-muted); }
-.strip__ref { padding-left: var(--space-5); border-left: 1px dashed var(--color-border-strong); color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.12em; }
 
 @media (width <= 44rem) {
     .strip { grid-template-columns: auto 1fr; padding-left: var(--space-5); }

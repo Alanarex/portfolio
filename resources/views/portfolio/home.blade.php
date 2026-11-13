@@ -198,7 +198,7 @@
 @endif
 
 @if ($milestones->isNotEmpty())
-    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" @if ($threeDEnabled) data-three-preview data-state="poster" @endif>
+    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" @endif>
         <div class="journey__stick">
             <div class="journey__stage" data-three-preview-canvas>
                 <div class="journey__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
@@ -209,14 +209,22 @@
                     <p class="eyebrow">{{ __('portfolio.sections.experience_kicker') }}</p>
                     <h2 id="journey-title">{{ __('portfolio.sections.experience') }}</h2>
                     @if ($threeDEnabled)
-                        <p class="lede">{{ __('portfolio.three_d.intro') }}</p>
+                        <p class="lede journey__lede">{{ __('portfolio.three_d.intro') }}</p>
                         <button class="button" type="button" data-three-preview-load><span>{{ __('portfolio.three_d.load') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
                         <p class="error" role="status" data-three-preview-status hidden>{{ __('portfolio.three_d.unavailable') }}</p>
                     @endif
                 </div>
                 <ol class="journey__steps" aria-label="{{ __('portfolio.three_d.steps') }}">
                     @foreach ($milestones as $milestone)
-                        <li @class(['journey__step', 'is-active' => $loop->first]) data-step-index="{{ $loop->index }}" data-sign="{{ $milestone['org'] ?: $milestone['title'] }}" data-sign-kicker="{{ $milestone['period'] }}">
+                        <li @class(['journey__step', 'is-active' => $loop->first]) data-step-index="{{ $loop->index }}" data-sign-card="{{ json_encode([
+                            'kind' => __('portfolio.three_d.kind_'.$milestone['kind']),
+                            'period' => $milestone['period'],
+                            'title' => $milestone['title'],
+                            'org' => $milestone['org'],
+                            'summary' => $milestone['summary'] ?? '',
+                            'highlights' => $milestone['highlights'],
+                            'counter' => __('portfolio.three_d.counter', ['n' => $loop->iteration, 'total' => $loop->count]),
+                        ], JSON_UNESCAPED_UNICODE) }}">
                             <p class="journey__period mono">{{ $milestone['period'] }} <span class="journey__count">· {{ __('portfolio.three_d.counter', ['n' => $loop->iteration, 'total' => $loop->count]) }}</span></p>
                             <h3>{{ $milestone['title'] }}</h3>
                             @if ($milestone['org'])<p class="journey__org">{{ $milestone['org'] }}</p>@endif
@@ -230,6 +238,12 @@
                     @endforeach
                 </ol>
                 @if ($threeDEnabled)
+                    <div class="journey__hud" aria-hidden="true">
+                        <span class="journey__hud-count mono" data-journey-count>{{ __('portfolio.three_d.counter', ['n' => 1, 'total' => $milestones->count()]) }}</span>
+                        <ol class="journey__dots">
+                            @foreach ($milestones as $milestone)<li @class(['is-active' => $loop->first]) data-journey-dot></li>@endforeach
+                        </ol>
+                    </div>
                     <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
                     <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
                         'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer">« Mercedes Amg GT roadster »</a>',
@@ -274,17 +288,17 @@
                                 $labelX = $i === 0 ? $x - 30 : ($i === $mapCount - 1 && $mapCount > 1 ? $x + 30 : $x);
                                 $labelY = $above ? $y - 50 : $y + 56;
                             @endphp
-                            <a @class(['map__stop', 'is-active' => $i === 0]) href="#competences" data-map-stop="{{ $i }}" data-x="{{ $x }}" data-y="{{ $y }}" aria-label="{{ __('portfolio.map.stop', ['n' => $i + 1, 'label' => $categories[$i]['name']]) }}"><circle class="map__ring" cx="{{ $x }}" cy="{{ $y }}" r="22"/><text class="map__num" x="{{ $x }}" y="{{ $y + 7 }}" text-anchor="middle">{{ $i + 1 }}</text><text class="map__label" x="{{ $labelX }}" y="{{ $labelY }}" text-anchor="{{ $anchor }}">{{ $categories[$i]['name'] }}</text><text class="map__tag" x="{{ $labelX }}" y="{{ $labelY + 18 }}" text-anchor="{{ $anchor }}">{{ $i === 0 ? __('portfolio.map.start') : ($i === $mapCount - 1 ? __('portfolio.map.end') : __('portfolio.map.step', ['n' => str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)])) }}</text></a>
+                            <a @class(['map__stop', 'is-active' => $i === 0]) href="#competences" data-map-stop="{{ $i }}" data-x="{{ $x }}" data-y="{{ $y }}" aria-label="{{ __('portfolio.map.stop', ['n' => $i + 1, 'label' => $categories[$i]['name']]) }}"><circle class="map__pulse" cx="{{ $x }}" cy="{{ $y }}" r="22"/><circle class="map__ring" cx="{{ $x }}" cy="{{ $y }}" r="22"/><text class="map__num" x="{{ $x }}" y="{{ $y + 7 }}" text-anchor="middle">{{ $i + 1 }}</text><text class="map__label" x="{{ $labelX }}" y="{{ $labelY }}" text-anchor="{{ $anchor }}">{{ $categories[$i]['name'] }}</text><text class="map__tag" x="{{ $labelX }}" y="{{ $labelY + 18 }}" text-anchor="{{ $anchor }}">{{ $i === 0 ? __('portfolio.map.start') : ($i === $mapCount - 1 ? __('portfolio.map.end') : __('portfolio.map.step', ['n' => str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)])) }}</text></a>
                         @endforeach
                     </svg>
                 </div>
                 <ol class="skillmap__panels" aria-label="{{ __('portfolio.map.list') }}">
                     @foreach ($categories as $category)
-                        <li @class(['skillmap__panel', 'is-active' => $loop->first]) data-map-panel="{{ $loop->index }}">
+                        <li @class(['skillmap__panel', 'is-active' => $loop->first]) data-map-panel="{{ $loop->index }}" data-num="{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}">
                             <p class="mono skillmap__meta">0{{ $loop->iteration }} · {{ __('portfolio.map.count', ['count' => count($category['skills'] ?? [])]) }}</p>
                             <h3>{{ $category['name'] }}</h3>
                             <ul class="tag-row">
-                                @foreach ($category['skills'] ?? [] as $skill)<li class="chip">{{ $skill['name'] }}</li>@endforeach
+                                @foreach ($category['skills'] ?? [] as $skill)<li class="chip" style="--i: {{ $loop->index }}">{{ $skill['name'] }}</li>@endforeach
                             </ul>
                         </li>
                     @endforeach
@@ -350,7 +364,10 @@
                                 <li class="plate" data-scroll-reveal>
                                     <span class="plate__year mono">{{ $certification['issued']['year'] ?? '' }}</span>
                                     <span class="plate__name">{{ $certification['name'] }}</span>
-                                    <span class="plate__issuer mono">{{ $certification['issuer'] }}</span>
+                                    @if ($certification['issuer'])<span class="plate__issuer mono">{{ $certification['issuer'] }}</span>@endif
+                                    @if (str_contains(strtoupper((string) $certification['name']), 'TOEIC') && is_numeric($certification['result'] ?? null))
+                                        @include('portfolio.partials.score', ['label' => 'TOEIC', 'value' => (int) $certification['result'], 'max' => 990])
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
@@ -377,6 +394,15 @@
                                             @foreach (range(1, 6) as $tick)<i @class(['is-on' => $tick <= $level])></i>@endforeach
                                         </div>
                                     @endif
+                                    @php
+                                        $evidence = (string) ($language['evidence'] ?? '');
+                                        $toeic = preg_match('/TOEIC\D{0,12}(\d{3})(?:\s*(?:\/|sur|on|out of)\s*(\d{3}))?/iu', $evidence, $score) === 1 ? ['value' => (int) $score[1], 'max' => (int) ($score[2] ?? 990)] : null;
+                                    @endphp
+                                    @if ($toeic)
+                                        @include('portfolio.partials.score', ['label' => 'TOEIC', 'value' => $toeic['value'], 'max' => $toeic['max']])
+                                    @elseif ($evidence !== '')
+                                        <p class="level__evidence mono">{{ $evidence }}</p>
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
@@ -394,10 +420,11 @@
         <p class="lede" data-scroll-reveal>{{ __('portfolio.sections.interests_intro') }}</p>
         <ol class="strips">
             @foreach (['aviation', 'cars', 'fishing'] as $interest)
-                <li class="strip" data-scroll-reveal>
+                <li class="strip" data-scroll-reveal data-live>
                     <span class="strip__code mono">{{ __('portfolio.interests.'.$interest.'_code') }}</span>
                     <div class="strip__body"><h3>{{ __('portfolio.interests.'.$interest) }}</h3><p>{{ __('portfolio.interests.'.$interest.'_text') }}</p></div>
                     <span class="strip__ref mono" aria-hidden="true">LOG 0{{ $loop->iteration }}</span>
+                    <div class="strip__stage" aria-hidden="true">@include('portfolio.partials.interest-art', ['interest' => $interest])</div>
                 </li>
             @endforeach
         </ol>

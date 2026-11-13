@@ -3,20 +3,18 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-const MAX_DEVICE_PIXEL_RATIO = 1.5;
+const MAX_DEVICE_PIXEL_RATIO = 2;
 const MODEL_URL = '/models/amg-gt-roadster.glb';
 const CAR_LENGTH = 4.6;
 const ROAD_HALF_WIDTH = 4.4;
 const KERB_WIDTH = 0.5;
 const SHOULDER_WIDTH = 5;
-interface SignContent {
-    kicker: string;
-    label: string;
-}
-
-/** Progression de défilement (0-1) à laquelle la voiture passe devant chaque panneau, répartie sur la route. */
-const stopsFor = (count: number): number[] =>
-    count <= 1 ? [0.5] : Array.from({ length: count }, (_, index) => 0.14 + (0.72 * index) / (count - 1));
+const SIGN_WIDTH = 6.4;
+const SIGN_HEIGHT = 4;
+const SIGN_CENTER_Y = 4.7;
+const SIGN_LATERAL = 9.2;
+/** Vitesse maximale de la progression (part du parcours par seconde) : évite de semer la voiture si l'on défile trop vite. */
+const MAX_PROGRESS_SPEED = 0.2;
 /** Portion de la courbe parcourue pendant le défilement. */
 const U_START = 0.03;
 const U_SPAN = 0.93;
@@ -103,40 +101,241 @@ const makeShadowTexture = (): THREE.CanvasTexture =>
         ctx.fillRect(0, 0, 128, 128);
     });
 
-const makeSign = ({ kicker, label }: SignContent): THREE.Group => {
-    const texture = canvasTexture(512, 256, (ctx) => {
-        ctx.fillStyle = '#161a1d';
-        ctx.fillRect(0, 0, 512, 256);
-        ctx.strokeStyle = '#e5383b';
-        ctx.lineWidth = 10;
-        ctx.strokeRect(12, 12, 488, 232);
-        ctx.fillStyle = '#b1a7a6';
-        ctx.font = '500 34px monospace';
-        ctx.fillText(kicker.toUpperCase(), 40, 76, 430);
-        ctx.fillStyle = '#f5f3f4';
-        // Réduit la taille de police jusqu'à ce que le libellé tienne dans le panneau.
-        let size = 66;
-        ctx.font = `700 ${size}px sans-serif`;
-        while (size > 30 && ctx.measureText(label).width > 430) {
-            size -= 4;
-            ctx.font = `700 ${size}px sans-serif`;
+interface SignCard {
+    kind: string;
+    period: string;
+    title: string;
+    org: string;
+    summary: string;
+    highlights: string[];
+    counter: string;
+    number: number;
+}
+
+const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines: number): string[] => {
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines: string[] = [];
+    let line = '';
+    for (const word of words) {
+        const attempt = line ? `${line} ${word}` : word;
+        if (ctx.measureText(attempt).width > maxWidth && line) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = attempt;
         }
-        ctx.fillText(label, 40, 170, 430);
-    });
-    const group = new THREE.Group();
-    const panel = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 2.1), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
-    panel.position.y = 4.6;
-    const back = new THREE.Mesh(new THREE.PlaneGeometry(4.3, 2.2), new THREE.MeshBasicMaterial({ color: '#0e0c0d', side: THREE.BackSide }));
-    back.position.copy(panel.position);
-    back.position.z = -0.02;
-    const postMaterial = new THREE.MeshStandardMaterial({ color: '#2a2f33', metalness: 0.7, roughness: 0.4 });
-    for (const x of [-1.6, 1.6]) {
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 4.8, 8), postMaterial);
-        post.position.set(x, 2.4, 0);
-        group.add(post);
     }
-    group.add(panel, back);
-    return group;
+    if (line) {
+        lines.push(line);
+    }
+    if (lines.length > maxLines) {
+        const kept = lines.slice(0, maxLines);
+        let last = kept[maxLines - 1] ?? '';
+        while (last.length > 1 && ctx.measureText(`${last}…`).width > maxWidth) {
+            last = last.slice(0, -1);
+        }
+        kept[maxLines - 1] = `${last.trimEnd()}…`;
+        return kept;
+    }
+    return lines;
+};
+
+const roundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+};
+
+/** Face du panneau : feuille rétro-réfléchissante sombre, liseré blanc, écusson numéroté et texte de l'étape. */
+const makeSignTexture = (card: SignCard, fonts: { display: string; mono: string }, anisotropy: number): THREE.CanvasTexture => {
+    const width = 1600;
+    const height = 1000;
+    const texture = canvasTexture(width, height, (ctx) => {
+        const base = ctx.createLinearGradient(0, 0, width, height);
+        base.addColorStop(0, '#1b2024');
+        base.addColorStop(1, '#0d1013');
+        ctx.fillStyle = base;
+        ctx.fillRect(0, 0, width, height);
+
+        // Grain de la feuille rétro-réfléchissante
+        for (let i = 0; i < 14000; i++) {
+            ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.045})`;
+            ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
+        }
+
+        // Liseré blanc arrondi et filet rouge intérieur
+        ctx.lineWidth = 26;
+        ctx.strokeStyle = '#f5f3f4';
+        roundedRect(ctx, 22, 22, width - 44, height - 44, 56);
+        ctx.stroke();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#e5383b';
+        roundedRect(ctx, 58, 58, width - 116, height - 116, 34);
+        ctx.stroke();
+
+        const left = 112;
+        const textWidth = 1090;
+        ctx.textBaseline = 'alphabetic';
+
+        // Pastille du type d'étape + période
+        ctx.font = `700 34px ${fonts.mono}`;
+        const kind = card.kind.toUpperCase();
+        const pillWidth = ctx.measureText(kind).width + 52;
+        ctx.fillStyle = '#e5383b';
+        roundedRect(ctx, left, 112, pillWidth, 58, 29);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(kind, left + 26, 152);
+        ctx.font = `500 40px ${fonts.mono}`;
+        ctx.fillStyle = '#d9d4d4';
+        ctx.fillText(card.period, left + pillWidth + 34, 154);
+
+        // Titre (3 lignes au plus, la taille s'adapte)
+        ctx.fillStyle = '#ffffff';
+        let size = 112;
+        let lines: string[] = [];
+        for (; size >= 62; size -= 6) {
+            ctx.font = `700 ${size}px ${fonts.display}`;
+            lines = wrapText(ctx, card.title, textWidth, 3);
+            if (lines.length <= 2 || size <= 74) {
+                break;
+            }
+        }
+        let y = 262;
+        for (const line of lines) {
+            ctx.fillText(line, left, y);
+            y += size * 1.04;
+        }
+
+        // Organisation
+        if (card.org) {
+            ctx.font = `600 58px ${fonts.display}`;
+            ctx.fillStyle = '#ff7a7d';
+            const [org] = wrapText(ctx, card.org, textWidth + 200, 1);
+            ctx.fillText(org ?? '', left, y + 18);
+            y += 76;
+        }
+
+        // Séparateur
+        ctx.fillStyle = 'rgba(255,255,255,0.22)';
+        ctx.fillRect(left, y + 18, width - left * 2, 3);
+        y += 74;
+
+        // Résumé
+        if (card.summary) {
+            ctx.font = `400 42px ${fonts.display}`;
+            ctx.fillStyle = '#d9d4d4';
+            for (const line of wrapText(ctx, card.summary, width - left * 2, 3)) {
+                ctx.fillText(line, left, y);
+                y += 58;
+            }
+            y += 6;
+        }
+
+        // Points clés
+        ctx.font = `600 34px ${fonts.mono}`;
+        let x = left;
+        for (const item of card.highlights.slice(0, 4)) {
+            const label = item.length > 26 ? `${item.slice(0, 25)}…` : item;
+            const w = ctx.measureText(label).width + 44;
+            if (x + w > width - left) {
+                x = left;
+                y += 76;
+            }
+            ctx.strokeStyle = 'rgba(245,243,244,0.7)';
+            ctx.lineWidth = 3;
+            roundedRect(ctx, x, y - 38, w, 56, 28);
+            ctx.stroke();
+            ctx.fillStyle = '#f5f3f4';
+            ctx.fillText(label, x + 22, y);
+            x += w + 18;
+        }
+
+        // Écusson numéroté (comme un panneau de route)
+        const cx = width - 238;
+        const cy = 220;
+        ctx.fillStyle = '#f5f3f4';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 112, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#e5383b';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 98, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.font = `700 118px ${fonts.display}`;
+        ctx.fillText(String(card.number).padStart(2, '0'), cx, cy + 40);
+
+        // Pied : compteur et flèche
+        ctx.font = `500 32px ${fonts.mono}`;
+        ctx.fillStyle = '#8f8889';
+        ctx.textAlign = 'left';
+        ctx.fillText(card.counter.toUpperCase(), left, height - 100);
+        ctx.textAlign = 'right';
+        ctx.font = `700 64px ${fonts.display}`;
+        ctx.fillStyle = '#e5383b';
+        ctx.fillText('→', width - left, height - 92);
+    });
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.anisotropy = anisotropy;
+    return texture;
+};
+
+interface RoadSign {
+    group: THREE.Group;
+    face: THREE.MeshBasicMaterial;
+    glow: THREE.Sprite;
+}
+
+/** Panneau de bord de route : plaque épaisse, deux poteaux, entretoises, lampadaire d'éclairage. */
+const makeSign = (texture: THREE.Texture, glowTexture: THREE.Texture): RoadSign => {
+    const group = new THREE.Group();
+    const metal = new THREE.MeshStandardMaterial({ color: '#2b3034', metalness: 0.75, roughness: 0.45 });
+    const darkMetal = new THREE.MeshStandardMaterial({ color: '#15181a', metalness: 0.6, roughness: 0.55 });
+    const face = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
+
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(SIGN_WIDTH, SIGN_HEIGHT, 0.14), [metal, metal, metal, metal, face, darkMetal]);
+    plate.position.y = SIGN_CENTER_Y;
+    const rim = new THREE.Mesh(new THREE.BoxGeometry(SIGN_WIDTH + 0.22, SIGN_HEIGHT + 0.22, 0.1), darkMetal);
+    rim.position.set(0, SIGN_CENTER_Y, -0.04);
+    group.add(rim, plate);
+
+    // Poteaux (profilés), traverses et socle béton
+    const postHeight = SIGN_CENTER_Y + SIGN_HEIGHT / 2 + 0.5;
+    for (const x of [-SIGN_WIDTH * 0.3, SIGN_WIDTH * 0.3]) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, postHeight, 0.2), metal);
+        post.position.set(x, postHeight / 2 - 0.2, -0.28);
+        const flange = new THREE.Mesh(new THREE.BoxGeometry(0.34, postHeight * 0.98, 0.05), darkMetal);
+        flange.position.set(x, postHeight / 2 - 0.2, -0.38);
+        const footing = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.7), new THREE.MeshStandardMaterial({ color: '#4a4648', roughness: 1 }));
+        footing.position.set(x, -0.05, -0.28);
+        group.add(post, flange, footing);
+    }
+    for (const y of [SIGN_CENTER_Y - SIGN_HEIGHT * 0.32, SIGN_CENTER_Y + SIGN_HEIGHT * 0.32]) {
+        const brace = new THREE.Mesh(new THREE.BoxGeometry(SIGN_WIDTH * 0.66, 0.14, 0.1), darkMetal);
+        brace.position.set(0, y, -0.14);
+        group.add(brace);
+    }
+
+    // Lampadaire fixé au haut du panneau, orienté vers lui
+    const armBase = new THREE.Vector3(0, SIGN_CENTER_Y + SIGN_HEIGHT / 2 + 0.32, 0);
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 8), metal);
+    arm.rotation.x = Math.PI / 2;
+    arm.position.copy(armBase).add(new THREE.Vector3(0, 0.1, 0.75));
+    const head = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.16, 0.32), new THREE.MeshBasicMaterial({ color: '#ffe3c2' }));
+    head.position.copy(armBase).add(new THREE.Vector3(0, 0.12, 1.5));
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0.55 }));
+    glow.position.copy(head.position).add(new THREE.Vector3(0, -0.1, 0.05));
+    glow.scale.setScalar(4.5);
+    group.add(arm, head, glow);
+
+    return { group, face, glow };
 };
 
 const restyleCar = (car: THREE.Object3D): { rear: THREE.Vector3; front: THREE.Vector3 } => {
@@ -483,7 +682,9 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DEVICE_PIXEL_RATIO));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.15;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.domElement.setAttribute('aria-hidden', 'true');
     canvasHost.append(renderer.domElement);
 
@@ -493,14 +694,19 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environmentIntensity = 0.5;
+    scene.environmentIntensity = 0.65;
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
 
     scene.add(new THREE.HemisphereLight('#7a86a0', '#1a0b0c', 0.4));
     const rim = new THREE.DirectionalLight('#e5383b', 1.2);
     scene.add(rim, rim.target);
-    const key = new THREE.DirectionalLight('#f5f3f4', 0.9);
+    const key = new THREE.DirectionalLight('#f5f3f4', 1.1);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    Object.assign(key.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.03;
     scene.add(key, key.target);
 
     // Tracé : une route sinueuse en plan.
@@ -523,6 +729,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
 
     const asphalt = makeAsphaltTexture();
     const road = buildRibbon(curve, segments, -ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, () => 0, asphalt, 8, { roughness: 0.5, metalness: 0.25 });
+    road.receiveShadow = true;
     scene.add(road);
 
     const kerbTexture = makeKerbTexture();
@@ -640,35 +847,105 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     sky.add(moon);
     scene.add(sky);
 
-    // Panneaux : un par étape décrite dans le HTML (data-sign / data-sign-kicker).
+    // Panneaux : un par étape décrite dans le HTML (data-sign-card), posés au bord de la route.
     const stepItems = [...container.querySelectorAll<HTMLElement>('[data-step-index]')];
-    const signContents: SignContent[] = stepItems.map((item) => ({
-        kicker: item.dataset.signKicker ?? '',
-        label: item.dataset.sign ?? '',
-    }));
-    const STOPS = stopsFor(signContents.length);
-    const signs = signContents.map((content, index) => {
-        const sign = makeSign(content);
-        const u = U_START + (STOPS[index] + 0.025) * U_SPAN;
+    const cards: SignCard[] = stepItems.map((item, index) => {
+        let data: Partial<SignCard>;
+        try {
+            data = JSON.parse(item.dataset.signCard ?? '{}') as Partial<SignCard>;
+        } catch {
+            data = {};
+        }
+        return {
+            kind: data.kind ?? '',
+            period: data.period ?? '',
+            title: data.title ?? '',
+            org: data.org ?? '',
+            summary: data.summary ?? '',
+            highlights: data.highlights ?? [],
+            counter: data.counter ?? '',
+            number: index + 1,
+        };
+    });
+    const count = cards.length;
+    const styles = getComputedStyle(document.documentElement);
+    const fonts = {
+        display: styles.getPropertyValue('--font-display').trim() || 'sans-serif',
+        mono: styles.getPropertyValue('--font-mono').trim() || 'monospace',
+    };
+    await Promise.all([
+        document.fonts.load(`400 40px ${fonts.display}`),
+        document.fonts.load(`600 40px ${fonts.display}`),
+        document.fonts.load(`700 40px ${fonts.display}`),
+        document.fonts.load(`500 40px ${fonts.mono}`),
+        document.fonts.load(`700 40px ${fonts.mono}`),
+    ]).catch(() => undefined);
+
+    // Chronologie du défilement : trajet, arrêt devant un panneau (la caméra va lire le panneau), trajet, etc.
+    const HOLD = Math.min(0.13, 0.62 / Math.max(count, 1));
+    const travelLength = (1 - count * HOLD) / (count + 1);
+    const holdStart = (index: number): number => travelLength * (index + 1) + HOLD * index;
+    const carStops = cards.map((_, index) => (count === 1 ? 0.5 : 0.15 + (0.7 * index) / (count - 1)));
+    const CREEP = 0.006;
+    const ease = (t: number): number => lerp(t, smooth(0, 1, t), 0.6);
+
+    interface Pace {
+        along: number;
+        focus: number;
+        index: number;
+    }
+    const paceAt = (p: number): Pace => {
+        for (let index = 0; index < count; index++) {
+            const start = holdStart(index);
+            if (p < start) {
+                const from = index === 0 ? 0 : (carStops[index - 1] ?? 0) + CREEP;
+                const segment = index === 0 ? 0 : holdStart(index - 1) + HOLD;
+                return { along: lerp(from, (carStops[index] ?? 0) - CREEP, ease((p - segment) / (start - segment))), focus: 0, index: -1 };
+            }
+            if (p <= start + HOLD) {
+                const t = (p - start) / HOLD;
+                return {
+                    along: (carStops[index] ?? 0) + lerp(-CREEP, CREEP, t),
+                    focus: smooth(0, 0.24, t) * (1 - smooth(0.76, 1, t)),
+                    index,
+                };
+            }
+        }
+        const segment = holdStart(count - 1) + HOLD;
+        const from = (carStops[count - 1] ?? 0) + CREEP;
+        return { along: lerp(from, 1, ease(clamp((p - segment) / (1 - segment), 0, 1))), focus: 0, index: -1 };
+    };
+
+    const anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const signs = cards.map((card, index) => {
+        const sign = makeSign(makeSignTexture(card, fonts, anisotropy), glowTexture);
+        const u = U_START + ((carStops[index] ?? 0.5) + 0.014) * U_SPAN;
         const point = curve.getPointAt(u);
-        const tangent = curve.getTangentAt(u);
-        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const heading = curve.getTangentAt(u);
+        const right = new THREE.Vector3().crossVectors(heading, up).normalize();
         const side = index % 2 === 0 ? 1 : -1;
-        sign.position.copy(point).addScaledVector(right, side * (sideOffset + 1.2));
-        const target = sign.position.clone().addScaledVector(tangent, -10).addScaledVector(right, -side * 4);
-        sign.lookAt(target);
-        scene.add(sign);
-        return sign;
+        sign.group.position.copy(point).addScaledVector(right, side * SIGN_LATERAL);
+        sign.group.position.y = -0.1;
+        // Le panneau fait face aux voitures qui arrivent, légèrement tourné vers la route.
+        const facing = heading.clone().multiplyScalar(-0.82).addScaledVector(right, -side * 0.57).normalize();
+        sign.group.lookAt(sign.group.position.clone().add(facing));
+        scene.add(sign.group);
+        return { ...sign, facing };
     });
 
     // Voiture
     const rig = await loadCar();
     const car = rig.holder;
+    car.traverse((object) => {
+        if ((object as THREE.Mesh).isMesh) {
+            object.castShadow = true;
+        }
+    });
     scene.add(car);
 
     const shadow = new THREE.Mesh(
         new THREE.PlaneGeometry(CAR_LENGTH * 1.25, CAR_LENGTH * 0.62),
-        new THREE.MeshBasicMaterial({ map: makeShadowTexture(), transparent: true, depthWrite: false, opacity: 0.9 }),
+        new THREE.MeshBasicMaterial({ map: makeShadowTexture(), transparent: true, depthWrite: false, opacity: 0.55 }),
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.y = 0.03;
@@ -698,7 +975,9 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         dragging: false,
         visible: true,
         elapsed: 0,
-        lastScrollProgress: 0,
+        along: 0,
+        focus: 0,
+        focusIndex: -1,
         activeStep: -1,
     };
     let animationFrame: number | undefined;
@@ -718,8 +997,11 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     };
 
     let lastU: number | undefined;
+    const hudCount = container.querySelector<HTMLElement>('[data-journey-count]');
+    const hudDots = [...container.querySelectorAll<HTMLElement>('[data-journey-dot]')];
+
     const placeCar = (): void => {
-        const u = U_START + state.progress * U_SPAN;
+        const u = U_START + state.along * U_SPAN;
         curve.getPointAt(u, position);
         curve.getTangentAt(u, tangent);
 
@@ -737,15 +1019,34 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         lastU = u;
     };
 
+    const signLook = new THREE.Vector3();
+    const signEye = new THREE.Vector3();
+    /** Pose de la caméra face au panneau : assez loin pour le voir en entier, quel que soit le format d'écran. */
+    const signPose = (index: number, aspect: number): void => {
+        const sign = signs[index];
+        if (!sign) {
+            return;
+        }
+        const vFov = THREE.MathUtils.degToRad(36);
+        const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+        const distance = Math.max(
+            SIGN_HEIGHT / (0.6 * 2 * Math.tan(vFov / 2)),
+            SIGN_WIDTH / (0.78 * 2 * Math.tan(hFov / 2)),
+        );
+        signLook.copy(sign.group.position).setY(SIGN_CENTER_Y - 0.1);
+        signEye.copy(sign.group.position).addScaledVector(sign.facing, distance).setY(Math.min(SIGN_CENTER_Y - 0.5, 4.3));
+    };
+
     const placeCamera = (delta: number): void => {
         const p = state.progress;
+        const lead = Math.max(travelLength * 0.9, 0.02);
+        const intro = smooth(0, lead, p);
+        const outro = smooth(1 - lead, 1, p);
+        const free = 1 - state.focus;
         // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
-        const base =
-            lerp(2.45, 0.32, smooth(0.0, 0.2, p)) +
-            lerp(0, 1.35, smooth(0.8, 1, p));
-        const azimuth = base + state.yaw;
-        const distance = lerp(8.8, 8.4, smooth(0, 0.25, p)) - 1.2 * smooth(0.8, 1, p);
-        const height = clamp(lerp(1.5, 2.5, smooth(0, 0.25, p)) + state.pitch, 0.5, 6);
+        const azimuth = lerp(2.3, 0.3, intro) + lerp(0, 1.25, outro) + state.yaw * free;
+        const distance = lerp(9.2, 8.4, intro) - 1.2 * outro;
+        const height = clamp(lerp(1.7, 2.5, intro) + state.pitch * free, 0.5, 6);
 
         const rear = tangent.clone().multiplyScalar(-1);
         rear.applyAxisAngle(up, azimuth);
@@ -754,18 +1055,27 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const aimAhead = 2.4 * (1 - clamp(Math.abs(azimuth), 0, 1.5) / 1.5);
         lookAt.copy(car.position).addScaledVector(tangent, aimAhead).setY(0.8);
 
-        if (!cameraReady) {
+        let fov = 42;
+        if (state.focus > 0 && state.focusIndex >= 0) {
+            signPose(state.focusIndex, camera.aspect);
+            const k = smooth(0, 1, state.focus);
+            desired.lerp(signEye, k);
+            lookAt.lerp(signLook, k);
+            fov = lerp(42, 36, k);
+        }
+
+        if (!cameraReady || reducedMotion) {
             camera.position.copy(desired);
             smoothedLook.copy(lookAt);
             cameraReady = true;
         } else {
-            camera.position.lerp(desired, damp(5, delta));
-            smoothedLook.lerp(lookAt, damp(7, delta));
+            camera.position.lerp(desired, damp(9, delta));
+            smoothedLook.lerp(lookAt, damp(12, delta));
         }
         camera.lookAt(smoothedLook);
 
         const kick = clamp(Math.abs(state.velocity) * 60, 0, 1);
-        camera.fov = lerp(camera.fov, 42 + kick * 9, damp(4, delta));
+        camera.fov = lerp(camera.fov, fov + kick * 7 * free, damp(5, delta));
         camera.updateProjectionMatrix();
     };
 
@@ -780,35 +1090,56 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     const updateSteps = (): void => {
         let active = 0;
         let best = Infinity;
-        STOPS.forEach((stop, index) => {
-            const distance = Math.abs(state.progress - stop);
+        for (let index = 0; index < count; index++) {
+            const distance = Math.abs(state.progress - (holdStart(index) + HOLD / 2));
             if (distance < best) {
                 best = distance;
                 active = index;
             }
-        });
+        }
         if (active !== state.activeStep) {
             state.activeStep = active;
             container.dataset.step = String(active);
             stepItems.forEach((item, index) => item.classList.toggle('is-active', index === active));
+            hudDots.forEach((dot, index) => {
+                dot.classList.toggle('is-active', index === active);
+                dot.classList.toggle('is-done', index < active);
+            });
+            if (hudCount) {
+                hudCount.textContent = cards[active]?.counter ?? '';
+            }
         }
+        container.dataset.moving = state.progress > 0.02 ? 'true' : 'false';
+        container.dataset.focus = state.focus > 0.25 ? 'true' : 'false';
         container.style.setProperty('--journey', state.progress.toFixed(4));
         signs.forEach((sign, index) => {
-            const scale = index === active ? 1.1 : 1;
-            sign.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.15);
+            const lit = index === state.focusIndex ? state.focus : 0;
+            sign.face.color.setScalar(0.82 + 0.18 * lit);
+            sign.glow.material.opacity = 0.35 + 0.5 * lit;
         });
     };
 
     const update = (delta: number): void => {
         state.elapsed += delta;
-        state.target = reducedMotion ? 0.3 : scrollProgress();
+        state.target = scrollProgress();
         const previous = state.progress;
-        state.progress += (state.target - state.progress) * damp(reducedMotion ? 30 : 4.5, delta);
+        if (reducedMotion) {
+            state.progress = state.target;
+        } else {
+            // La progression rattrape le défilement avec une vitesse plafonnée : la voiture ne s'échappe jamais de l'écran.
+            const limit = MAX_PROGRESS_SPEED * delta;
+            state.progress += clamp((state.target - state.progress) * damp(5, delta), -limit, limit);
+        }
         state.velocity = lerp(state.velocity, (state.progress - previous) / Math.max(delta, 0.001), damp(6, delta)) / 60;
         if (!state.dragging) {
             state.yaw *= 1 - damp(0.9, delta);
             state.pitch *= 1 - damp(1.2, delta);
         }
+
+        const pace = paceAt(state.progress);
+        state.along = pace.along;
+        state.focus = pace.focus;
+        state.focusIndex = pace.index;
 
         placeCar();
         placeCamera(delta);
@@ -842,12 +1173,6 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const height = Math.max(canvasHost.clientHeight, 1);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
-        // Sur grand écran, on décale la voiture vers la droite pour laisser la place au texte.
-        if (width / height > 1.25) {
-            camera.setViewOffset(width, height, -width * 0.13, 0, width, height);
-        } else {
-            camera.clearViewOffset();
-        }
         camera.updateProjectionMatrix();
     };
 

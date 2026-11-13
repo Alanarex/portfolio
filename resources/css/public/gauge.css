@@ -19,7 +19,7 @@
 
 .gauge__readout {
     position: absolute;
-    top: 69%;
+    top: 66%;
     left: 50%;
     color: #fff;
     font-family: var(--font-display);
@@ -33,16 +33,75 @@
     font-size: clamp(1.6rem, 6vw, 2.9rem);
     font-weight: 600;
     letter-spacing: -0.02em;
+    text-shadow: 0 0 1rem rgb(229 56 59 / 55%);
     counter-reset: kmh var(--k);
 }
 
 .gauge__speed::before { content: counter(kmh); }
 
-.gauge__unit {
-    color: var(--color-text-muted);
+/* Rapport engagé : se déduit de la vitesse affichée */
+.gauge__gear {
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    display: flex;
+    gap: 0.15em;
+    color: #3ddc84;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
+    font-size: clamp(0.5rem, 1.7vw, 0.8rem);
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.9;
+    transform: translateX(-50%);
+}
+
+.gauge__gear b { counter-reset: gear calc(var(--k) / 55 + 0.5); font-weight: 700; }
+.gauge__gear b::before { content: counter(gear); }
+
+/* Compte-tours à segments : suit l'aiguille */
+.gauge__rpm { stroke-dasharray: calc(var(--p) * 100) 200; }
+.gauge__redglow { opacity: clamp(0, calc((var(--p) - 0.72) * 4), 1); }
+
+/* Voyants : test à l'allumage, puis veille */
+.gauge__lamp { color: var(--c, #ffb02e); opacity: 0.28; animation: lamp-check 1.6s var(--d, 0s) ease-out 1; }
+
+@keyframes lamp-check {
+    0%,
+    35% { opacity: 1; filter: drop-shadow(0 0 3px currentcolor); }
+
+    100% { opacity: 0.28; filter: none; }
+}
+
+/* Petits cadrans : l'aiguille oscille lentement */
+.gauge__mini { animation: mini-sway 7s ease-in-out infinite; rotate: var(--a, 0deg); }
+
+@keyframes mini-sway {
+    0%,
+    100% { rotate: var(--a, 0deg); }
+
+    50% { rotate: calc(var(--a, 0deg) + 14deg); }
+}
+
+/* Reflet qui balaie le verre de temps en temps */
+.gauge__sheen { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; pointer-events: none; }
+
+.gauge__sheen::after {
+    position: absolute;
+    top: -10%;
+    bottom: -10%;
+    left: -45%;
+    width: 28%;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 14%), transparent);
+    content: "";
+    transform: skewX(-18deg);
+    animation: glint 7s 1.2s ease-in-out infinite;
+}
+
+@keyframes glint {
+    0%,
+    62% { left: -45%; }
+
+    100% { left: 130%; }
 }
 
 @keyframes idle {

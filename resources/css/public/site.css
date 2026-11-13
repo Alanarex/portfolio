@@ -80,9 +80,12 @@
 /* Hero */
 .hero {
     position: relative;
-    padding-block: var(--space-8) var(--space-8);
+    padding-block: calc(var(--space-8) + var(--header-h)) var(--space-8);
     overflow: clip;
 }
+
+/* La navigation flotte au-dessus du hero : la lumière du curseur couvre toute la largeur, jusqu'en haut de page */
+body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 
 .hero__grid {
     display: grid;
@@ -123,7 +126,7 @@
 .hero__lamp {
     position: absolute;
     z-index: 9;
-    top: var(--space-4);
+    top: calc(var(--header-h) + var(--space-3));
     right: var(--space-5);
     display: none;
     font-family: var(--font-mono);
@@ -239,27 +242,13 @@
     content: "";
 }
 
-.stack__visual b {
-    position: relative;
-    z-index: 1;
-    color: transparent;
-    font-family: var(--font-display);
-    font-size: clamp(7rem, 16vw, 13rem);
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.06em;
-    -webkit-text-stroke: 2px rgb(var(--ink-rgb) / 35%);
-    transition: transform 800ms var(--ease), -webkit-text-stroke-color 400ms;
-}
-
-.stack__card:hover .stack__visual b { -webkit-text-stroke-color: var(--color-text); transform: scale(1.08) rotate(-3deg); }
 .tag { display: inline-block; padding: 0.3rem 0.8rem; border-radius: var(--radius-pill); color: var(--color-danger); background: var(--color-danger-surface); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; }
 
 /* Aperçu 3D */
 
 /* Aperçu 3D : étage épinglé, la voiture avance avec le défilement */
-.journey { position: relative; background: var(--color-bg); }
-.journey[data-state="ready"] { height: 420vh; }
+.journey { position: relative; overflow-x: clip; background: var(--color-bg); }
+.journey[data-state="ready"] { height: calc(100svh + var(--n, 4) * 125svh); }
 
 
 .journey__stage,
@@ -274,7 +263,7 @@
 
 .journey__scrim {
     z-index: 1;
-    background: linear-gradient(90deg, rgb(11 9 10 / 92%) 0%, rgb(11 9 10 / 55%) 38%, transparent 65%), linear-gradient(0deg, rgb(11 9 10 / 85%), transparent 28%);
+    background: linear-gradient(180deg, rgb(11 9 10 / 75%) 0%, transparent 24%), linear-gradient(0deg, rgb(11 9 10 / 80%), transparent 22%);
     pointer-events: none;
 }
 
@@ -326,7 +315,6 @@
 
 @media (width <= 44rem) {
     .stack__card { position: static; }
-    .journey__scrim { background: linear-gradient(180deg, rgb(11 9 10 / 90%) 0%, rgb(11 9 10 / 40%) 45%, transparent 70%), linear-gradient(0deg, rgb(11 9 10 / 85%), transparent 30%); }
     .journey__ui { padding-block: var(--space-6) var(--space-4); }
     .journey__copy .lede { font-size: 0.95rem; }
     .journey__drag { right: auto; left: 0; bottom: 7.5rem; }
