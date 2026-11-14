@@ -453,7 +453,8 @@ final class ProjectsMediaCmsTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $this->assertDatabaseCount('projects', 5);
         $this->assertDatabaseCount('project_translations', 5);
-        $this->assertDatabaseCount('case_study_sections', 0);
+        $this->assertDatabaseCount('case_study_sections', 25);
+        $this->assertDatabaseCount('project_skills', 27);
         $this->assertDatabaseMissing('projects', ['publication_status' => 'published']);
         // Only public repositories are seeded: client, company, abandoned and school-internal projects never are.
         foreach (['handicapacite', 'simulateur-ia', 'revesta', 'gm-exchange', 'portfolio', 'educonnect', 'lightyoulife', 'taskmate', 'todo-app', 'todo-list'] as $slug) {

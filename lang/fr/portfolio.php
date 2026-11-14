@@ -93,6 +93,8 @@ return [
         'back' => 'Retour aux projets',
         'role' => 'Rôle',
         'skills' => 'Compétences mobilisées',
+        'status' => 'Statut',
+        'source' => 'Code source',
         'technologies' => 'Technologies',
         'period' => 'Période',
         'ongoing' => 'En cours',

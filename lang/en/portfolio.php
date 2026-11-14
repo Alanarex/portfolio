@@ -93,6 +93,8 @@ return [
         'back' => 'Back to projects',
         'role' => 'Role',
         'skills' => 'Skills used',
+        'status' => 'Status',
+        'source' => 'Source code',
         'technologies' => 'Technologies',
         'period' => 'Timeline',
         'ongoing' => 'Ongoing',

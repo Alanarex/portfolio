@@ -14,11 +14,11 @@ final class SkillsDatabaseSeeder extends Seeder
     public function run(): void
     {
         $taxonomy = [
-            'Backend' => ['PHP', 'Laravel', 'Java', 'Spring Boot', 'API REST', 'MVC', 'POO', 'RBAC'],
-            'Données' => ['MySQL', 'MariaDB', 'PostgreSQL', 'SQL', 'JPA/Hibernate', 'migrations', 'indexation', 'optimisation SQL'],
+            'Backend' => ['PHP', 'Laravel', 'Java', 'Spring Boot', 'API REST', 'MVC', 'POO', 'RBAC', 'Node.js', 'Express', 'Socket.IO'],
+            'Données' => ['MySQL', 'MariaDB', 'PostgreSQL', 'SQL', 'JPA/Hibernate', 'migrations', 'indexation', 'optimisation SQL', 'SQLite'],
             'Tests et qualité' => ['PHPUnit', 'Playwright', 'JUnit', 'Mockito', 'PHPStan/Larastan', 'Postman', 'Laravel Pint'],
-            'Frontend' => ['Vue.js', 'JavaScript', 'TypeScript', 'Thymeleaf', 'Blade', 'Bootstrap', 'SCSS'],
-            'DevOps et infrastructure' => ['Docker', 'Nginx', 'Git', 'GitLab CI/CD', 'GitHub Actions', 'Jenkins'],
+            'Frontend' => ['Vue.js', 'JavaScript', 'TypeScript', 'Thymeleaf', 'Blade', 'Bootstrap', 'SCSS', 'React', 'React Native', 'Expo', 'HTML5', 'CSS3', 'PWA', 'Leaflet'],
+            'DevOps et infrastructure' => ['Docker', 'Nginx', 'Git', 'GitLab CI/CD', 'GitHub Actions', 'Jenkins', 'YAML', 'Gestion des issues et branches'],
             'Architecture et outils' => ['Redis', 'RabbitMQ', 'Kafka', 'Sentry', 'Composer', 'Maven', 'Vite'],
             'Pilotage' => ['Cadrage', 'planification', 'roadmap', 'backlog', 'priorisation', 'suivi d’avancement', 'analyse des besoins', 'faisabilité', 'spécifications fonctionnelles et techniques', 'Agile', 'Scrum', 'sprints', 'jalons', 'recette', 'amélioration continue', 'coordination des parties prenantes'],
         ];
