@@ -32,8 +32,11 @@ final class SyncContributionCalendars
 
         $githubUser = (string) $this->config->get('services.github.username');
         $githubToken = $this->config->get('services.github.token');
-        if (preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/', $githubUser) === 1 && is_string($githubToken) && $githubToken !== '') {
-            $results['github'] = $this->store('github', $githubUser, fn (): array => $this->github($githubUser, $githubToken));
+        if (preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/', $githubUser) === 1) {
+            // With a read-only token: official GraphQL API. Without: the public contributions page of the profile.
+            $results['github'] = $this->store('github', $githubUser, fn (): array => is_string($githubToken) && $githubToken !== ''
+                ? $this->github($githubUser, $githubToken)
+                : $this->githubPublicPage($githubUser));
         }
 
         $gitlabUser = (string) $this->config->get('services.gitlab.username');
@@ -82,6 +85,33 @@ final class SyncContributionCalendars
             foreach (is_array($week) ? ($week['contributionDays'] ?? []) : [] as $day) {
                 if (is_array($day)) {
                     $this->addDay($days, $day['date'] ?? null, $day['contributionCount'] ?? null);
+                }
+            }
+        }
+
+        return $days;
+    }
+
+    /** @return array<string, int> */
+    private function githubPublicPage(string $login): array
+    {
+        $html = $this->client()->accept('text/html')->get('https://github.com/users/'.rawurlencode($login).'/contributions')->throw()->body();
+
+        $dates = [];
+        if (preg_match_all('/<td[^>]*data-date="(\d{4}-\d{2}-\d{2})"[^>]*id="([\w-]+)"/', $html, $cells, PREG_SET_ORDER) !== false) {
+            foreach ($cells as $cell) {
+                $dates[$cell[2]] = $cell[1];
+            }
+        }
+        if ($dates === []) {
+            throw new \UnexpectedValueException('Unexpected GitHub contributions page.');
+        }
+
+        $days = [];
+        if (preg_match_all('/<tool-tip[^>]*\bfor="([\w-]+)"[^>]*>\s*(No|\d+) contributions? on/', $html, $tips, PREG_SET_ORDER) !== false) {
+            foreach ($tips as $tip) {
+                if (isset($dates[$tip[1]])) {
+                    $days[$dates[$tip[1]]] = $tip[2] === 'No' ? 0 : (int) $tip[2];
                 }
             }
         }

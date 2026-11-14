@@ -39,16 +39,34 @@ final class ContributionGridTest extends TestCase
         Http::assertSent(fn ($request) => $request->url() !== 'https://api.github.com/graphql' || $request->hasHeader('Authorization'));
     }
 
-    public function test_github_is_skipped_without_a_token_and_a_failing_source_keeps_its_calendar(): void
+    public function test_github_falls_back_to_the_public_profile_page_without_a_token(): void
+    {
+        config(['services.github.token' => null]);
+        $html = '<td data-ix="0" data-date="2026-11-09" id="contribution-day-component-0-0" data-level="0"></td>'
+            .'<td data-ix="1" data-date="2026-11-10" id="contribution-day-component-0-1" data-level="2"></td>'
+            .'<tool-tip for="contribution-day-component-0-0" class="sr-only">No contributions on November 9th.</tool-tip>'
+            .'<tool-tip for="contribution-day-component-0-1" class="sr-only">7 contributions on November 10th.</tool-tip>';
+        Http::fake([
+            'github.com/users/Alanarex/contributions' => Http::response($html),
+            'gitlab.com/*' => Http::response([]),
+            'api.github.com/users/*' => Http::response([]),
+        ]);
+
+        $this->artisan('portfolio:sync-github')->assertSuccessful();
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'graphql'));
+        self::assertSame(['2026-11-09' => 0, '2026-11-10' => 7], ContributionCalendar::query()->where('source', 'github')->sole()->days);
+    }
+
+    public function test_a_failing_source_keeps_its_previous_calendar(): void
     {
         config(['services.github.token' => null]);
         $today = now()->format('Y-m-d');
         ContributionCalendar::query()->create(['source' => 'gitlab', 'username' => 'alanarex-gl', 'days' => [$today => 4], 'synced_at' => now()->subHour()]);
-        Http::fake(['gitlab.com/*' => Http::response('nope', 500)]);
+        Http::fake(['gitlab.com/*' => Http::response('nope', 500), 'github.com/*' => Http::response('<html></html>')]);
 
         $this->artisan('portfolio:sync-github');
 
-        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'graphql'));
         self::assertSame([$today => 4], ContributionCalendar::query()->where('source', 'gitlab')->sole()->days);
         self::assertSame(0, ContributionCalendar::query()->where('source', 'github')->count());
     }

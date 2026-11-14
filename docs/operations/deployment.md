@@ -77,7 +77,8 @@ Remplis `.env` : `APP_URL`, `APP_DOMAIN`, `ACME_EMAIL`, `DB_PASSWORD`, `REDIS_PA
 scheduler). `GITHUB_TOKEN` est facultatif : un token fine-grained sans droit particulier augmente juste
 la limite d'appels à l'API.
 La grille de contributions combine GitHub et GitLab : `GITLAB_USERNAME` (profil public, sans token) et un
-`GITHUB_TOKEN` en lecture seule (`read:user`) pour le calendrier GitHub ; sans token, seul GitLab est affiché.
+`GITHUB_TOKEN` en lecture seule (`read:user`) facultatif : sans token, le calendrier GitHub est lu sur la page publique
+du profil (moins robuste si GitHub change son HTML ; en cas d'échec, le dernier calendrier est conservé).
 Les contributions privées ne comptent que si l'option « inclure les contributions privées » est activée
 sur chaque service (seuls des nombres par jour sont stockés).
 

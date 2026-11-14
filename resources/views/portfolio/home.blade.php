@@ -361,24 +361,6 @@
                 </figure>
             @endif
             <div class="activity">
-                @if ($githubActivity && $githubActivity->repositories !== [])
-                    <div>
-                        <h3 class="activity__title">{{ __('portfolio.activity.repositories') }}</h3>
-                        <ul class="repos">
-                            @foreach ($githubActivity->repositories as $repository)
-                                <li class="card card--lift" data-scroll-reveal>
-                                    <a class="repos__name" href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $repository['project_slug']]) }}">{{ $repository['name'] }}</a>
-                                    @if ($repository['description'])<p>{{ $repository['description'] }}</p>@endif
-                                    <p class="repos__meta"><a href="{{ $repository['url'] }}" rel="noopener noreferrer">GitHub ↗</a></p>
-                                    <p class="mono repos__meta">
-                                        @if ($repository['language']){{ $repository['language'] }} · @endif
-                                        @if ($repository['pushed_at']){{ __('portfolio.activity.updated', ['date' => Carbon::parse($repository['pushed_at'])->locale(app()->getLocale())->isoFormat('LL')]) }}@endif
-                                    </p>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 @if ($githubActivity && $githubActivity->events !== [])
                     <div>
                         <h3 class="activity__title">{{ __('portfolio.activity.recent') }}</h3>

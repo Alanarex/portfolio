@@ -20,7 +20,7 @@ return [
     ],
 
     'gitlab' => [
-        'username' => env('GITLAB_USERNAME'),
+        'username' => env('GITLAB_USERNAME', 'alaaBTT'),
         'url' => env('GITLAB_URL', 'https://gitlab.com'),
     ],
 
