@@ -12,6 +12,7 @@ use Modules\Projects\Enums\ProjectLifecycle;
 use Modules\Projects\Enums\PublicationStatus;
 use Modules\Projects\Enums\RepositoryVisibility;
 use Modules\Projects\Models\Project;
+use Modules\Skills\Contracts\SkillCatalog;
 
 final class SaveProjectRequest extends FormRequest
 {
@@ -33,6 +34,8 @@ final class SaveProjectRequest extends FormRequest
             'lifecycle_status' => ['required', Rule::enum(ProjectLifecycle::class)],
             'technologies' => ['required', 'array', 'max:50'],
             'technologies.*' => ['required', 'string', 'max:80', 'distinct'],
+            'skill_keys' => ['sometimes', 'array', 'max:60'],
+            'skill_keys.*' => ['required', 'string', 'max:80', 'distinct', Rule::in(array_column(app(SkillCatalog::class)->options(), 'key'))],
             'start_year' => ['nullable', 'integer', 'between:1950,2100'],
             'start_month' => ['nullable', 'integer', 'between:1,12'],
             'end_year' => ['nullable', 'integer', 'between:1950,2100'],

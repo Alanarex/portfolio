@@ -64,7 +64,6 @@
         </g>
 
         {{-- Marque, voyants et unité --}}
-        <text x="200" y="92" text-anchor="middle" font-family="Space Grotesk Variable, sans-serif" font-size="12" font-weight="700" letter-spacing="5" fill="#d9d4d4">AK<tspan fill="#e5383b" dx="2">·</tspan>GT</text>
         <g class="gauge__lamps" font-family="JetBrains Mono Variable, monospace" font-size="6.5" font-weight="700" text-anchor="middle" dominant-baseline="central">
             <g class="gauge__lamp" style="--c: #ffb02e"><rect x="152" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="163" y="110.5" fill="currentColor">ABS</text></g>
             <g class="gauge__lamp" style="--c: #ffb02e; --d: .15s"><rect x="177" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="188" y="110.5" fill="currentColor">ESP</text></g>

@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Modules\GitHubActivity\Models\GitHubSnapshot;
+use Modules\Projects\Models\Project;
 use Modules\Settings\Models\SiteSetting;
 use Tests\TestCase;
 
@@ -77,10 +78,27 @@ final class GitHubActivityTest extends TestCase
     {
         GitHubSnapshot::query()->create([
             'username' => 'Alanarex',
-            'repositories' => [['name' => 'portfolio', 'url' => 'https://github.com/Alanarex/portfolio', 'description' => 'Laravel <b>portfolio</b>', 'language' => 'PHP', 'stars' => 2, 'pushed_at' => '2026-11-05T10:00:00Z']],
-            'events' => [['type' => 'push', 'repo' => 'Alanarex/portfolio', 'url' => 'https://github.com/Alanarex/portfolio', 'title' => null, 'count' => 3, 'at' => '2026-11-05T10:00:00Z']],
+            'repositories' => [
+                ['name' => 'portfolio', 'url' => 'https://github.com/Alanarex/portfolio', 'description' => 'Laravel <b>portfolio</b>', 'language' => 'PHP', 'stars' => 2, 'pushed_at' => '2026-11-05T10:00:00Z'],
+                ['name' => 'client-app', 'url' => 'https://github.com/Alanarex/client-app', 'description' => 'Private client work', 'language' => 'PHP', 'stars' => 0, 'pushed_at' => '2026-11-05T10:00:00Z'],
+            ],
+            'events' => [
+                ['type' => 'push', 'repo' => 'Alanarex/portfolio', 'url' => 'https://github.com/Alanarex/portfolio', 'title' => null, 'count' => 3, 'at' => '2026-11-05T10:00:00Z'],
+                ['type' => 'push', 'repo' => 'Alanarex/client-app', 'url' => 'https://github.com/Alanarex/client-app', 'title' => null, 'count' => 2, 'at' => '2026-11-05T10:00:00Z'],
+            ],
             'synced_at' => now(),
         ]);
+
+        // Only repositories behind a published project are shown.
+        $project = Project::factory()->create([
+            'slug' => 'demo-project',
+            'publication_status' => 'published',
+            'published_at' => now(),
+            'repository_visibility' => 'public',
+            'repository_url' => 'https://github.com/Alanarex/portfolio',
+            'show_repository' => true,
+        ]);
+        $project->translations()->create(['locale' => 'fr', 'title' => 'Demo', 'summary' => 'Résumé', 'role' => '']);
 
         $settings = SiteSetting::factory()->create(['key' => 'main', 'default_locale' => 'fr']);
         $settings->featureFlags()->updateOrCreate(['key' => 'activity'], ['enabled' => false]);
@@ -95,7 +113,10 @@ final class GitHubActivityTest extends TestCase
             ->assertSee('Dépôts récents')
             ->assertSee('3 commits sur Alanarex/portfolio')
             ->assertSee('Laravel &lt;b&gt;portfolio&lt;/b&gt;', false)
-            ->assertSee('https://github.com/Alanarex/portfolio', false);
+            ->assertSee('https://github.com/Alanarex/portfolio', false)
+            ->assertSee('/fr/projects/demo-project', false)
+            ->assertDontSee('client-app')
+            ->assertDontSee('Private client work');
     }
 
     private function flushPublicCaches(): void

@@ -51,6 +51,34 @@ final class ContactSeoCvTest extends TestCase
         self::assertFalse(Schema::hasTable('contact_messages'));
     }
 
+    public function test_contact_validation_returns_localized_messages_and_the_form_marks_required_fields(): void
+    {
+        Mail::fake();
+        $this->publishedProfile();
+        $this->settings(contact: true);
+
+        $this->get('/fr')
+            ->assertOk()
+            ->assertSee('field__required', false)
+            ->assertSee('Les champs marqués d’un * sont obligatoires.')
+            ->assertSee('data-contact-form', false);
+
+        $this->from('/fr')->post('/fr/contact', ['name' => '', 'email' => 'pas-un-email', 'subject' => '', 'message' => 'court'])
+            ->assertRedirect('/fr')
+            ->assertSessionHasErrors([
+                'name' => 'Veuillez indiquer votre nom.',
+                'email' => 'Cette adresse e-mail n’est pas valide.',
+                'message' => 'Le message doit contenir au moins 10 caractères.',
+            ]);
+
+        $this->from('/en')->post('/en/contact', ['name' => 'Sam', 'email' => '', 'message' => ''])
+            ->assertSessionHasErrors([
+                'email' => 'Please enter your email address.',
+                'message' => 'Please write your message.',
+            ]);
+        Mail::assertNothingQueued();
+    }
+
     public function test_contact_spam_controls_are_accessible_and_header_injection_is_rejected(): void
     {
         Mail::fake();

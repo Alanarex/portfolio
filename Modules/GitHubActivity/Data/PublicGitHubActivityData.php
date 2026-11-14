@@ -9,7 +9,7 @@ use DateTimeImmutable;
 final readonly class PublicGitHubActivityData
 {
     /**
-     * @param  list<array{name: string, url: string, description: ?string, language: ?string, stars: int, pushed_at: ?string}>  $repositories
+     * @param  list<array{name: string, url: string, description: ?string, language: ?string, stars: int, pushed_at: ?string, project_slug?: string}>  $repositories
      * @param  list<array{type: string, repo: string, url: string, title: ?string, count: int, at: string}>  $events
      */
     public function __construct(

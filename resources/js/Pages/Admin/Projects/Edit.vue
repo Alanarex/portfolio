@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { cloneProps } from '@admin/lib/clone';
-import { shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type Locale = 'fr' | 'en';
@@ -20,6 +20,7 @@ type Project = {
   slug: string;
   lifecycle_status: string;
   technologies: string[];
+  skill_keys: string[];
   start_year: number | null;
   start_month: number | null;
   end_year: number | null;
@@ -61,6 +62,7 @@ const props = defineProps<{
     lifecycle_statuses: string[];
     repository_visibilities: string[];
     media_kinds: string[];
+    skills: { key: string; name: string; category: string }[];
   };
 }>();
 
@@ -77,6 +79,14 @@ const sectionLabels: Record<string, Record<Locale, string>> = {
 };
 
 const form = useForm(cloneProps(props.project));
+const skillGroups = computed(() => {
+  const groups = new Map<string, { category: string; skills: { key: string; name: string }[] }>();
+  for (const skill of props.options.skills) {
+    if (!groups.has(skill.category)) groups.set(skill.category, { category: skill.category, skills: [] });
+    groups.get(skill.category)?.skills.push(skill);
+  }
+  return [...groups.values()];
+});
 const createMediaForms = (media: Media[]) => media.map((asset) => useForm(cloneProps(asset)));
 const mediaForms = shallowRef(createMediaForms(props.media));
 const newMedia = useForm({
@@ -229,6 +239,18 @@ function deleteMedia(id: number): void {
           <div class="flex items-center justify-between gap-3"><h3 class="font-bold">Technologies vérifiées</h3><button type="button" class="admin-link min-h-11 rounded-md border border-border px-3" @click="addTechnology">Ajouter</button></div>
           <div v-for="(_, index) in form.technologies" :key="index" class="mt-3 flex gap-2"><input v-model="form.technologies[index]" class="admin-input" maxlength="80"><button type="button" class="min-h-11 rounded-md border border-destructive px-3 text-destructive" :aria-label="`Supprimer la technologie ${index + 1}`" @click="form.technologies.splice(index, 1)">Supprimer</button></div>
         </div>
+        <fieldset class="mt-5 rounded-xl border border-border p-4">
+          <legend class="px-2 text-sm font-bold">Compétences mobilisées</legend>
+          <p class="text-sm text-muted-foreground">Ces compétences relient le projet à la carte « Mes compétences » et à sa page publique.</p>
+          <div v-for="group in skillGroups" :key="group.category" class="mt-4">
+            <p class="text-sm font-semibold">{{ group.category }}</p>
+            <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+              <label v-for="skill in group.skills" :key="skill.key" class="flex min-h-11 items-center gap-2 text-sm"><input v-model="form.skill_keys" type="checkbox" :value="skill.key"> {{ skill.name }}</label>
+            </div>
+          </div>
+          <p v-if="options.skills.length === 0" class="mt-3 text-sm text-muted-foreground">Aucune compétence : créez-les d’abord dans « Compétences ».</p>
+          <p v-if="form.errors.skill_keys" class="mt-2 text-sm text-destructive" role="alert">{{ form.errors.skill_keys }}</p>
+        </fieldset>
         <div class="mt-6 grid gap-5 md:grid-cols-2">
           <fieldset class="rounded-xl border border-border p-4">
             <legend class="px-1 font-bold">Dépôt</legend>

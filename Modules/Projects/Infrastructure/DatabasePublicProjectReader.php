@@ -85,6 +85,7 @@ final class DatabasePublicProjectReader implements PublicProjectReader
             ->whereNull('deletion_pending_at')
             ->whereHas('translations', fn ($query) => $query->where('locale', $locale))
             ->with([
+                'skills',
                 'translations' => fn ($query) => $query->where('locale', $locale),
                 'caseStudySections' => fn ($query) => $query
                     ->where('is_public', true)
@@ -147,6 +148,7 @@ final class DatabasePublicProjectReader implements PublicProjectReader
                     'caption' => $translation->caption,
                 ], static fn (mixed $value): bool => $value !== null);
             })->all(),
+            skillKeys: $project->skills->pluck('skill_key')->sort()->values()->all(),
         );
     }
 

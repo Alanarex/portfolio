@@ -50,7 +50,7 @@ final class CareerSkillsCmsTest extends TestCase
         $this->assertDatabaseCount('certifications', 1);
         $this->assertDatabaseCount('language_proficiencies', 3);
         $this->assertDatabaseCount('skill_categories', 7);
-        $this->assertDatabaseCount('skills', 59);
+        $this->assertDatabaseCount('skills', 72);
         $this->assertDatabaseCount('users', 0);
         $this->assertDatabaseMissing('career_experiences', ['status' => 'published']);
         $this->assertDatabaseMissing('skill_categories', ['status' => 'published']);

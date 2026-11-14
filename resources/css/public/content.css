@@ -182,3 +182,4 @@
     .timeline__date { padding-top: 0; }
     .brand__name { max-width: 9rem; overflow: hidden; text-overflow: ellipsis; }
 }
+.section-heading + .state { margin-top: var(--space-6); }

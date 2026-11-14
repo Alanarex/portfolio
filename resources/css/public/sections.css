@@ -392,3 +392,8 @@ html.theme-vt::view-transition-new(root) { animation: theme-reveal 700ms var(--e
 /* Petits textes rouges des sections toujours sombres : rouge plus clair pour respecter le contraste AA */
 .theme-dark .skillmap__meta,
 .theme-dark .journey__period { color: #ff7a7d; }
+
+/* Projets liés à un domaine de compétences */
+.skillmap__related { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: baseline; margin: var(--space-4) 0 0; }
+.skillmap__related .mono { color: var(--color-text-muted); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.skillmap__related a { color: var(--color-accent-light); text-decoration: underline; text-underline-offset: 0.2em; }

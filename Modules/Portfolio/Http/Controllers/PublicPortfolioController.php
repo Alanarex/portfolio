@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Modules\Career\Contracts\PublicCareerReader;
 use Modules\Career\Data\PublicCareerData;
 use Modules\GitHubActivity\Contracts\PublicGitHubActivityReader;
+use Modules\GitHubActivity\Data\PublicGitHubActivityData;
 use Modules\Portfolio\Contracts\PublicAnalytics;
 use Modules\Portfolio3D\Contracts\PublicSceneReader;
 use Modules\Portfolio3D\Data\SceneManifestData;
@@ -49,7 +50,7 @@ final class PublicPortfolioController extends Controller
             'page' => 'home',
             'scene' => $this->scene($locale, $data['settings']),
             'posts' => $this->posts->latest($locale),
-            'githubActivity' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->github->current() : null,
+            'githubActivity' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->publicActivity($locale) : null,
             'alternateUrl' => route('portfolio.home', ['locale' => $data['alternateLocale']]),
             'meta' => $this->meta(
                 title: __('portfolio.meta.home_title'),
@@ -58,6 +59,40 @@ final class PublicPortfolioController extends Controller
             ),
             'structuredData' => $this->structuredData($data, route('portfolio.home', ['locale' => $locale])),
         ]);
+    }
+
+    /**
+     * GitHub activity limited to the repositories behind published projects: client, company and unfinished
+     * repositories never leak into the public feed.
+     */
+    private function publicActivity(string $locale): ?PublicGitHubActivityData
+    {
+        $activity = $this->github->current();
+        if ($activity === null) {
+            return null;
+        }
+
+        $allowed = [];
+        foreach ($this->projects->all($locale) as $project) {
+            if ($project->repositoryUrl !== null) {
+                $allowed[strtolower(basename(rtrim($project->repositoryUrl, '/')))] = $project->slug;
+            }
+        }
+
+        $repositories = [];
+        foreach ($activity->repositories as $repository) {
+            $key = strtolower($repository['name']);
+            if (isset($allowed[$key])) {
+                $repository['project_slug'] = $allowed[$key];
+                $repositories[] = $repository;
+            }
+        }
+        $events = array_values(array_filter(
+            $activity->events,
+            fn (array $event): bool => isset($allowed[strtolower(basename($event['repo']))]) && $event['type'] !== '',
+        ));
+
+        return new PublicGitHubActivityData($activity->username, $repositories, $events, $activity->syncedAt);
     }
 
     public function index(string $locale): View
@@ -158,6 +193,7 @@ final class PublicPortfolioController extends Controller
      *   skills: PublicSkillsData|null,
      *   featuredProjects: list<PublicProjectData>,
      *   projectsCount: int,
+     *   allProjects: list<PublicProjectData>,
      *   verifiedMetrics: list<string>,
      *   cvAvailable: bool
      * }
@@ -176,6 +212,7 @@ final class PublicPortfolioController extends Controller
             'skills' => $this->skills->forLocale($locale),
             'featuredProjects' => $this->projects->featured($locale),
             'projectsCount' => count($allProjects),
+            'allProjects' => $allProjects,
             'verifiedMetrics' => $this->verifiedMetrics($career),
             'cvAvailable' => $this->cv->available($locale),
         ];

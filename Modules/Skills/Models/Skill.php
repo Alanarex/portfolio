@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Skills\Database\Factories\SkillFactory;
 use Modules\Skills\Enums\PublicationStatus;
@@ -30,6 +31,12 @@ final class Skill extends Model
     protected static function newFactory(): SkillFactory
     {
         return SkillFactory::new();
+    }
+
+    /** @return BelongsTo<SkillCategory, $this> */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(SkillCategory::class, 'skill_category_id');
     }
 
     /** @return HasMany<SkillTranslation, $this> */

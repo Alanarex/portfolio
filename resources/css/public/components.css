@@ -158,7 +158,7 @@
     transform: translateY(-0.65rem) scale(0.76);
 }
 
-.field--error .field__input { box-shadow: inset 0 0 0 1.5px var(--color-accent-light); }
+.field--error .field__input { box-shadow: inset 0 0 0 1.5px var(--color-danger); }
 .field--error { animation: shake 450ms var(--ease); }
 
 .field__reveal {
@@ -269,3 +269,10 @@ tbody tr:hover { background: var(--color-surface-strong); }
     background: linear-gradient(90deg, var(--color-surface-strong) 25%, var(--color-surface-muted) 50%, var(--color-surface-strong) 75%) 0 0 / 200% 100%;
     animation: shimmer 2.2s linear infinite;
 }
+
+/* Formulaire de contact : champs obligatoires et messages d'erreur en rouge */
+.field__required { color: var(--color-danger); font-weight: 700; }
+.contact-form .error { display: flex; gap: 0.4rem; align-items: center; margin-top: var(--space-2); color: var(--color-danger); font-weight: 600; }
+.contact-form .error[hidden] { display: none; }
+.contact-form .error::before { content: "!"; display: inline-grid; flex: none; width: 1.1rem; height: 1.1rem; place-items: center; border-radius: 50%; background: var(--color-danger); color: var(--color-bg); font-size: 0.75rem; font-weight: 800; }
+.contact-form__required { margin: 0; }

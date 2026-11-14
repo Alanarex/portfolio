@@ -58,6 +58,20 @@ final class CareerDatabaseSeeder extends Seeder
             'statement' => 'Une optimisation du catalogue a réduit un cas mesuré de plus de 385 requêtes SQL à 6 et le temps backend d’environ 1,7 seconde à 34 ms.',
         ]);
 
+        foreach ([
+            ['simply-laravel-migration', 20, 'Migration de l’application métier Simply de Laravel 6 à Laravel 11, mise en production.'],
+            ['simulateur-ia-v1', 30, 'Première version d’un simulateur IA livrée en 2 semaines, en préproduction puis en production.'],
+        ] as [$key, $order, $statement]) {
+            $result = Achievement::query()->firstOrCreate(['experience_id' => $cosika->getKey(), 'key' => $key], [
+                'status' => 'draft',
+                'is_quantified' => true,
+                'is_verified' => true,
+                'source_reference' => 'docs/content/experience.md',
+                'sort_order' => $order,
+            ]);
+            $result->translations()->firstOrCreate(['locale' => 'fr'], ['statement' => $statement]);
+        }
+
         $openCampus = Experience::query()->firstOrCreate(['key' => 'open-campus-angers'], [
             'organization' => 'Open Campus Angers',
             'start_year' => 2023,

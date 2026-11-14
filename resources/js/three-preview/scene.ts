@@ -225,34 +225,47 @@ const makeSignTexture = (card: SignCard, fonts: { display: string; mono: string 
         ctx.fillRect(left, y + 18, width - left * 2, 3);
         y += 74;
 
-        // Résumé
+        // Résumé : la taille s'adapte pour que le texte tienne sans être coupé
+        const footerY = height - 150;
         if (card.summary) {
-            ctx.font = `400 42px ${fonts.display}`;
-            ctx.fillStyle = '#d9d4d4';
-            for (const line of wrapText(ctx, card.summary, width - left * 2, 3)) {
-                ctx.fillText(line, left, y);
-                y += 58;
+            let summarySize = 42;
+            let summaryLines: string[] = [];
+            for (; summarySize >= 28; summarySize -= 2) {
+                ctx.font = `400 ${summarySize}px ${fonts.display}`;
+                summaryLines = wrapText(ctx, card.summary, width - left * 2, 12);
+                if (summaryLines.length <= (card.highlights.length > 0 ? 3 : 5)) {
+                    break;
+                }
             }
-            y += 6;
+            ctx.fillStyle = '#d9d4d4';
+            for (const line of summaryLines) {
+                ctx.fillText(line, left, y);
+                y += summarySize * 1.38;
+            }
+            y += 14;
         }
 
-        // Points clés
-        ctx.font = `600 34px ${fonts.mono}`;
-        let x = left;
-        for (const item of card.highlights.slice(0, 4)) {
-            const label = item.length > 26 ? `${item.slice(0, 25)}…` : item;
-            const w = ctx.measureText(label).width + 44;
-            if (x + w > width - left) {
-                x = left;
-                y += 76;
+        // Points clés : une ligne à puce par point, rédigée en entier (jamais tronquée)
+        let bulletSize = 34;
+        let bulletLines: string[][] = [];
+        for (; bulletSize >= 22; bulletSize -= 2) {
+            ctx.font = `500 ${bulletSize}px ${fonts.display}`;
+            bulletLines = card.highlights.slice(0, 4).map((item) => wrapText(ctx, item, width - left * 2 - 40, 6));
+            const total = bulletLines.reduce((sum, lines) => sum + lines.length, 0);
+            if (y + total * bulletSize * 1.3 + bulletLines.length * 14 <= footerY) {
+                break;
             }
-            ctx.strokeStyle = 'rgba(245,243,244,0.7)';
-            ctx.lineWidth = 3;
-            roundedRect(ctx, x, y - 38, w, 56, 28);
-            ctx.stroke();
+        }
+        ctx.font = `500 ${bulletSize}px ${fonts.display}`;
+        for (const lines of bulletLines) {
+            ctx.fillStyle = '#e5383b';
+            ctx.fillText('›', left, y);
             ctx.fillStyle = '#f5f3f4';
-            ctx.fillText(label, x + 22, y);
-            x += w + 18;
+            for (const line of lines) {
+                ctx.fillText(line, left + 40, y);
+                y += bulletSize * 1.3;
+            }
+            y += 14;
         }
 
         // Écusson numéroté (comme un panneau de route)

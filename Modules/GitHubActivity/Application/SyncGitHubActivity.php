@@ -18,7 +18,7 @@ use Throwable;
  */
 final class SyncGitHubActivity
 {
-    private const REPOSITORY_LIMIT = 6;
+    private const REPOSITORY_LIMIT = 30;
 
     private const EVENT_LIMIT = 8;
 
