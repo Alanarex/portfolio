@@ -1,0 +1,5 @@
+{
+  "name": "Portfolio3D",
+  "description": "Optional 3D room scene configuration, hotspots and public manifest",
+  "provider": "Modules\\Portfolio3D\\Providers\\Portfolio3DServiceProvider"
+}

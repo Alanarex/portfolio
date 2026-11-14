@@ -36,4 +36,7 @@
 - Docker Compose remains intentionally absent from the active V3 baseline; PostgreSQL behavior
   is verified by CI.
 - PR #27 merged PORT-006 into `release/v3.0.0/main`; issue #11 is closed as completed.
-- Next gate: PORT-010 / issue #15 is dependency-unblocked and ready for a fresh `next issue` chat.
+- PORT-010 / issue #15 is in review: the `Portfolio3D` module configures an optional, lazy,
+  isolated Three.js placeholder room with HTML equivalents for every hotspot and poster, mobile,
+  reduced-motion and WebGL-failure fallbacks (`docs/quality/port-010-qa.md`).
+- Next gate: merge PORT-010; PORT-011 / issue #16 needs its Blender human gate.

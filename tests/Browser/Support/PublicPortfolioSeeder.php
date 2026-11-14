@@ -11,6 +11,7 @@ use Modules\Career\Models\Achievement;
 use Modules\Career\Models\Certification;
 use Modules\Career\Models\EducationRecord;
 use Modules\Career\Models\Experience;
+use Modules\Portfolio3D\Models\SceneConfiguration;
 use Modules\Profile\Models\Profile;
 use Modules\Projects\Models\Project;
 use Modules\Settings\Models\SiteSetting;
@@ -29,6 +30,7 @@ final class PublicPortfolioSeeder extends Seeder
         $this->career();
         $this->skills();
         $this->projects();
+        $this->scene();
     }
 
     private function profile(): void
@@ -290,5 +292,16 @@ final class PublicPortfolioSeeder extends Seeder
                 ['locale' => 'en', 'heading' => 'Context', 'body' => $data['en'][1]],
             ]);
         }
+    }
+
+    private function scene(): void
+    {
+        SceneConfiguration::query()->create([
+            'key' => 'main',
+            'enabled' => true,
+            'asset_version' => 'placeholder-1',
+            'performance_mode' => 'auto',
+            'reduced_motion_mode' => 'respect',
+        ]);
     }
 }

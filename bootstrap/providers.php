@@ -6,6 +6,7 @@ use Modules\Career\Providers\CareerServiceProvider;
 use Modules\Contact\Providers\ContactServiceProvider;
 use Modules\GitHubActivity\Providers\GitHubActivityServiceProvider;
 use Modules\Portfolio\Providers\PortfolioServiceProvider;
+use Modules\Portfolio3D\Providers\Portfolio3DServiceProvider;
 use Modules\Posts\Providers\PostsServiceProvider;
 use Modules\Profile\Providers\ProfileServiceProvider;
 use Modules\Projects\Providers\ProjectsServiceProvider;
@@ -20,6 +21,7 @@ return [
     GitHubActivityServiceProvider::class,
     ProfileServiceProvider::class,
     PortfolioServiceProvider::class,
+    Portfolio3DServiceProvider::class,
     PostsServiceProvider::class,
     ProjectsServiceProvider::class,
     SettingsServiceProvider::class,

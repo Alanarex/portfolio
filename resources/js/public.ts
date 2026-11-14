@@ -1,6 +1,7 @@
 import './public/site';
 import './public/skillmap';
 import './three-preview/index';
+import './room-scene/index';
 
 type Theme = 'dark' | 'light';
 
