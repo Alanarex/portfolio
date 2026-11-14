@@ -76,6 +76,10 @@ Remplis `.env` : `APP_URL`, `APP_DOMAIN`, `ACME_EMAIL`, `DB_PASSWORD`, `REDIS_PA
 `GITHUB_USERNAME` règle le compte affiché dans « Activité GitHub » (synchronisé chaque heure par le
 scheduler). `GITHUB_TOKEN` est facultatif : un token fine-grained sans droit particulier augmente juste
 la limite d'appels à l'API.
+La grille de contributions combine GitHub et GitLab : `GITLAB_USERNAME` (profil public, sans token) et un
+`GITHUB_TOKEN` en lecture seule (`read:user`) pour le calendrier GitHub ; sans token, seul GitLab est affiché.
+Les contributions privées ne comptent que si l'option « inclure les contributions privées » est activée
+sur chaque service (seuls des nombres par jour sont stockés).
 
 ```bash
 docker compose -f compose.prod.yaml build

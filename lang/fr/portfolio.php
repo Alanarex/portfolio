@@ -123,6 +123,18 @@ return [
         'contact' => 'Les coordonnées publiques sont en cours de configuration.',
     ],
     'activity' => [
+        'grid' => [
+            'title' => 'Contributions des 12 derniers mois',
+            'less' => 'Moins',
+            'more' => 'Plus',
+            'total' => ':count contributions sur 12 mois',
+            'by_source' => 'Détail par mois',
+            'month' => 'Mois',
+            'contributions' => 'Contributions',
+            'aria' => ':count contributions sur les 12 derniers mois (:sources)',
+            'day' => '{0} Aucune contribution le :date|{1} 1 contribution le :date|[2,*] :count contributions le :date',
+            'note' => 'Nombre de contributions par jour, GitHub et GitLab additionnés. Aucun nom de dépôt privé n’est affiché.',
+        ],
         'kicker' => 'Ce que je construis en ce moment',
         'repositories' => 'Dépôts récents',
         'recent' => 'Activité récente',

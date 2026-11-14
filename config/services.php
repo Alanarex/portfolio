@@ -19,6 +19,11 @@ return [
         'token' => env('GITHUB_TOKEN'),
     ],
 
+    'gitlab' => [
+        'username' => env('GITLAB_USERNAME'),
+        'url' => env('GITLAB_URL', 'https://gitlab.com'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

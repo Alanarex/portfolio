@@ -123,6 +123,18 @@ return [
         'contact' => 'Public contact details are being configured.',
     ],
     'activity' => [
+        'grid' => [
+            'title' => 'Contributions over the last 12 months',
+            'less' => 'Less',
+            'more' => 'More',
+            'total' => ':count contributions in 12 months',
+            'by_source' => 'Breakdown by month',
+            'month' => 'Month',
+            'contributions' => 'Contributions',
+            'aria' => ':count contributions over the last 12 months (:sources)',
+            'day' => '{0} No contributions on :date|{1} 1 contribution on :date|[2,*] :count contributions on :date',
+            'note' => 'Contributions per day, GitHub and GitLab combined. No private repository name is shown.',
+        ],
         'kicker' => 'What I am building right now',
         'repositories' => 'Recent repositories',
         'recent' => 'Recent activity',

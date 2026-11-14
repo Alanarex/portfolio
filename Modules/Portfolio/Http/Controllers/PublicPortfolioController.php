@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Modules\Career\Contracts\PublicCareerReader;
 use Modules\Career\Data\PublicCareerData;
+use Modules\GitHubActivity\Contracts\PublicContributionReader;
 use Modules\GitHubActivity\Contracts\PublicGitHubActivityReader;
 use Modules\GitHubActivity\Data\PublicGitHubActivityData;
 use Modules\Portfolio\Contracts\PublicAnalytics;
@@ -36,6 +37,7 @@ final class PublicPortfolioController extends Controller
         private readonly PublicAnalytics $analytics,
         private readonly PublicPostsReader $posts,
         private readonly PublicGitHubActivityReader $github,
+        private readonly PublicContributionReader $contributions,
         private readonly PublicSceneReader $scenes,
     ) {}
 
@@ -50,6 +52,7 @@ final class PublicPortfolioController extends Controller
             'page' => 'home',
             'scene' => $this->scene($locale, $data['settings']),
             'posts' => $this->posts->latest($locale),
+            'contributionGrid' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->contributions->grid() : null,
             'githubActivity' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->publicActivity($locale) : null,
             'alternateUrl' => route('portfolio.home', ['locale' => $data['alternateLocale']]),
             'meta' => $this->meta(
