@@ -37,6 +37,22 @@
 
 Une optimisation du catalogue a réduit un cas mesuré de plus de 385 requêtes SQL à 6 et le temps backend d'environ 1,7 seconde à 34 ms.
 
+## REVESTA
+
+**Rôle :** Co-fondateur  
+**Période :** Décembre 2024 à aujourd'hui  
+**Localisation :** Angers (hybride)  
+**Description :** REVESTA, l'extension qui identifie vos aides à la rénovation ([revesta.fr](https://www.revesta.fr/)).
+
+Compétences associées : architecture logicielle, PHP, Laravel, MVC, SQL/MySQL, conception de bases de données, API REST, authentification, RBAC, PHPUnit, tests automatisés, CI/CD, Git/GitHub, sécurité des applications web, gestion de backlog, priorisation des fonctionnalités, planification, roadmap, méthodes agiles, coordination de projet, collaboration transverse, résolution de problèmes.
+
+## CoJeCo
+
+**Rôle :** Co-fondateur  
+**Période :** Juin 2025 à aujourd'hui  
+**Localisation :** Angers (hybride)  
+**Description :** CoJeCo, Collectif des jeunes connectés.
+
 ## Open Campus Angers
 
 **Rôle :** Assistant informatique & Développeur web — Alternance  

@@ -307,14 +307,15 @@ final class ProfileSettingsCmsTest extends TestCase
             ])->assertSessionHasErrors(['published', 'archived']);
     }
 
-    public function test_reference_seeding_is_idempotent_and_does_not_create_users_or_public_identity(): void
+    public function test_reference_seeding_is_idempotent_and_does_not_create_users(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseCount('locales', 3);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('profiles', 0);
+        $this->assertDatabaseCount('profiles', 1);
+        $this->assertDatabaseHas('profiles', ['key' => 'main', 'is_published' => true]);
         $this->assertDatabaseCount('site_settings', 0);
     }
 

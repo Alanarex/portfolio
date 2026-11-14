@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CareerDatabaseSeeder::class);
         $this->call(SkillsDatabaseSeeder::class);
         $this->call(ProjectsDatabaseSeeder::class);
+        // After the modules: adds the profile and the English translations of the draft content above.
+        $this->call(EnglishContentSeeder::class);
     }
 }

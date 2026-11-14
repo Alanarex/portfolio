@@ -58,7 +58,7 @@ final class ProjectsDatabaseSeeder extends Seeder
         $projects = [
             // Public GitHub repositories only (READMEs checked on 08/11/2026). Client, company, abandoned and
             // school-internal projects are deliberately never seeded; TaskMate, Todo App and Todo List are
-            // held back until reworked. Drafts until reviewed in the CMS.
+            // held back until reworked. Published by default; unpublish from the CMS if needed.
             [
                 'slug' => 'strive',
                 'summary' => 'Application mobile de suivi d’activités sportives : parcours GPS (démarrer, pause, reprise, arrêt), carte, statistiques, export GPX/CSV, données locales en SQLite. Projet scolaire.',
@@ -136,12 +136,12 @@ final class ProjectsDatabaseSeeder extends Seeder
                 'show_repository' => true,
                 'demo_url' => $row['demo'],
                 'show_demo' => $row['demo'] !== null,
-                'publication_status' => 'draft',
+                'publication_status' => 'published',
                 'is_featured' => $row['featured'],
                 'featured_order' => $row['featured'] ? $row['order'] : null,
                 'sort_order' => $row['order'],
                 'source_reference' => 'docs/content/projects.md',
-                'published_at' => null,
+                'published_at' => now(),
             ]);
             $this->sections($project, self::SECTIONS[$row['slug']]);
             foreach ($row['skills'] as $skillKey) {

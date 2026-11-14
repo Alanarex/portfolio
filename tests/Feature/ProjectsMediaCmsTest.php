@@ -447,15 +447,15 @@ final class ProjectsMediaCmsTest extends TestCase
         self::assertSame(['php'], $project->skills()->pluck('skill_key')->all());
     }
 
-    public function test_verified_project_seed_is_idempotent_draft_only_and_does_not_overwrite_edits(): void
+    public function test_verified_project_seed_is_idempotent_published_and_does_not_overwrite_edits(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
         $this->assertDatabaseCount('projects', 5);
-        $this->assertDatabaseCount('project_translations', 5);
+        $this->assertDatabaseCount('project_translations', 10);
         $this->assertDatabaseCount('case_study_sections', 25);
         $this->assertDatabaseCount('project_skills', 26);
-        $this->assertDatabaseMissing('projects', ['publication_status' => 'published']);
+        $this->assertDatabaseMissing('projects', ['publication_status' => 'draft']);
         // Only public repositories are seeded: client, company, abandoned and school-internal projects never are.
         foreach (['handicapacite', 'simulateur-ia', 'revesta', 'gm-exchange', 'portfolio', 'educonnect', 'lightyoulife', 'taskmate', 'todo-app', 'todo-list'] as $slug) {
             $this->assertDatabaseMissing('projects', ['slug' => $slug]);

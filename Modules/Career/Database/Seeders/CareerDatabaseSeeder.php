@@ -22,7 +22,8 @@ final class CareerDatabaseSeeder extends Seeder
             'end_year' => null,
             'end_month' => null,
             'is_current' => true,
-            'status' => 'draft',
+            'status' => 'published',
+            'published_at' => now(),
             'sort_order' => 10,
         ]);
         $cosika->translations()->firstOrCreate(['locale' => 'fr'], [
@@ -48,7 +49,7 @@ final class CareerDatabaseSeeder extends Seeder
             'experience_id' => $cosika->getKey(),
             'key' => 'catalogue-sql-performance',
         ], [
-            'status' => 'draft',
+            'status' => 'published',
             'is_quantified' => true,
             'is_verified' => true,
             'source_reference' => 'docs/content/experience.md',
@@ -63,13 +64,37 @@ final class CareerDatabaseSeeder extends Seeder
             ['simulateur-ia-v1', 30, 'Première version d’un simulateur IA livrée en 2 semaines, en préproduction puis en production.'],
         ] as [$key, $order, $statement]) {
             $result = Achievement::query()->firstOrCreate(['experience_id' => $cosika->getKey(), 'key' => $key], [
-                'status' => 'draft',
+                'status' => 'published',
                 'is_quantified' => true,
                 'is_verified' => true,
                 'source_reference' => 'docs/content/experience.md',
                 'sort_order' => $order,
             ]);
             $result->translations()->firstOrCreate(['locale' => 'fr'], ['statement' => $statement]);
+        }
+
+        foreach ([
+            ['key' => 'revesta', 'organization' => 'REVESTA', 'year' => 2024, 'month' => 12, 'order' => 20, 'summary' => 'REVESTA : l’extension qui identifie vos aides à la rénovation.'],
+            ['key' => 'cojeco', 'organization' => 'CoJeCo', 'year' => 2025, 'month' => 6, 'order' => 30, 'summary' => 'CoJeCo : Collectif des jeunes connectés.'],
+        ] as $row) {
+            $founder = Experience::query()->firstOrCreate(['key' => $row['key']], [
+                'organization' => $row['organization'],
+                'start_year' => $row['year'],
+                'start_month' => $row['month'],
+                'end_year' => null,
+                'end_month' => null,
+                'is_current' => true,
+                'status' => 'published',
+                'published_at' => now(),
+                'sort_order' => $row['order'],
+            ]);
+            $founder->translations()->firstOrCreate(['locale' => 'fr'], [
+                'role' => 'Co-fondateur',
+                'employment_type' => null,
+                'location' => 'Angers (hybride)',
+                'summary' => $row['summary'],
+                'highlights' => [],
+            ]);
         }
 
         $openCampus = Experience::query()->firstOrCreate(['key' => 'open-campus-angers'], [
@@ -79,8 +104,9 @@ final class CareerDatabaseSeeder extends Seeder
             'end_year' => 2024,
             'end_month' => 8,
             'is_current' => false,
-            'status' => 'draft',
-            'sort_order' => 20,
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 40,
         ]);
         $openCampus->translations()->firstOrCreate(['locale' => 'fr'], [
             'role' => 'Assistant informatique & Développeur web',
@@ -100,6 +126,7 @@ final class CareerDatabaseSeeder extends Seeder
         $education = [
             ['key' => 'manager-projet-web-digital', 'institution' => 'MyDigitalSchool', 'start_year' => 2024, 'end_year' => 2026, 'sort_order' => 10, 'program' => 'Manager de Projet Web et Digital', 'level' => 'Titre RNCP niveau 7', 'location' => 'Angers'],
             ['key' => 'bachelor-concepteur-developpeur-applications', 'institution' => 'Open Campus', 'start_year' => 2023, 'end_year' => 2024, 'sort_order' => 20, 'program' => 'Bachelor Concepteur Développeur d’Applications', 'level' => null, 'location' => 'Angers'],
+            ['key' => 'universite-angers-bac-2', 'institution' => 'Université d’Angers', 'start_year' => 2023, 'end_year' => 2023, 'sort_order' => 30, 'program' => 'Programmation informatique, formation générale', 'level' => 'Bac+2', 'location' => null],
         ];
         foreach ($education as $row) {
             $record = EducationRecord::query()->firstOrCreate(['key' => $row['key']], [
@@ -107,8 +134,9 @@ final class CareerDatabaseSeeder extends Seeder
                 'start_year' => $row['start_year'],
                 'start_month' => null,
                 'end_year' => $row['end_year'],
-                'end_month' => null,
-                'status' => 'draft',
+                'end_month' => $row['key'] === 'universite-angers-bac-2' ? 6 : null,
+                'status' => 'published',
+                'published_at' => now(),
                 'sort_order' => $row['sort_order'],
             ]);
             $record->translations()->firstOrCreate(['locale' => 'fr'], [
@@ -128,12 +156,31 @@ final class CareerDatabaseSeeder extends Seeder
             'result' => '940',
             'is_verified' => true,
             'source_reference' => 'docs/content/certifications.md',
-            'status' => 'draft',
+            'status' => 'published',
+            'published_at' => now(),
             'sort_order' => 10,
         ]);
         $toeic->translations()->firstOrCreate(['locale' => 'fr'], [
             'name' => 'TOEIC',
             'skill_label' => 'Anglais professionnel',
+        ]);
+
+        $unity = Certification::query()->firstOrCreate(['key' => 'unity-junior-programmer'], [
+            'issuer' => 'Unity',
+            'credential_id' => null,
+            'verification_url' => 'https://www.credly.com/badges/3212a7dd-3e83-42bd-ac55-9c7e3274e178/linked_in_profile',
+            'issue_year' => 2023,
+            'issue_month' => 6,
+            'result' => null,
+            'is_verified' => true,
+            'source_reference' => 'docs/content/certifications.md',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 20,
+        ]);
+        $unity->translations()->firstOrCreate(['locale' => 'fr'], [
+            'name' => 'Unity Junior Programmer',
+            'skill_label' => 'Développement de jeux avec Unity et C#',
         ]);
 
         $languages = [
@@ -146,7 +193,8 @@ final class CareerDatabaseSeeder extends Seeder
                 'language_code' => $row['code'],
                 'proficiency_kind' => $row['kind'],
                 'cefr_level' => $row['cefr'],
-                'status' => 'draft',
+                'status' => 'published',
+                'published_at' => now(),
                 'sort_order' => $row['order'],
             ]);
             $language->translations()->firstOrCreate(['locale' => 'fr'], [
