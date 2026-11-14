@@ -155,7 +155,8 @@ final class SceneConfigurationTest extends TestCase
 
     private function asAdministrator(): self
     {
-        $administrator = User::factory()->administrator()->create();
+        // The schema allows a single administrator: reuse it across calls within a test.
+        $administrator = User::query()->where('is_administrator', true)->first() ?? User::factory()->administrator()->create();
 
         return $this->actingAs($administrator)->withSession(['auth_version' => $administrator->auth_version]);
     }
