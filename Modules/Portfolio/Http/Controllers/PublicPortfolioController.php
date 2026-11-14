@@ -10,6 +10,8 @@ use Modules\Career\Contracts\PublicCareerReader;
 use Modules\Career\Data\PublicCareerData;
 use Modules\GitHubActivity\Contracts\PublicGitHubActivityReader;
 use Modules\Portfolio\Contracts\PublicAnalytics;
+use Modules\Portfolio3D\Contracts\PublicSceneReader;
+use Modules\Portfolio3D\Data\SceneManifestData;
 use Modules\Posts\Contracts\PublicPostsReader;
 use Modules\Profile\Contracts\PublicCvReader;
 use Modules\Profile\Contracts\PublicProfileReader;
@@ -33,6 +35,7 @@ final class PublicPortfolioController extends Controller
         private readonly PublicAnalytics $analytics,
         private readonly PublicPostsReader $posts,
         private readonly PublicGitHubActivityReader $github,
+        private readonly PublicSceneReader $scenes,
     ) {}
 
     public function home(string $locale): View
@@ -44,6 +47,7 @@ final class PublicPortfolioController extends Controller
         return view('portfolio.home', [
             ...$data,
             'page' => 'home',
+            'scene' => $this->scene($locale, $data['settings']),
             'posts' => $this->posts->latest($locale),
             'githubActivity' => ($data['settings']?->featureFlags['activity'] ?? false) === true ? $this->github->current() : null,
             'alternateUrl' => route('portfolio.home', ['locale' => $data['alternateLocale']]),
@@ -253,5 +257,18 @@ final class PublicPortfolioController extends Controller
         }
 
         return route('portfolio.projects.show', ['locale' => $locale, 'slug' => $slug]);
+    }
+
+    private function scene(string $locale, ?PublicSettingsData $settings): ?SceneManifestData
+    {
+        $manifest = $this->scenes->forLocale($locale);
+        if (! $manifest->enabled) {
+            return null;
+        }
+
+        // Une cible absente de la page (section désactivée) ne doit pas produire de lien mort.
+        $manifest = ($settings?->featureFlags['activity'] ?? false) === true ? $manifest : $manifest->withoutTargets(['activite']);
+
+        return $manifest->hotspots === [] ? null : $manifest;
     }
 }

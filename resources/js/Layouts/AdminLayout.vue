@@ -22,6 +22,7 @@ const page = usePage<{ flash: { success?: string } }>();
           <Link href="/dashboard/projects" class="admin-link rounded-md px-3 py-2 hover:bg-accent">Projets</Link>
           <Link href="/dashboard/posts" class="admin-link rounded-md px-3 py-2 hover:bg-accent">Publications</Link>
           <Link href="/dashboard/settings" class="admin-link rounded-md px-3 py-2 hover:bg-accent">Paramètres</Link>
+          <Link href="/dashboard/scene" class="admin-link rounded-md px-3 py-2 hover:bg-accent">Scène 3D</Link>
           <Link href="/" class="admin-link rounded-md px-3 py-2 hover:bg-accent">Voir le portfolio</Link>
           <Link href="/logout" method="post" as="button" class="admin-link rounded-md border border-border px-3 py-2 hover:bg-accent">Déconnexion</Link>
         </nav>

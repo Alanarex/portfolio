@@ -413,6 +413,60 @@
     </section>
 @endif
 
+@if ($scene !== null)
+    @php
+        $roomManifest = $scene->toArray();
+        $roomManifest['strings'] = [
+            'loading' => __('portfolio.room.loading'),
+            'unavailable' => __('portfolio.room.unavailable'),
+            'close' => __('portfolio.room.close'),
+            'greet' => __('portfolio.room.greet'),
+            'lowPower' => __('portfolio.room.low_power'),
+        ];
+    @endphp
+    <section class="section room theme-dark" id="atelier" aria-labelledby="room-title" data-room data-state="poster" data-room-label="{{ __('portfolio.room.canvas_label') }}" data-room-dialog-label="{{ __('portfolio.room.dialog_label') }}">
+        <div class="container">
+            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.room.eyebrow') }}</p>
+            <h2 id="room-title" data-scroll-reveal>{{ __('portfolio.room.title') }}</h2>
+            <p class="lede" data-scroll-reveal>{{ __('portfolio.room.intro') }}</p>
+            <div class="room__stage" data-room-stage>
+                <div class="room__poster" data-room-poster>
+                    @if ($scene->poster)
+                        <img src="{{ $scene->poster }}" alt="{{ __('portfolio.room.poster_alt') }}" width="1280" height="720" loading="lazy" decoding="async" class="room__poster-image">
+                    @else
+                        <span class="room__poster-art" aria-hidden="true"></span>
+                    @endif
+                    @if ($scene->mobileFallback)
+                        <img src="{{ $scene->mobileFallback }}" alt="" width="720" height="720" loading="lazy" decoding="async" class="room__poster-image room__poster-image--mobile" aria-hidden="true">
+                    @endif
+                </div>
+                <div class="room__canvas" data-room-canvas></div>
+                <div class="room__bubble" data-room-bubble role="status" aria-live="polite" hidden><span data-room-bubble-text></span><button type="button" aria-label="{{ __('portfolio.room.close') }}">×</button></div>
+                <div class="room__controls" data-room-controls hidden>
+                    <button class="button button--ghost" type="button" data-room-greet>{{ __('portfolio.room.greet') }}</button>
+                    <button class="button button--ghost" type="button" data-room-enter>{{ __('portfolio.room.enter') }}</button>
+                    <button class="button button--ghost" type="button" data-room-skip>{{ __('portfolio.room.skip') }}</button>
+                </div>
+            </div>
+            <p class="room__status" data-room-status role="status" hidden></p>
+            <button class="button room__load" type="button" data-room-load hidden>{{ __('portfolio.room.load') }}</button>
+            <nav class="room__links" aria-label="{{ __('portfolio.room.hotspots_label') }}">
+                <ul>
+                    @foreach ($scene->hotspots as $hotspot)
+                        <li>
+                            <a href="{{ $hotspot['href'] }}" data-room-hotspot="{{ $hotspot['key'] }}">
+                                <strong>{{ $hotspot['label'] }}</strong>
+                                <span>{{ $hotspot['description'] }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </nav>
+            <script type="application/json" data-room-manifest>{!! json_encode($roomManifest, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+        </div>
+    </section>
+@endif
+
 <section class="section" id="interets" aria-labelledby="interests-title" style="padding-top: 0">
     <div class="container">
         <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.interests_kicker') }}</p>

@@ -4,7 +4,7 @@
 
 - Product version: v3
 - Integration branch: `release/v3.0.0/main`
-- Current feature: PORT-010 Three.js configuration and placeholder (issue #15, ready)
+- Current feature: PORT-010 Three.js configuration and placeholder (issue #15, in review)
 - Feature branch: `feature/PORT-010-threejs-config`
 - Delivery mode: gated autonomous delivery
 - Historical original: `release/v1.0.0`
@@ -12,7 +12,7 @@
 
 ## Current phase
 
-**PORT-009 DELIVERED — PORT-010 READY**
+**PORT-009 DELIVERED — PORT-010 IN REVIEW**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
 HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
@@ -58,6 +58,13 @@ without JavaScript.
 - localized privacy and safe public error pages
 - Playwright no-JavaScript, keyboard, axe WCAG A/AA, desktop/mobile and light/dark capture coverage
 - PHPUnit, Pint, Larastan level 6, ESLint, Stylelint, Vite build and Composer audit gates
+- `Portfolio3D` module: administrator-only scene configuration (enabled state, asset version,
+  poster/mobile fallback paths, greetings, performance and reduced-motion modes, 11 hotspots with
+  visibility, order, labels and allowlisted section targets), audited and cache-invalidated
+- cached public scene read model and `/{locale}/scene.json` manifest; scene disabled by default
+- lazy, isolated vanilla Three.js + TypeScript placeholder room (`resources/js/room-scene/`) with
+  raycast hotspots, avatar state machine, accessible fullscreen `<dialog>`, viewport pause,
+  DPR clamp and poster/mobile/reduced-motion/WebGL-failure fallbacks; HTML link for every hotspot
 
 ## Reset evidence
 
@@ -69,8 +76,17 @@ without JavaScript.
 
 ## Current objective
 
-Start PORT-010 / issue #15 from the merged PORT-009 integration baseline in a fresh
-`next issue` chat.
+Review and merge the PORT-010 / issue #15 pull request, then prepare PORT-011 / issue #16 (its
+Blender human gate must be satisfied first).
+
+## PORT-010 verification
+
+- Branch `feature/PORT-010-threejs-config` from `release/v3.0.0/main`; one PR with `Closes #15`.
+- Local checks: 14 new PHPUnit tests, Pint, Larastan, ESLint, Stylelint, Vite build and
+  11 new Playwright tests (lazy loading, pause, DPR, dialog focus/Escape, mobile, reduced motion,
+  WebGL failure, no-JavaScript links, payload budget) plus the existing flows pass.
+- Budgets and fallback matrix: `docs/quality/port-010-qa.md`. Real-device FPS is not yet measured.
+- No archived GLB asset restored; the room and avatar are procedural placeholders for PORT-011.
 
 ## PORT-009 verification
 
@@ -134,9 +150,8 @@ Start PORT-010 / issue #15 from the merged PORT-009 integration baseline in a fr
 
 ## Immediate next steps
 
-1. Start PORT-010 / issue #15 from `release/v3.0.0/main`.
-2. Create `feature/PORT-010-threejs-config` in a fresh `next issue` chat.
-3. Keep PORT-011 blocked until PORT-010 is merged and closed.
+1. Review and merge the PORT-010 pull request (issue #15).
+2. Keep PORT-011 blocked until PORT-010 is merged and closed and its Blender human gate is met.
 
 ## Update rule
 

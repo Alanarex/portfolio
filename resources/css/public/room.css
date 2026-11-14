@@ -1,0 +1,118 @@
+/* Atelier 3D facultatif : la liste de liens reste la source de vérité, la scène est une amélioration. */
+.room { background: var(--color-bg); }
+.room__stage { display: none; }
+.js .room:not([data-state="unavailable"]) .room__stage { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 9; margin-top: var(--space-6); border-radius: var(--radius-md); background: #120f10; box-shadow: inset 0 0 0 1px var(--color-border); }
+
+.room__poster,
+.room__canvas { position: absolute; inset: 0; }
+.room__canvas { z-index: 1; }
+.room__canvas canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+.room[data-state="ready"] .room__poster { display: none; }
+
+.room__poster-image { width: 100%; height: 100%; object-fit: cover; }
+.room__poster-image--mobile { display: none; }
+
+.room__poster-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(135deg, transparent 0 46%, rgb(229 56 59 / 18%) 46% 47%, transparent 47%),
+        linear-gradient(180deg, #2a2325 0 62%, #1a1516 62%);
+}
+
+.room__bubble {
+    position: absolute;
+    z-index: 3;
+    bottom: var(--space-5);
+    left: 50%;
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    max-width: min(32rem, calc(100% - 2rem));
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-strong);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--color-border-strong);
+    color: var(--color-text);
+    transform: translateX(-50%);
+}
+
+.room__bubble[hidden] { display: none; }
+.room__bubble button { min-width: 2rem; min-height: 2rem; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-text-muted); font-size: 1.25rem; cursor: pointer; }
+
+.room__tooltip {
+    position: absolute;
+    z-index: 2;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background: rgb(11 9 10 / 88%);
+    color: var(--color-text);
+    font-size: 0.8rem;
+    pointer-events: none;
+    transform: translate(0.75rem, -150%);
+    white-space: nowrap;
+}
+
+.room__tooltip[hidden] { display: none; }
+.room__controls { position: absolute; z-index: 3; top: var(--space-3); right: var(--space-3); display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.room__controls[hidden] { display: none; }
+.room__status { margin: var(--space-4) 0 0; color: var(--color-text-muted); }
+.room__status[hidden] { display: none; }
+.room__load { margin-top: var(--space-4); }
+.room__load[hidden] { display: none; }
+
+.room__links ul,
+.room-dialog__links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-3); margin: var(--space-5) 0 0; padding: 0; list-style: none; }
+
+.room__links a,
+.room-dialog__links a {
+    display: grid;
+    gap: 0.15rem;
+    height: 100%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.room__links a span,
+.room-dialog__links a span { color: var(--color-text-muted); font-size: 0.9rem; }
+
+.room__links a:hover,
+.room__links a.is-highlighted,
+.room-dialog__links a:hover,
+.room-dialog__links a:focus-visible { box-shadow: inset 0 0 0 2px var(--color-accent-light); }
+
+@media (width <= 47.99rem) {
+    .js .room:not([data-state="unavailable"]) .room__stage { aspect-ratio: 4 / 5; }
+    .room__poster:has(.room__poster-image--mobile) .room__poster-image:not(.room__poster-image--mobile) { display: none; }
+    .room__poster-image--mobile { display: block; }
+}
+
+/* Plein écran : boîte de dialogue modale native. */
+.room-dialog { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: var(--color-bg); color: var(--color-text); }
+.room-dialog[open] { display: flex; flex-direction: column; }
+.room-dialog::backdrop { background: rgb(0 0 0 / 80%); }
+.room-dialog__bar { display: flex; gap: var(--space-3); justify-content: flex-end; padding: var(--space-3) var(--space-4); }
+.room-dialog__body { display: grid; flex: 1; grid-template-columns: minmax(0, 1fr) 17rem; gap: var(--space-4); min-height: 0; padding: 0 var(--space-4) var(--space-4); }
+.room-dialog__slot { position: relative; min-height: 0; overflow: hidden; border-radius: var(--radius-md); background: #120f10; }
+.room-dialog__slot .room__canvas { position: absolute; inset: 0; }
+.room-dialog__slot canvas { touch-action: none; cursor: grab; }
+.room-dialog__slot canvas:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
+.room-dialog__links { display: block; margin: 0; overflow-y: auto; }
+.room-dialog__links li + li { margin-top: var(--space-2); }
+
+@media (width <= 47.99rem) {
+    .room-dialog__body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 10rem; }
+}
+
+html.is-room-open { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    .room__links a { transition: none; }
+}
+
+.room__controls .button:disabled,
+.room-dialog__bar .button:disabled { opacity: 0.55; cursor: default; }

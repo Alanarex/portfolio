@@ -30,7 +30,7 @@ Do not change order without updating this file, issue `#17` and affected issue d
 | 6 | PORT-007 — Projects, case studies and media | #12 | `feature/PORT-007-projects-media` | #11 | Automatic if green | Done |
 | 7 | PORT-008 — Public portfolio and case studies | #13 | `feature/PORT-008-public-portfolio` | #12 | Screenshots + QA, no manual gate | Done |
 | 8 | PORT-009 — Contact, SEO, CV and privacy | #14 | `feature/PORT-009-contact-seo` | #13 | ADR-007 privacy defaults | Done |
-| 9 | PORT-010 — Three.js configuration and placeholder | #15 | `feature/PORT-010-threejs-config` | #14 | Automatic if green | Ready |
+| 9 | PORT-010 — Three.js configuration and placeholder | #15 | `feature/PORT-010-threejs-config` | #14 | Automatic if green | Review |
 | 10 | PORT-011 — Final v1 3D integration | #16 | `feature/PORT-011-blender-integration` | #15 | ADR-007 procedural/licensed fallback | Planned |
 
 ## Current delivery evidence
@@ -44,7 +44,8 @@ Do not change order without updating this file, issue `#17` and affected issue d
   `release/v3.0.0/main`; issue closed as completed.
 - Quality run #41 passes PostgreSQL migrate/rollback/re-migrate, PHPUnit, Pint, Larastan,
   ESLint, Stylelint, the production build and all Playwright/axe flows.
-- PORT-010 / issue #15 is dependency-unblocked and labelled `status:ready`.
+- PORT-010 / issue #15 is implemented on `feature/PORT-010-threejs-config`; its PR is open for
+  review (evidence in `docs/quality/port-010-qa.md`). PORT-011 stays planned.
 
 ## State values
 
