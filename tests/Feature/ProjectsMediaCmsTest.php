@@ -112,7 +112,7 @@ final class ProjectsMediaCmsTest extends TestCase
                 'project.deletion-requested',
                 'project.deleted',
             ],
-            AuditEvent::query()->pluck('action')->all(),
+            AuditEvent::query()->orderBy('id')->pluck('action')->all(),
         );
     }
 
