@@ -61,10 +61,12 @@ final class SaveProject
             $projectChangedFields = array_values(array_diff(array_keys($project->getDirty()), ['updated_at']));
             $project->save();
 
+            $skillsChanged = array_key_exists('skill_keys', $data) && $this->syncSkills($project, $data['skill_keys']);
             $translationsChanged = $this->syncTranslations($project, $data['translations']);
             $sectionsChanged = $this->syncSections($project, $data['sections']);
             $changedFields = [
                 ...$projectChangedFields,
+                ...($skillsChanged ? ['skills'] : []),
                 ...($translationsChanged ? ['translations'] : []),
                 ...($sectionsChanged ? ['case_study_sections'] : []),
             ];
@@ -90,6 +92,23 @@ final class SaveProject
         }
 
         return $project;
+    }
+
+    /** @param list<string> $keys */
+    private function syncSkills(Project $project, array $keys): bool
+    {
+        $keys = array_values(array_unique($keys));
+        $existing = $project->skills()->pluck('skill_key')->all();
+        $toAdd = array_diff($keys, $existing);
+        $toRemove = array_diff($existing, $keys);
+        foreach ($toAdd as $key) {
+            $project->skills()->create(['skill_key' => $key]);
+        }
+        if ($toRemove !== []) {
+            $project->skills()->whereIn('skill_key', $toRemove)->delete();
+        }
+
+        return $toAdd !== [] || $toRemove !== [];
     }
 
     /** @param array<string, array<string, mixed>|null> $translations */

@@ -23,6 +23,7 @@ use Modules\Projects\Http\Requests\SaveProjectRequest;
 use Modules\Projects\Models\CaseStudySection;
 use Modules\Projects\Models\MediaAsset;
 use Modules\Projects\Models\Project;
+use Modules\Skills\Contracts\SkillCatalog;
 
 final class ProjectController extends Controller
 {
@@ -88,7 +89,7 @@ final class ProjectController extends Controller
     public function edit(Project $project): Response
     {
         Gate::authorize('update', $project);
-        $project->load(['translations', 'caseStudySections.translations', 'mediaAssets.translations']);
+        $project->load(['translations', 'caseStudySections.translations', 'mediaAssets.translations', 'skills']);
 
         return Inertia::render('Admin/Projects/Edit', [
             'project' => $this->serialize($project),
@@ -175,6 +176,7 @@ final class ProjectController extends Controller
             'slug' => '',
             'lifecycle_status' => ProjectLifecycle::Unspecified->value,
             'technologies' => [],
+            'skill_keys' => [],
             'start_year' => null,
             'start_month' => null,
             'end_year' => null,
@@ -215,6 +217,7 @@ final class ProjectController extends Controller
                 'is_ongoing', 'repository_url', 'show_repository', 'demo_url', 'show_demo', 'is_featured',
                 'featured_order', 'sort_order',
             ]),
+            'skill_keys' => $project->skills->pluck('skill_key')->sort()->values()->all(),
             'lifecycle_status' => $project->lifecycle_status->value,
             'repository_visibility' => $project->repository_visibility->value,
             'publication_status' => $project->publication_status->value,
@@ -261,7 +264,7 @@ final class ProjectController extends Controller
         })->all();
     }
 
-    /** @return array<string, list<string>> */
+    /** @return array<string, mixed> */
     private function options(): array
     {
         return [
@@ -269,6 +272,7 @@ final class ProjectController extends Controller
             'lifecycle_statuses' => array_column(ProjectLifecycle::cases(), 'value'),
             'repository_visibilities' => array_column(RepositoryVisibility::cases(), 'value'),
             'media_kinds' => array_column(MediaKind::cases(), 'value'),
+            'skills' => app(SkillCatalog::class)->options(),
         ];
     }
 }

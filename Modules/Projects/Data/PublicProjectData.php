@@ -11,6 +11,7 @@ final readonly class PublicProjectData
      * @param  array{start: array{year: int|null, month: int|null}, end: array{year: int|null, month: int|null}|null, ongoing: bool}  $dates
      * @param  list<array{type: string, heading: string, body: string}>  $sections
      * @param  list<array<string, mixed>>  $media
+     * @param  list<string>  $skillKeys
      */
     public function __construct(
         public string $slug,
@@ -25,6 +26,7 @@ final readonly class PublicProjectData
         public ?string $demoUrl,
         public array $sections,
         public array $media,
+        public array $skillKeys = [],
     ) {}
 
     /** @return array<string, mixed> */
@@ -41,6 +43,7 @@ final readonly class PublicProjectData
             'featured' => $this->featured,
             'sections' => $this->sections,
             'media' => $this->media,
+            'skill_keys' => $this->skillKeys,
         ];
 
         if ($this->repositoryUrl !== null) {
@@ -68,6 +71,7 @@ final readonly class PublicProjectData
             'demo_url' => $this->demoUrl,
             'sections' => $this->sections,
             'media' => $this->media,
+            'skill_keys' => $this->skillKeys,
         ], JSON_THROW_ON_ERROR);
     }
 
@@ -86,7 +90,8 @@ final readonly class PublicProjectData
          *     repository_url: string|null,
          *     demo_url: string|null,
          *     sections: list<array{type: string, heading: string, body: string}>,
-         *     media: list<array<string, mixed>>
+         *     media: list<array<string, mixed>>,
+         *     skill_keys?: list<string>
          * } $data
          */
         $data = json_decode($payload, true, flags: JSON_THROW_ON_ERROR);
@@ -104,6 +109,7 @@ final readonly class PublicProjectData
             demoUrl: $data['demo_url'],
             sections: $data['sections'],
             media: $data['media'],
+            skillKeys: $data['skill_keys'] ?? [],
         );
     }
 }

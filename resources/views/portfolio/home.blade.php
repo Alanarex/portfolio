@@ -300,6 +300,15 @@
                             <ul class="tag-row">
                                 @foreach ($category['skills'] ?? [] as $skill)<li class="chip" style="--i: {{ $loop->index }}">{{ $skill['name'] }}</li>@endforeach
                             </ul>
+                            @php
+                                $categorySkillKeys = collect($category['skills'] ?? [])->pluck('key')->all();
+                                $relatedProjects = collect($allProjects)->filter(fn ($project): bool => array_intersect($project->skillKeys, $categorySkillKeys) !== [])->values();
+                            @endphp
+                            @if ($relatedProjects->isNotEmpty())
+                                <p class="skillmap__related"><span class="mono">{{ __('portfolio.map.projects') }}</span>
+                                    @foreach ($relatedProjects as $related)<a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $related->slug]) }}">{{ $related->title }}</a>@endforeach
+                                </p>
+                            @endif
                         </li>
                     @endforeach
                 </ol>
@@ -453,17 +462,19 @@
                 <p class="alert alert--success" role="status">{{ session('contact_success') }}</p>
             @endif
             @if ($settings?->contactFormEnabled)
-                <form class="contact-form" method="post" action="{{ route('portfolio.contact.submit', ['locale' => $locale]) }}">
+                <form class="contact-form" method="post" novalidate data-contact-form data-msg-name="{{ __('portfolio.contact.errors.name_required') }}" data-msg-email-required="{{ __('portfolio.contact.errors.email_required') }}" data-msg-email-invalid="{{ __('portfolio.contact.errors.email_invalid') }}" data-msg-message="{{ __('portfolio.contact.errors.message_required') }}" data-msg-message-min="{{ __('portfolio.contact.errors.message_min', ['min' => 10]) }}" action="{{ route('portfolio.contact.submit', ['locale' => $locale]) }}">
                     @csrf
                     <div class="field @error('name') field--error @enderror">
-                        <input class="field__input" id="contact-name" name="name" value="{{ old('name') }}" placeholder=" " required maxlength="120" autocomplete="name" @error('name') aria-invalid="true" aria-describedby="contact-name-error" @enderror>
-                        <label class="field__label" for="contact-name">{{ __('portfolio.contact.name') }}</label>
+                        <input class="field__input" id="contact-name" name="name" aria-required="true" value="{{ old('name') }}" placeholder=" " required maxlength="120" autocomplete="name" @error('name') aria-invalid="true" aria-describedby="contact-name-error" @enderror>
+                        <label class="field__label" for="contact-name">{{ __('portfolio.contact.name') }} <span class="field__required" aria-hidden="true">*</span></label>
                         @error('name')<p id="contact-name-error" class="error" role="alert">{{ $message }}</p>@enderror
+                        <p id="contact-name-error-js" class="error" role="alert" data-error-for="contact-name" hidden></p>
                     </div>
                     <div class="field @error('email') field--error @enderror">
-                        <input class="field__input" id="contact-email" name="email" type="email" value="{{ old('email') }}" placeholder=" " required maxlength="255" autocomplete="email" @error('email') aria-invalid="true" aria-describedby="contact-email-error" @enderror>
-                        <label class="field__label" for="contact-email">{{ __('portfolio.contact.email') }}</label>
+                        <input class="field__input" id="contact-email" name="email" aria-required="true" type="email" value="{{ old('email') }}" placeholder=" " required maxlength="255" autocomplete="email" @error('email') aria-invalid="true" aria-describedby="contact-email-error" @enderror>
+                        <label class="field__label" for="contact-email">{{ __('portfolio.contact.email') }} <span class="field__required" aria-hidden="true">*</span></label>
                         @error('email')<p id="contact-email-error" class="error" role="alert">{{ $message }}</p>@enderror
+                        <p id="contact-email-error-js" class="error" role="alert" data-error-for="contact-email" hidden></p>
                     </div>
                     <div class="field @error('subject') field--error @enderror">
                         <input class="field__input" id="contact-subject" name="subject" value="{{ old('subject') }}" placeholder=" " maxlength="160" @error('subject') aria-invalid="true" aria-describedby="contact-subject-error" @enderror>
@@ -471,14 +482,16 @@
                         @error('subject')<p id="contact-subject-error" class="error" role="alert">{{ $message }}</p>@enderror
                     </div>
                     <div class="field @error('message') field--error @enderror">
-                        <textarea class="field__input field__input--area" id="contact-message" name="message" placeholder=" " required minlength="10" maxlength="5000" rows="6" @error('message') aria-invalid="true" aria-describedby="contact-message-error" @enderror>{{ old('message') }}</textarea>
-                        <label class="field__label" for="contact-message">{{ __('portfolio.contact.message') }}</label>
+                        <textarea class="field__input field__input--area" id="contact-message" name="message" aria-required="true" placeholder=" " required minlength="10" maxlength="5000" rows="6" @error('message') aria-invalid="true" aria-describedby="contact-message-error" @enderror>{{ old('message') }}</textarea>
+                        <label class="field__label" for="contact-message">{{ __('portfolio.contact.message') }} <span class="field__required" aria-hidden="true">*</span></label>
                         @error('message')<p id="contact-message-error" class="error" role="alert">{{ $message }}</p>@enderror
+                        <p id="contact-message-error-js" class="error" role="alert" data-error-for="contact-message" hidden></p>
                     </div>
                     <div class="contact-honeypot" aria-hidden="true">
                         <label for="contact-website">Website</label>
                         <input id="contact-website" name="website" tabindex="-1" autocomplete="off">
                     </div>
+                    <p class="hint contact-form__required">{{ __('portfolio.contact.required_note') }}</p>
                     <button class="button" type="submit"><span>{{ __('portfolio.contact.submit') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
                     <p class="hint">{{ __('portfolio.contact.privacy') }}</p>
                 </form>

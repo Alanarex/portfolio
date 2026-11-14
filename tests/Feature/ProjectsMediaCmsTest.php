@@ -16,7 +16,6 @@ use Modules\Projects\Application\DeleteProject;
 use Modules\Projects\Contracts\MediaStorage;
 use Modules\Projects\Contracts\PublicProjectReader;
 use Modules\Projects\Infrastructure\LocalMediaStorage;
-use Modules\Projects\Models\CaseStudySection;
 use Modules\Projects\Models\MediaAsset;
 use Modules\Projects\Models\Project;
 use RuntimeException;
@@ -422,33 +421,57 @@ final class ProjectsMediaCmsTest extends TestCase
         $this->assertDatabaseCount('media_assets', 0);
     }
 
+    public function test_projects_are_linked_to_skills_from_the_dashboard_and_shown_publicly(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $administrator = User::factory()->administrator()->create();
+
+        $this->asAdministrator($administrator)->get('/dashboard/projects/create')
+            ->assertInertia(fn (Assert $page) => $page->where('options.skills.0.key', fn ($key): bool => is_string($key)));
+
+        $payload = $this->projectPayload('linked-project');
+        $payload['skill_keys'] = ['php', 'laravel'];
+        $this->asAdministrator($administrator)->post('/dashboard/projects', $payload)->assertSessionHasNoErrors();
+
+        $project = Project::query()->where('slug', 'linked-project')->firstOrFail();
+        self::assertSame(['laravel', 'php'], $project->skills()->orderBy('skill_key')->pluck('skill_key')->all());
+        self::assertSame(['laravel', 'php'], $this->app->make(PublicProjectReader::class)->findBySlug('fr', 'linked-project')?->skillKeys);
+
+        // Unknown skills are rejected; removing a link syncs.
+        $invalid = $this->projectPayload('linked-project');
+        $invalid['skill_keys'] = ['does-not-exist'];
+        $this->asAdministrator($administrator)->put("/dashboard/projects/{$project->id}", $invalid)->assertSessionHasErrors('skill_keys.0');
+        $update = $this->projectPayload('linked-project');
+        $update['skill_keys'] = ['php'];
+        $this->asAdministrator($administrator)->put("/dashboard/projects/{$project->id}", $update)->assertSessionHasNoErrors();
+        self::assertSame(['php'], $project->skills()->pluck('skill_key')->all());
+    }
+
     public function test_verified_project_seed_is_idempotent_draft_only_and_does_not_overwrite_edits(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
-        $this->assertDatabaseCount('projects', 15);
-        $this->assertDatabaseCount('project_translations', 15);
-        $this->assertDatabaseCount('case_study_sections', 9);
-        $this->assertDatabaseMissing('case_study_sections', ['is_public' => true]);
+        $this->assertDatabaseCount('projects', 5);
+        $this->assertDatabaseCount('project_translations', 5);
+        $this->assertDatabaseCount('case_study_sections', 0);
         $this->assertDatabaseMissing('projects', ['publication_status' => 'published']);
+        // Only public repositories are seeded: client, company, abandoned and school-internal projects never are.
+        foreach (['handicapacite', 'simulateur-ia', 'revesta', 'gm-exchange', 'portfolio', 'educonnect', 'lightyoulife', 'taskmate', 'todo-app', 'todo-list'] as $slug) {
+            $this->assertDatabaseMissing('projects', ['slug' => $slug]);
+        }
         $public = Project::query()->whereNotNull('repository_url')->get();
-        self::assertCount(9, $public);
+        self::assertCount(5, $public);
         foreach ($public as $project) {
             self::assertStringStartsWith('https://github.com/Alanarex/', $project->repository_url);
         }
-        $this->assertDatabaseMissing('projects', ['slug' => 'portfolio', 'show_repository' => true]);
+        $this->assertDatabaseHas('project_skills', ['skill_key' => 'typescript']);
 
-        $project = Project::query()->where('slug', 'gm-exchange')->firstOrFail();
+        $project = Project::query()->where('slug', 'strive')->firstOrFail();
         $translation = $project->translations()->where('locale', 'fr')->firstOrFail();
         $translation->summary = 'Modification administrateur conservée.';
         $translation->save();
         $this->seed(DatabaseSeeder::class);
         self::assertSame('Modification administrateur conservée.', $translation->fresh()?->summary);
-
-        $metrics = CaseStudySection::query()->firstOrFail();
-        self::assertTrue($metrics->is_verified);
-        self::assertFalse($metrics->is_public);
-        self::assertNull($this->app->make(PublicProjectReader::class)->findBySlug('fr', 'handicapacite'));
     }
 
     private function asAdministrator(User $administrator)

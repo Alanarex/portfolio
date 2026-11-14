@@ -37,6 +37,11 @@
         @if ($project->role)<div><dt class="mono">{{ __('portfolio.projects.role') }}</dt><dd>{{ $project->role }}</dd></div>@endif
         @if ($period)<div><dt class="mono">{{ __('portfolio.projects.period') }}</dt><dd>{{ $period }}</dd></div>@endif
         @if ($project->technologies !== [])<div><dt class="mono">{{ __('portfolio.projects.technologies') }}</dt><dd>{{ implode(' · ', $project->technologies) }}</dd></div>@endif
+        @php
+            $skillNames = collect($skills?->categories ?? [])->flatMap(fn (array $category): array => $category['skills'] ?? [])->pluck('name', 'key');
+            $linkedSkills = collect($project->skillKeys)->map(fn (string $key): ?string => $skillNames[$key] ?? null)->filter()->values();
+        @endphp
+        @if ($linkedSkills->isNotEmpty())<div><dt class="mono">{{ __('portfolio.projects.skills') }}</dt><dd><a href="{{ route('portfolio.home', ['locale' => $locale]) }}#competences">{{ $linkedSkills->implode(' · ') }}</a></dd></div>@endif
     </dl>
 
     <div class="case__body">

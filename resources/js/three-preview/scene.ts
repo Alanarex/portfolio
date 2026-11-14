@@ -14,7 +14,6 @@ const SIGN_HEIGHT = 4;
 const SIGN_CENTER_Y = 4.7;
 const SIGN_LATERAL = 9.2;
 /** Vitesse maximale de la progression (part du parcours par seconde) : évite de semer la voiture si l'on défile trop vite. */
-const MAX_PROGRESS_SPEED = 0.2;
 /** Portion de la courbe parcourue pendant le défilement. */
 const U_START = 0.03;
 const U_SPAN = 0.93;
@@ -881,40 +880,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         document.fonts.load(`700 40px ${fonts.mono}`),
     ]).catch(() => undefined);
 
-    // Chronologie du défilement : trajet, arrêt devant un panneau (la caméra va lire le panneau), trajet, etc.
-    const HOLD = Math.min(0.13, 0.62 / Math.max(count, 1));
-    const travelLength = (1 - count * HOLD) / (count + 1);
-    const holdStart = (index: number): number => travelLength * (index + 1) + HOLD * index;
+    // Position de chaque panneau le long de la route (fraction du tracé).
     const carStops = cards.map((_, index) => (count === 1 ? 0.5 : 0.15 + (0.7 * index) / (count - 1)));
-    const CREEP = 0.006;
-    const ease = (t: number): number => lerp(t, smooth(0, 1, t), 0.6);
-
-    interface Pace {
-        along: number;
-        focus: number;
-        index: number;
-    }
-    const paceAt = (p: number): Pace => {
-        for (let index = 0; index < count; index++) {
-            const start = holdStart(index);
-            if (p < start) {
-                const from = index === 0 ? 0 : (carStops[index - 1] ?? 0) + CREEP;
-                const segment = index === 0 ? 0 : holdStart(index - 1) + HOLD;
-                return { along: lerp(from, (carStops[index] ?? 0) - CREEP, ease((p - segment) / (start - segment))), focus: 0, index: -1 };
-            }
-            if (p <= start + HOLD) {
-                const t = (p - start) / HOLD;
-                return {
-                    along: (carStops[index] ?? 0) + lerp(-CREEP, CREEP, t),
-                    focus: smooth(0, 0.24, t) * (1 - smooth(0.76, 1, t)),
-                    index,
-                };
-            }
-        }
-        const segment = holdStart(count - 1) + HOLD;
-        const from = (carStops[count - 1] ?? 0) + CREEP;
-        return { along: lerp(from, 1, ease(clamp((p - segment) / (1 - segment), 0, 1))), focus: 0, index: -1 };
-    };
 
     const anisotropy = renderer.capabilities.getMaxAnisotropy();
     const signs = cards.map((card, index) => {
@@ -1039,9 +1006,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
 
     const placeCamera = (delta: number): void => {
         const p = state.progress;
-        const lead = Math.max(travelLength * 0.9, 0.02);
-        const intro = smooth(0, lead, p);
-        const outro = smooth(1 - lead, 1, p);
+        const intro = smooth(0, 0.2, p);
+        const outro = smooth(0.8, 1, p);
         const free = 1 - state.focus;
         // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
         const azimuth = lerp(2.3, 0.3, intro) + lerp(0, 1.25, outro) + state.yaw * free;
@@ -1069,8 +1035,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
             smoothedLook.copy(lookAt);
             cameraReady = true;
         } else {
-            camera.position.lerp(desired, damp(9, delta));
-            smoothedLook.lerp(lookAt, damp(12, delta));
+            camera.position.lerp(desired, damp(5, delta));
+            smoothedLook.lerp(lookAt, damp(7, delta));
         }
         camera.lookAt(smoothedLook);
 
@@ -1091,7 +1057,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         let active = 0;
         let best = Infinity;
         for (let index = 0; index < count; index++) {
-            const distance = Math.abs(state.progress - (holdStart(index) + HOLD / 2));
+            const distance = Math.abs(state.along - (carStops[index] ?? 0));
             if (distance < best) {
                 best = distance;
                 active = index;
@@ -1126,9 +1092,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         if (reducedMotion) {
             state.progress = state.target;
         } else {
-            // La progression rattrape le défilement avec une vitesse plafonnée : la voiture ne s'échappe jamais de l'écran.
-            const limit = MAX_PROGRESS_SPEED * delta;
-            state.progress += clamp((state.target - state.progress) * damp(5, delta), -limit, limit);
+            // La progression rattrape le défilement en douceur : la voiture roule en continu, sans arrêt devant les panneaux.
+            state.progress += (state.target - state.progress) * damp(4.5, delta);
         }
         state.velocity = lerp(state.velocity, (state.progress - previous) / Math.max(delta, 0.001), damp(6, delta)) / 60;
         if (!state.dragging) {
@@ -1136,10 +1101,10 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
             state.pitch *= 1 - damp(1.2, delta);
         }
 
-        const pace = paceAt(state.progress);
-        state.along = pace.along;
-        state.focus = pace.focus;
-        state.focusIndex = pace.index;
+        // Conduite continue : la position sur la route suit directement le défilement (aucun arrêt, aucun zoom sur les panneaux).
+        state.along = state.progress;
+        state.focus = 0;
+        state.focusIndex = -1;
 
         placeCar();
         placeCamera(delta);

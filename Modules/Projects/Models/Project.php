@@ -71,6 +71,12 @@ final class Project extends Model
         return $this->hasMany(CaseStudySection::class);
     }
 
+    /** @return HasMany<ProjectSkill, $this> */
+    public function skills(): HasMany
+    {
+        return $this->hasMany(ProjectSkill::class);
+    }
+
     /** @return HasMany<MediaAsset, $this> */
     public function mediaAssets(): HasMany
     {

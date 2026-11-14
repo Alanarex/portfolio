@@ -154,6 +154,7 @@ final class PublicPortfolioController extends Controller
      *   skills: PublicSkillsData|null,
      *   featuredProjects: list<PublicProjectData>,
      *   projectsCount: int,
+     *   allProjects: list<PublicProjectData>,
      *   verifiedMetrics: list<string>,
      *   cvAvailable: bool
      * }
@@ -172,6 +173,7 @@ final class PublicPortfolioController extends Controller
             'skills' => $this->skills->forLocale($locale),
             'featuredProjects' => $this->projects->featured($locale),
             'projectsCount' => count($allProjects),
+            'allProjects' => $allProjects,
             'verifiedMetrics' => $this->verifiedMetrics($career),
             'cvAvailable' => $this->cv->available($locale),
         ];

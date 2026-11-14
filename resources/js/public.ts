@@ -1,5 +1,6 @@
 import './public/site';
 import './public/skillmap';
+import './public/contact-form';
 import './three-preview/index';
 
 type Theme = 'dark' | 'light';
