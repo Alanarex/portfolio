@@ -1,6 +1,7 @@
 /* Boutons */
 .button {
     position: relative;
+    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -21,15 +22,13 @@
 
 .button::before {
     position: absolute;
-    z-index: 0;
+    z-index: -1;
     inset: 0;
     background: var(--color-accent-deep);
     content: "";
     transform: translateY(101%);
     transition: transform 450ms var(--ease);
 }
-
-.button > * { position: relative; z-index: 1; }
 
 .button:hover {
     color: #fff;
