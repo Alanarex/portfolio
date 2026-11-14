@@ -103,18 +103,16 @@ final class GitHubActivityTest extends TestCase
         $settings = SiteSetting::factory()->create(['key' => 'main', 'default_locale' => 'fr']);
         $settings->featureFlags()->updateOrCreate(['key' => 'activity'], ['enabled' => false]);
 
-        $this->get('/fr')->assertOk()->assertDontSee('Dépôts récents');
+        $this->get('/fr')->assertOk()->assertDontSee('Activité récente');
 
         $settings->featureFlags()->updateOrCreate(['key' => 'activity'], ['enabled' => true]);
         $this->flushPublicCaches();
 
         $this->get('/fr')
             ->assertOk()
-            ->assertSee('Dépôts récents')
+            ->assertSee('Activité récente')
+            ->assertDontSee('Dépôts récents')
             ->assertSee('3 commits sur Alanarex/portfolio')
-            ->assertSee('Laravel &lt;b&gt;portfolio&lt;/b&gt;', false)
-            ->assertSee('https://github.com/Alanarex/portfolio', false)
-            ->assertSee('/fr/projects/demo-project', false)
             ->assertDontSee('client-app')
             ->assertDontSee('Private client work');
     }

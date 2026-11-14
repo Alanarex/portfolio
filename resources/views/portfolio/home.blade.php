@@ -317,31 +317,51 @@
     </section>
 @endif
 
-@if ($activityEnabled && ($githubActivity ?? null))
+@if ($activityEnabled && (($githubActivity ?? null) || ($contributionGrid ?? null)))
     <section class="section" id="activite" aria-labelledby="activity-title" style="padding-top: 0">
         <div class="container">
             <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.activity.kicker') }}</p>
             <h2 id="activity-title" data-scroll-reveal>{{ __('portfolio.sections.activity') }}</h2>
-            <div class="activity">
-                @if ($githubActivity->repositories !== [])
-                    <div>
-                        <h3 class="activity__title">{{ __('portfolio.activity.repositories') }}</h3>
-                        <ul class="repos">
-                            @foreach ($githubActivity->repositories as $repository)
-                                <li class="card card--lift" data-scroll-reveal>
-                                    <a class="repos__name" href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $repository['project_slug']]) }}">{{ $repository['name'] }}</a>
-                                    @if ($repository['description'])<p>{{ $repository['description'] }}</p>@endif
-                                    <p class="repos__meta"><a href="{{ $repository['url'] }}" rel="noopener noreferrer">GitHub ↗</a></p>
-                                    <p class="mono repos__meta">
-                                        @if ($repository['language']){{ $repository['language'] }} · @endif
-                                        @if ($repository['pushed_at']){{ __('portfolio.activity.updated', ['date' => Carbon::parse($repository['pushed_at'])->locale(app()->getLocale())->isoFormat('LL')]) }}@endif
-                                    </p>
-                                </li>
+            @if ($contributionGrid ?? null)
+                @php
+                    $grid = $contributionGrid;
+                    $sourceLabels = ['github' => 'GitHub', 'gitlab' => 'GitLab'];
+                    $sourceSummary = collect($grid->totals)->map(fn (int $count, string $source): string => ($sourceLabels[$source] ?? $source).' '.$count)->implode(', ');
+                    $previousMonth = null;
+                @endphp
+                <figure class="contrib" data-scroll-reveal>
+                    <figcaption>
+                        <h3 class="activity__title">{{ __('portfolio.activity.grid.title') }}</h3>
+                        <p class="mono contrib__total">{{ __('portfolio.activity.grid.total', ['count' => number_format($grid->total, 0, ',', ' ')]) }}</p>
+                    </figcaption>
+                    <div class="contrib__scroll">
+                        <div class="contrib__grid" role="img" aria-label="{{ __('portfolio.activity.grid.aria', ['count' => $grid->total, 'sources' => $sourceSummary]) }}" style="--weeks: {{ count($grid->weeks) }}">
+                            @foreach ($grid->weeks as $week)
+                                @php
+                                    $month = substr($week[0]['date'], 0, 7);
+                                    $label = $month !== $previousMonth ? Carbon::parse($week[0]['date'])->locale(app()->getLocale())->isoFormat('MMM') : '';
+                                    $previousMonth = $month;
+                                @endphp
+                                <span class="contrib__month" aria-hidden="true" style="grid-column: {{ $loop->iteration }}">{{ $label }}</span>
+                                @foreach ($week as $day)
+                                    <span class="contrib__cell" data-level="{{ $day['level'] }}" style="grid-column: {{ $loop->parent->iteration }}; grid-row: {{ $loop->iteration + 1 }}" title="{{ trans_choice('portfolio.activity.grid.day', $day['count'], ['count' => $day['count'], 'date' => Carbon::parse($day['date'])->locale(app()->getLocale())->isoFormat('LL')]) }}"></span>
+                                @endforeach
                             @endforeach
-                        </ul>
+                        </div>
                     </div>
-                @endif
-                @if ($githubActivity->events !== [])
+                    <p class="contrib__legend hint" aria-hidden="true">{{ __('portfolio.activity.grid.less') }} @foreach ([0, 1, 2, 3, 4] as $level)<span class="contrib__cell" data-level="{{ $level }}"></span>@endforeach {{ __('portfolio.activity.grid.more') }}</p>
+                    <details class="contrib__details">
+                        <summary>{{ __('portfolio.activity.grid.by_source') }}</summary>
+                        <table>
+                            <thead><tr><th scope="col">{{ __('portfolio.activity.grid.month') }}</th><th scope="col">{{ __('portfolio.activity.grid.contributions') }}</th></tr></thead>
+                            <tbody>@foreach ($grid->months as $row)<tr><th scope="row">{{ Carbon::parse($row['month'].'-01')->locale(app()->getLocale())->isoFormat('MMMM YYYY') }}</th><td>{{ $row['count'] }}</td></tr>@endforeach</tbody>
+                        </table>
+                    </details>
+                    <p class="hint">{{ __('portfolio.activity.grid.note') }}</p>
+                </figure>
+            @endif
+            <div class="activity">
+                @if ($githubActivity && $githubActivity->events !== [])
                     <div>
                         <h3 class="activity__title">{{ __('portfolio.activity.recent') }}</h3>
                         <ol class="events">
@@ -355,7 +375,7 @@
                     </div>
                 @endif
             </div>
-            <p class="hint">{{ __('portfolio.activity.public_only', ['user' => $githubActivity->username]) }}</p>
+            @if ($githubActivity)<p class="hint">{{ __('portfolio.activity.public_only', ['user' => $githubActivity->username]) }}</p>@endif
         </div>
     </section>
 @endif

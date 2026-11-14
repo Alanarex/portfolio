@@ -183,3 +183,21 @@
     .brand__name { max-width: 9rem; overflow: hidden; text-overflow: ellipsis; }
 }
 .section-heading + .state { margin-top: var(--space-6); }
+
+.contrib { margin: var(--space-6) 0 0; padding: var(--space-5); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-border); }
+.contrib figcaption { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+.contrib figcaption .activity__title { margin: 0; }
+.contrib__scroll { overflow-x: auto; padding-bottom: var(--space-2); }
+.contrib__grid { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0.7rem, 1fr)); grid-template-rows: 1.1rem; gap: 3px; min-width: 40rem; }
+.contrib__month { grid-row: 1; overflow: visible; color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.7rem; line-height: 1; white-space: nowrap; }
+.contrib__cell { display: inline-block; aspect-ratio: 1; border-radius: 3px; background: var(--color-surface-strong); box-shadow: inset 0 0 0 1px var(--color-border); }
+.contrib__cell[data-level="1"] { background: color-mix(in srgb, var(--color-accent-light) 28%, var(--color-surface-strong)); box-shadow: none; }
+.contrib__cell[data-level="2"] { background: color-mix(in srgb, var(--color-accent-light) 55%, var(--color-surface-strong)); box-shadow: none; }
+.contrib__cell[data-level="3"] { background: color-mix(in srgb, var(--color-accent-light) 80%, var(--color-surface-strong)); box-shadow: none; }
+.contrib__cell[data-level="4"] { background: var(--color-accent-light); box-shadow: none; }
+.contrib__legend { display: flex; align-items: center; gap: 3px; margin: var(--space-3) 0 0; }
+.contrib__legend .contrib__cell { width: 0.8rem; margin-inline: 1px; }
+.contrib__details { margin-top: var(--space-3); color: var(--color-text-muted); font-size: 0.9rem; }
+.contrib__details summary { cursor: pointer; }
+.contrib__details table { margin-top: var(--space-3); border-collapse: collapse; }
+.contrib__details th, .contrib__details td { padding: 0.25rem var(--space-4) 0.25rem 0; text-align: left; font-weight: 400; }
