@@ -321,15 +321,15 @@
                         </ol>
                     </div>
                     <div class="journey__sheet" role="group" aria-label="{{ __('portfolio.three_d.sheet') }}" data-journey-sheet data-label-next="{{ __('portfolio.three_d.next') }}" data-label-end="{{ __('portfolio.three_d.to_skills') }}">
-                        <p class="journey__sheet-period mono" data-sheet-period aria-live="polite"></p>
-                        <p class="journey__sheet-title" data-sheet-title></p>
-                        <p class="journey__sheet-org" data-sheet-org></p>
-                        <div class="journey__sheet-nav">
+                        <div class="journey__sheet-text">
+                            <p class="journey__sheet-period mono" data-sheet-period aria-live="polite"></p>
+                            <p class="journey__sheet-title" data-sheet-title></p>
+                            <p class="journey__sheet-org" data-sheet-org></p>
                             <ol class="journey__sheet-dots" aria-hidden="true">
                                 @foreach ($milestones as $milestone)<li @class(['is-active' => $loop->first]) data-sheet-dot></li>@endforeach
                             </ol>
-                            <button class="button button--ghost journey__next" type="button" data-journey-next><span data-journey-next-label>{{ __('portfolio.three_d.next') }}</span></button>
                         </div>
+                        <button class="journey__next" type="button" data-journey-next><span class="journey__next-arrow" aria-hidden="true" data-journey-next-arrow>→</span><span class="visually-hidden" data-journey-next-label>{{ __('portfolio.three_d.next') }}</span></button>
                     </div>
                     <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
                     <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
