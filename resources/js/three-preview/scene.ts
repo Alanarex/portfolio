@@ -596,10 +596,10 @@ const findTailLights = (holder: THREE.Group): THREE.Vector3[] => {
 };
 
 /** Charge la voiture : longueur sur Z, avant vers -Z, roues posées à y = 0. */
-const loadCar = async (): Promise<CarRig> => {
+const loadCar = async (preloaded?: ArrayBuffer): Promise<CarRig> => {
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
-    const gltf = await loader.loadAsync(MODEL_URL);
+    const gltf = preloaded ? await loader.parseAsync(preloaded, '/models/') : await loader.loadAsync(MODEL_URL);
     const model = gltf.scene;
 
     const { rear, front } = restyleCar(model);
@@ -681,7 +681,7 @@ const buildRibbon = (
     return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ ...material, map: texture, side: THREE.DoubleSide }));
 };
 
-export const mountThreePreview = async (container: HTMLElement): Promise<void> => {
+export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuffer): Promise<void> => {
     if (!supportsWebGl()) {
         throw new Error('WebGL is unavailable.');
     }
@@ -952,7 +952,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     });
 
     // Voiture
-    const rig = await loadCar();
+    const rig = await loadCar(model);
     const car = rig.holder;
     car.traverse((object) => {
         if ((object as THREE.Mesh).isMesh) {
