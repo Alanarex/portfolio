@@ -20,6 +20,7 @@ RUN apt-get update \
         libjpeg62-turbo-dev \
         libwebp-dev \
         unzip \
+    && apt-get install -y --no-install-recommends --only-upgrade linux-libc-dev \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j"$(nproc)" gd intl pcntl pdo_pgsql zip \
     && pecl install redis \
