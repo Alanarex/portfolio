@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { cloneProps } from '@admin/lib/clone';
 import PageHeader from '@admin/Components/PageHeader.vue';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
+import { localeStatusLabel } from '@admin/lib/labels';
 
 type SocialLink = { platform: string; url: string; is_enabled: boolean; is_public: boolean; sort_order: number };
 type Settings = {
@@ -59,7 +60,7 @@ function save(): void {
         </div>
         <div class="mt-6 grid gap-3 sm:grid-cols-3" aria-label="État des langues">
           <div v-for="locale in locales" :key="locale.code" class="admin-subcard">
-            <div class="flex items-center justify-between gap-2"><span class="font-semibold">{{ locale.label }}</span><span class="admin-badge">{{ locale.status }}</span></div>
+            <div class="flex items-center justify-between gap-2"><span class="font-semibold">{{ locale.label }}</span><span class="admin-badge">{{ localeStatusLabel(locale.status) }}</span></div>
             <p class="mt-2 text-xs text-muted-foreground">{{ locale.code.toUpperCase() }} · {{ locale.direction.toUpperCase() }}</p>
           </div>
         </div>
@@ -103,7 +104,7 @@ function save(): void {
         </fieldset>
       </section>
 
-      <div class="sticky bottom-4 flex justify-end"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer les paramètres' }}</button></div>
+      <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer les paramètres' }}</button></div>
     </form>
   </AdminLayout>
 </template>

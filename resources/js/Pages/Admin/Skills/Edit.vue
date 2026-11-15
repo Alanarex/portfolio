@@ -71,7 +71,7 @@ function save(): void {
           <div class="mt-4 grid gap-4 md:grid-cols-2"><fieldset v-for="locale in locales" :key="locale" class="admin-fieldset"><legend class="px-1 text-sm font-semibold">{{ locale.toUpperCase() }}</legend><label class="admin-field">Nom<input :id="`skill-name-${categoryIndex}-${skillIndex}-${locale}`" v-model="skill.translations[locale].name" class="admin-input" :aria-invalid="Boolean(form.errors[`categories.${categoryIndex}.skills.${skillIndex}.translations.${locale}.name`])" :aria-describedby="form.errors[`categories.${categoryIndex}.skills.${skillIndex}.translations.${locale}.name`] ? `skill-name-${categoryIndex}-${skillIndex}-${locale}-error` : undefined"><span v-if="form.errors[`categories.${categoryIndex}.skills.${skillIndex}.translations.${locale}.name`]" :id="`skill-name-${categoryIndex}-${skillIndex}-${locale}-error`" class="admin-error" role="alert">{{ form.errors[`categories.${categoryIndex}.skills.${skillIndex}.translations.${locale}.name`] }}</span></label><label class="admin-field mt-3">Description<textarea v-model="skill.translations[locale].description" class="admin-input min-h-20" maxlength="2000" /></label></fieldset></div>
         </article>
       </section>
-      <div class="sticky bottom-4 flex justify-end"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer les compétences' }}</button></div>
+      <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer les compétences' }}</button></div>
     </form>
   </AdminLayout>
 </template>

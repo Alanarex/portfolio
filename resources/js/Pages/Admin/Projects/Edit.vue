@@ -7,6 +7,7 @@ import PageHeader from '@admin/Components/PageHeader.vue';
 import ConfirmDialog from '@admin/Components/ConfirmDialog.vue';
 import { useConfirm } from '@admin/lib/confirm';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
+import { lifecycleLabel, mediaKindLabel, publicationLabel, visibilityLabel } from '@admin/lib/labels';
 
 type Locale = 'fr' | 'en';
 type Translation = { title: string; summary: string; role: string; seo_title: string; seo_description: string };
@@ -191,16 +192,16 @@ function deleteMedia(id: number): void {
             <input v-model="form.slug" class="admin-input" required :readonly="!isNew" :aria-invalid="Boolean(form.errors.slug)">
           </label>
           <label class="admin-field">Cycle
-            <select v-model="form.lifecycle_status" class="admin-input"><option v-for="status in options.lifecycle_statuses" :key="status" :value="status">{{ status }}</option></select>
+            <select v-model="form.lifecycle_status" class="admin-input"><option v-for="status in options.lifecycle_statuses" :key="status" :value="status">{{ lifecycleLabel(status) }}</option></select>
           </label>
           <label class="admin-field">Publication
-            <select v-model="form.publication_status" class="admin-input"><option v-for="status in options.publication_statuses" :key="status" :value="status">{{ status }}</option></select>
+            <select v-model="form.publication_status" class="admin-input"><option v-for="status in options.publication_statuses" :key="status" :value="status">{{ publicationLabel(status) }}</option></select>
           </label>
           <label class="admin-field">Ordre global
             <input v-model="form.sort_order" type="number" min="0" class="admin-input">
           </label>
-          <label class="admin-check self-end"><input v-model="form.is_featured" type="checkbox"> Projet Featured</label>
-          <label class="admin-field">Ordre Featured
+          <label class="admin-check self-end"><input v-model="form.is_featured" type="checkbox"> Projet en avant</label>
+          <label class="admin-field">Ordre de mise en avant
             <input v-model="form.featured_order" type="number" min="0" class="admin-input" :disabled="!form.is_featured">
           </label>
         </div>
@@ -255,7 +256,7 @@ function deleteMedia(id: number): void {
         <div class="mt-6 grid gap-5 md:grid-cols-2">
           <fieldset class="admin-fieldset">
             <legend class="px-1 font-semibold">Dépôt</legend>
-            <label class="admin-field">Visibilité<select v-model="form.repository_visibility" class="admin-input"><option v-for="visibility in options.repository_visibilities" :key="visibility" :value="visibility">{{ visibility }}</option></select></label>
+            <label class="admin-field">Visibilité<select v-model="form.repository_visibility" class="admin-input"><option v-for="visibility in options.repository_visibilities" :key="visibility" :value="visibility">{{ visibilityLabel(visibility) }}</option></select></label>
             <label class="admin-field mt-4">URL chiffrée au repos<input v-model="form.repository_url" type="url" class="admin-input"></label>
             <label class="admin-check mt-4"><input v-model="form.show_repository" type="checkbox"> Afficher dans le lecteur public</label>
           </fieldset>
@@ -288,7 +289,7 @@ function deleteMedia(id: number): void {
         </article>
       </section>
 
-      <div class="sticky bottom-4 flex justify-end"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le projet' }}</button></div>
+      <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le projet' }}</button></div>
     </form>
 
     <section v-if="!isNew" class="mt-12" aria-labelledby="media-heading">
@@ -297,7 +298,7 @@ function deleteMedia(id: number): void {
 
       <form class="mt-5 grid gap-4 admin-card admin-panel md:grid-cols-2" :aria-busy="newMedia.processing" enctype="multipart/form-data" @submit.prevent="uploadMedia">
         <div v-if="Object.keys(newMedia.errors).length" class="admin-banner md:col-span-2" role="alert">{{ Object.values(newMedia.errors).join(' ') }}</div>
-        <label class="admin-field">Type<select v-model="newMedia.kind" class="admin-input"><option v-for="kind in options.media_kinds" :key="kind" :value="kind">{{ kind }}</option></select></label>
+        <label class="admin-field">Type<select v-model="newMedia.kind" class="admin-input"><option v-for="kind in options.media_kinds" :key="kind" :value="kind">{{ mediaKindLabel(kind) }}</option></select></label>
         <label class="admin-field">Fichier<input type="file" class="admin-input" accept=".jpg,.jpeg,.png,.webp,.pdf" required @change="selectFile"></label>
         <fieldset v-for="locale in locales" :key="locale" class="admin-fieldset">
           <legend class="px-1 font-semibold">{{ locale.toUpperCase() }}</legend>
@@ -310,7 +311,7 @@ function deleteMedia(id: number): void {
 
       <form v-for="(asset, index) in mediaForms" :key="asset.id" class="mt-5 admin-card admin-panel" :aria-busy="asset.processing" @submit.prevent="updateMedia(index)">
         <div class="flex flex-wrap items-start justify-between gap-3">
-          <div><h3 class="font-semibold">{{ asset.original_filename }}</h3><p class="mt-1 text-sm text-muted-foreground">{{ asset.kind }} · {{ asset.mime_type }} · {{ asset.size_bytes }} octets<span v-if="asset.width"> · {{ asset.width }}×{{ asset.height }}</span></p></div>
+          <div><h3 class="font-semibold">{{ asset.original_filename }}</h3><p class="mt-1 text-sm text-muted-foreground">{{ mediaKindLabel(asset.kind) }} · {{ asset.mime_type }} · {{ asset.size_bytes }} octets<span v-if="asset.width"> · {{ asset.width }}×{{ asset.height }}</span></p></div>
           <div class="flex flex-wrap items-center gap-2">
             <span v-if="asset.deletion_pending" class="admin-badge admin-badge-warning">Suppression à réessayer</span>
             <button type="button" class="admin-button admin-button-danger admin-button-compact" @click="deleteMedia(asset.id)">{{ asset.deletion_pending ? 'Réessayer' : 'Supprimer' }}</button>
