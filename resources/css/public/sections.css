@@ -185,17 +185,18 @@ html:not(.js) [data-three-preview-load] { display: none; }
         display: grid;
         height: 100svh;
         min-height: 36rem;
-        align-items: center;
+        grid-template-rows: minmax(0, 1fr);
+        align-items: stretch;
         padding-block: 5.5rem 1.5rem;
         box-sizing: border-box;
     }
 
-    /* La scène remplit exactement la fenêtre : la carte routière prend l'espace restant, les panneaux gardent
-       la hauteur du plus grand, donc rien ne déborde sur la section suivante. */
-    .js .skillmap__stick { align-items: stretch; }
-    .js .skillmap__inner { height: 100%; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
-    .js .map { min-height: 0; }
-    .js .map svg { height: 100%; min-height: 6rem; }
+    /* La scène remplit exactement la fenêtre : la carte routière (SVG en absolu, donc sans poids dans le calcul
+       des hauteurs) prend l'espace restant, les panneaux gardent la hauteur du plus grand, et rien ne déborde
+       sur la section suivante. */
+    .js .skillmap__inner { height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
+    .js .map { min-height: 6rem; }
+    .js .map svg { position: absolute; inset: 0; height: 100%; }
     .js .skillmap__head h2 { margin-bottom: 0.2em; font-size: clamp(1.8rem, 3.4vw, 3rem); }
     .js .skillmap__head .lede { margin: 0; font-size: 1rem; }
     .js .skillmap__panels { display: grid; min-height: 10.5rem; perspective: 1400px; }
