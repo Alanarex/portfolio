@@ -1,3 +1,5 @@
+> **Historique.** Le code React/TanStack décrit ici a été supprimé du dépôt : le site public est entièrement en Blade (`resources/views/portfolio/`, `resources/css/public/`). Ce document ne sert plus que de trace de la démarche d'intégration.
+
 # Lovable code integration
 
 ## Source

@@ -1,7 +1,7 @@
 # Current state
 
 - Laravel 13 remains the backend and HTTP entry point.
-- Lovable's React 19/TanStack source remains preserved as the visual and interaction reference.
+- Lovable's React 19/TanStack prototype has been removed; only its design intent remains documented under `docs/design/`.
 - PORT-008 replaces the hardcoded public mount with localized, HTML-first Blade composition while
   keeping Vue/Inertia isolated to the private dashboard.
 - PORT-005 / issue #10 is merged through PR #24.

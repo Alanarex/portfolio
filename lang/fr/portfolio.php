@@ -319,4 +319,16 @@ return [
         'legal_title' => 'Mentions légales — Alaa Khalil',
         'legal_description' => 'Éditeur, hébergeur, données personnelles et crédits du portfolio d’Alaa Khalil.',
     ],
+    'http_errors' => [
+        'back_home' => 'Retour au portfolio',
+        'contact' => 'Me contacter',
+        'error_label' => 'Erreur',
+        '401' => ['title' => 'Authentification requise', 'message' => 'Vous devez être connecté pour accéder à cette page.'],
+        '403' => ['title' => 'Accès refusé', 'message' => 'Vous n’avez pas l’autorisation d’accéder à cette page.'],
+        '404' => ['title' => 'Page introuvable', 'message' => 'La page demandée n’existe pas ou n’est plus publique.'],
+        '419' => ['title' => 'Session expirée', 'message' => 'Votre session a expiré. Rechargez la page puis réessayez.'],
+        '429' => ['title' => 'Trop de requêtes', 'message' => 'Vous avez envoyé trop de demandes. Patientez un instant avant de réessayer.'],
+        '500' => ['title' => 'Une erreur est survenue', 'message' => 'Le service ne peut pas traiter cette demande actuellement. Réessayez plus tard.'],
+        '503' => ['title' => 'Maintenance en cours', 'message' => 'Le site est temporairement indisponible. Revenez dans quelques instants.'],
+    ],
 ];

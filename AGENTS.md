@@ -25,7 +25,7 @@ GitHub is the live queue. Issues define scope and acceptance criteria; PRs conta
 
 - Active integration branch: `release/v3.0.0/main` unless GitHub identifies a newer repository-approved release baseline.
 - Laravel 13 is the backend and HTTP boundary. Modules own business rules, persistence, policies, routes and tests.
-- The public Lovable-derived React/TanStack application lives under `resources/js/portfolio/`; preserve its interaction and visual intent while replacing fixtures through typed Laravel readers.
+- The public site is HTML-first Blade (`resources/views/portfolio/`, `resources/css/public/`, `resources/js/public/`) fed by typed Laravel readers. The Lovable React/TanStack prototype has been removed; `docs/design/lovable-reference.md` keeps its visual and interaction intent. Do not reintroduce a second front-end framework on the public side.
 - Vue 3/Inertia owns the private single-administrator CMS.
 - French is the default public locale; public features support English.
 - Light and dark themes are separately designed. Reuse the portrait and theme-specific logos in `docs/assets/brand/`.

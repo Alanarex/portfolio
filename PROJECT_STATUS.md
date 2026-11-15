@@ -15,14 +15,14 @@
 **PORT-009 DELIVERED — PORT-010 IN REVIEW**
 
 Laravel now composes the public landing page, project index and project case studies as localized,
-HTML-first Blade pages. The Lovable reference remains preserved under `resources/js/portfolio/`,
+HTML-first Blade pages. The Lovable React prototype has been removed from the code base (its design intent stays in `docs/design/`),
 while essential public content is sourced only from allowlisted CMS readers and remains usable
 without JavaScript.
 
 ## Implemented baseline
 
 - Laravel 13 / PHP 8.3+ application skeleton
-- preserved React 19/TanStack Lovable reference source under `resources/js/portfolio/`
+- public site and error pages in Blade with one design system (`resources/css/public/`); legacy React/TanStack prototype and `app.css` removed
 - HTML-first localized public routes under `/fr` and `/en`
 - persistent light/dark themes with separately designed desktop and mobile layouts
 - supplied portrait and theme-specific logo assets
