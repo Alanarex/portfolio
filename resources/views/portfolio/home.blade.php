@@ -87,8 +87,32 @@
             </div>
             <p class="scroll-cue mono" data-reveal style="--i: 5" aria-hidden="true"><i></i>{{ __('portfolio.hero.scroll') }}</p>
         </div>
-        <div class="hero__gauge" data-reveal style="--i: 3">
-            @include('portfolio.partials.gauge', ['class' => 'gauge--hero', 'idle' => true, 'label' => __('portfolio.hero.gauge_label')])
+        {{-- Terminal décoratif : contenu issu du profil, des compétences et des projets publiés (rien d'inventé). --}}
+        @php
+            $terminalRole = $profile?->professionalTitles[0] ?? $titleLead;
+            $terminalStack = $skillNames->intersect(['PHP', 'Laravel', 'Vue.js', 'MySQL', 'PHPUnit', 'Docker', 'Playwright'])->take(5)->values();
+            if ($terminalStack->isEmpty()) {
+                $terminalStack = $skillNames->take(4)->values();
+            }
+            $terminalCommands = ['php artisan about', 'php artisan projects:list'];
+            $terminalProjects = collect($featuredProjects)->take(3)->pluck('title')->filter()->values();
+        @endphp
+        <div class="hero__terminal terminal theme-dark" data-reveal style="--i: 3" aria-hidden="true">
+            <div class="terminal__bar"><i></i><i></i><i></i><span class="mono">~/portfolio</span></div>
+            <div class="terminal__body mono">
+                <p class="terminal__line" style="--d: 0.5s"><span class="terminal__prompt">$</span> <span class="terminal__cmd" style="--n: {{ strlen($terminalCommands[0]) }}">{{ $terminalCommands[0] }}</span></p>
+                <p class="terminal__line terminal__out" style="--d: 1.7s"><span>{{ __('portfolio.hero.terminal_role') }}</span> {{ $terminalRole }}</p>
+                @if ($terminalStack->isNotEmpty())
+                    <p class="terminal__line terminal__out" style="--d: 2s"><span>{{ __('portfolio.hero.terminal_stack') }}</span> {{ $terminalStack->implode(' · ') }}</p>
+                @endif
+                @if ($terminalProjects->isNotEmpty())
+                    <p class="terminal__line" style="--d: 2.6s"><span class="terminal__prompt">$</span> <span class="terminal__cmd" style="--n: {{ strlen($terminalCommands[1]) }}; --d: 2.6s">{{ $terminalCommands[1] }}</span></p>
+                    @foreach ($terminalProjects as $terminalProject)
+                        <p class="terminal__line terminal__out" style="--d: {{ 3.8 + $loop->index * 0.3 }}s"><b>✓</b> {{ $terminalProject }}</p>
+                    @endforeach
+                @endif
+                <p class="terminal__line" style="--d: 5s"><span class="terminal__prompt">$</span> <span class="terminal__caret"></span></p>
+            </div>
         </div>
     </div>
 </section>

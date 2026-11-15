@@ -42,8 +42,8 @@ return [
         'lamp' => 'Headlights',
         'lamp_label' => 'Headlights: lit area that follows the cursor',
         'scroll' => 'Scroll',
-        'gauge_label' => 'Speedometer that accelerates while scrolling',
-        'gauge_proof_label' => 'Speedometer that climbs while scrolling',
+        'terminal_role' => 'role',
+        'terminal_stack' => 'stack',
     ],
     'sections' => [
         'posts' => 'Posts',

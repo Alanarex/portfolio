@@ -95,7 +95,7 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 }
 
 .hero h1 { max-width: 10ch; margin-block: var(--space-4) var(--space-5); font-size: clamp(2.8rem, 8vw, 7.4rem); }
-.hero__gauge { position: relative; z-index: 8; }
+.hero__terminal { position: relative; z-index: 8; }
 
 .hero__veil,
 .hero__glow { display: none; }
