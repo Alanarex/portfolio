@@ -168,6 +168,13 @@ return [
         'message' => 'Message',
         'show_email' => 'Afficher l’e-mail',
         'show_phone' => 'Afficher le téléphone',
+        'platforms' => [
+            'github' => 'GitHub',
+            'gitlab' => 'GitLab',
+            'linkedin' => 'LinkedIn',
+            'whatsapp' => 'WhatsApp',
+            'scheduling' => 'Prendre rendez-vous',
+        ],
         'submit' => 'Envoyer le message',
         'success' => 'Merci. Votre message a été placé dans la file d’envoi.',
         'privacy' => 'Votre message est placé dans la file d’envoi par e-mail et n’est pas conservé dans une base de messages de contact.',

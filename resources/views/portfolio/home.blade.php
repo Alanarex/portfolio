@@ -556,7 +556,7 @@
                     @if ($settings?->email)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('mailto:'.$settings->email, $settings->email) }}"><span>{{ __('portfolio.contact.show_email') }}</span></button>@endif
                     @if ($settings?->phone)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('tel:'.preg_replace('/\\s+/', '', $settings->phone), $settings->phone) }}"><span>{{ __('portfolio.contact.show_phone') }}</span></button>@endif
                     @foreach ($settings?->socialLinks ?? [] as $platform => $url)
-                        <a class="button button--ghost" href="{{ $url }}" rel="noopener noreferrer"><span>{{ ucfirst($platform) }}</span></a>
+                        <a class="button button--ghost" href="{{ $url }}" rel="noopener noreferrer"><span>{{ __('portfolio.contact.platforms.'.$platform) }}</span></a>
                     @endforeach
                 </div>
             @endif

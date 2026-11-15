@@ -178,6 +178,9 @@ final class CareerDatabaseSeeder extends Seeder
             'published_at' => now(),
             'sort_order' => 20,
         ]);
+        if ($unity->verification_url === null) {
+            $unity->forceFill(['verification_url' => 'https://www.credly.com/badges/3212a7dd-3e83-42bd-ac55-9c7e3274e178/linked_in_profile'])->save();
+        }
         $unity->translations()->firstOrCreate(['locale' => 'fr'], [
             'name' => 'Unity Junior Programmer',
             'skill_label' => 'Développement de jeux avec Unity et C#',
