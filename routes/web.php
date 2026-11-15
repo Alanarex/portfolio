@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DashboardHomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
@@ -23,6 +24,6 @@ require base_path('Modules/Portfolio3D/Routes/web.php');
 require base_path('Modules/Contact/Routes/web.php');
 
 Route::middleware(['auth', 'admin'])->group(function (): void {
-    Route::redirect('/dashboard', '/dashboard/profile')->name('dashboard');
+    Route::get('/dashboard', DashboardHomeController::class)->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

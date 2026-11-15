@@ -41,7 +41,7 @@ final class AuthenticatedSessionController extends Controller
             'user_id' => $request->user()?->getKey(),
         ]);
 
-        return redirect()->intended(route('dashboard.profile.edit', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     public function destroy(Request $request): RedirectResponse

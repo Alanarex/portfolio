@@ -1,0 +1,302 @@
+/*
+ * Dashboard d'administration (Vue 3 + Inertia).
+ *
+ * Reprend l'identité du site public (resources/css/public/tokens.css) : onyx et garnet,
+ * Inter / Space Grotesk / JetBrains Mono, thèmes clair et sombre conçus séparément.
+ * Les noms sémantiques Tailwind (background, surface, border, primary…) sont conservés
+ * pour que les écrans existants héritent du nouveau style sans modification.
+ */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/jetbrains-mono";
+@import "tailwindcss" source(none);
+@source "../js/Pages";
+@source "../js/Layouts";
+@source "../js/Components";
+
+@custom-variant dark (&:is([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", consolas, monospace;
+
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.25rem;
+
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-card: var(--surface);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--surface-strong);
+  --color-accent-foreground: var(--text);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--border-strong);
+  --color-ring: var(--focus);
+  --color-primary: var(--accent-text);
+  --color-primary-foreground: var(--accent-ink);
+  --color-brand: var(--accent);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--accent-ink);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+}
+
+/* Thème sombre : thème par défaut, comme sur le site public. */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0b090a;
+  --bg-elevated: #100d0e;
+  --surface: #161a1d;
+  --surface-strong: #1d2226;
+  --surface-muted: #262b2f;
+  --text: #f5f3f4;
+  --text-muted: #b1a7a6;
+  --text-soft: #d3d3d3;
+  --border: #2a2527;
+  --border-strong: #4a4042;
+  --accent: #ba181b;
+  --accent-hover: #a4161a;
+  --accent-text: #ff7a7d;
+  --accent-ink: #fff;
+  --focus: #fff;
+  --danger: #ff6b6e;
+  --danger-surface: #2a1011;
+  --success: #8fe0ae;
+  --success-surface: #15291e;
+  --warning: #f2c46b;
+  --glow: rgb(229 56 59 / 45%);
+  --shadow-card: 0 0.5rem 1.5rem rgb(0 0 0 / 30%);
+  --shadow-glow: 0 1rem 2.2rem -0.75rem var(--glow);
+  --shell-glow: radial-gradient(ellipse at top right, rgb(229 56 59 / 10%), transparent 55%);
+}
+
+/* Thème clair : le choix du visiteur prime, sinon la préférence système. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #faf6f6;
+  --bg-elevated: #fff;
+  --surface: #fff;
+  --surface-strong: #f4ecec;
+  --surface-muted: #ebe1e1;
+  --text: #1a1214;
+  --text-muted: #5f5356;
+  --text-soft: #3b3034;
+  --border: #e8dcdc;
+  --border-strong: #cbb8b9;
+  --accent: #ba181b;
+  --accent-hover: #a4161a;
+  --accent-text: #b3141a;
+  --accent-ink: #fff;
+  --focus: #1a1214;
+  --danger: #a4161a;
+  --danger-surface: #fdeaea;
+  --success: #1c6b3b;
+  --success-surface: #e4f4ea;
+  --warning: #8a5a00;
+  --glow: rgb(186 24 27 / 30%);
+  --shadow-card: 0 0.5rem 1.5rem rgb(60 20 24 / 10%);
+  --shadow-glow: 0 1rem 2.2rem -0.75rem var(--glow);
+  --shell-glow: radial-gradient(ellipse at top right, rgb(186 24 27 / 7%), transparent 55%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --bg: #faf6f6;
+    --bg-elevated: #fff;
+    --surface: #fff;
+    --surface-strong: #f4ecec;
+    --surface-muted: #ebe1e1;
+    --text: #1a1214;
+    --text-muted: #5f5356;
+    --text-soft: #3b3034;
+    --border: #e8dcdc;
+    --border-strong: #cbb8b9;
+    --accent: #ba181b;
+    --accent-hover: #a4161a;
+    --accent-text: #b3141a;
+    --accent-ink: #fff;
+    --focus: #1a1214;
+    --danger: #a4161a;
+    --danger-surface: #fdeaea;
+    --success: #1c6b3b;
+    --success-surface: #e4f4ea;
+    --warning: #8a5a00;
+    --glow: rgb(186 24 27 / 30%);
+    --shadow-card: 0 0.5rem 1.5rem rgb(60 20 24 / 10%);
+    --shell-glow: radial-gradient(ellipse at top right, rgb(186 24 27 / 7%), transparent 55%);
+  }
+}
+
+@layer base {
+  html,
+  body {
+    min-width: 20rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 0.15rem solid var(--focus);
+    outline-offset: 0.2rem;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  a {
+    text-underline-offset: 0.22em;
+  }
+}
+
+@layer components {
+  .admin-input {
+    width: 100%;
+    min-height: 2.75rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1.5px var(--border-strong);
+    padding: 0.65rem 0.9rem;
+    color: var(--text);
+    transition: box-shadow 200ms var(--ease, ease), background-color 200ms var(--ease, ease);
+  }
+
+  .admin-input:hover {
+    box-shadow: inset 0 0 0 1.5px var(--text-muted);
+  }
+
+  .admin-input:focus-visible {
+    background: var(--surface-strong);
+    box-shadow: inset 0 0 0 1.5px var(--accent-text);
+    outline: 0.15rem solid var(--focus);
+    outline-offset: 0.15rem;
+  }
+
+  .admin-input[aria-invalid="true"] {
+    box-shadow: inset 0 0 0 1.5px var(--danger);
+  }
+
+  .admin-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.15rem;
+    height: 1.15rem;
+    accent-color: var(--accent);
+  }
+
+  .admin-button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+    padding: 0.65rem 1.4rem;
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 200ms var(--ease, ease), box-shadow 200ms var(--ease, ease), transform 150ms var(--ease, ease);
+  }
+
+  .admin-button:hover {
+    background: var(--accent-hover);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .admin-button:active {
+    transform: scale(0.97);
+  }
+
+  .admin-button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+  }
+
+  .admin-link {
+    text-decoration: none;
+    transition: background-color 200ms var(--ease, ease), color 200ms var(--ease, ease);
+  }
+
+  .admin-link:hover {
+    background: var(--surface-strong);
+  }
+
+  .admin-eyebrow {
+    margin: 0;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .admin-eyebrow::before {
+    display: inline-block;
+    width: 1.4rem;
+    height: 1.5px;
+    margin-right: 0.6rem;
+    background: var(--accent-text);
+    content: "";
+    vertical-align: middle;
+  }
+
+  .admin-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
