@@ -17,12 +17,12 @@ use Modules\Skills\Models\Skill;
 use Modules\Skills\Models\SkillCategory;
 
 /**
- * Run explicitly: php artisan db:seed --class=EnglishContentSeeder --force (DatabaseSeeder stays free of
- * English copy and profile data, see ProfileSettingsCmsTest and ProjectsMediaCmsTest).
+ * Called by DatabaseSeeder, so `php artisan migrate:fresh --seed` also creates the profile and the English
+ * translations. It can still be run alone: php artisan db:seed --class=EnglishContentSeeder --force.
  *
- * Adds the profile (FR + EN) and the English translations of the French draft content created by the
+ * Adds the profile (FR + EN) and the English translations of the French content created by the
  * other seeders. Idempotent (firstOrCreate), never overwrites what was edited in the dashboard, and
- * never publishes anything: publication stays a deliberate action in the CMS.
+ * keeps the published state of the French source records (it only adds translations).
  *
  * Source of truth for the facts: docs/content/. Translations are a faithful rendering of the French
  * text, with no added claim or metric.
@@ -41,10 +41,10 @@ final class EnglishContentSeeder extends Seeder
     {
         $profile = Profile::query()->firstOrCreate(['key' => 'main'], [
             'display_name' => 'Alaa Khalil',
-            'is_published' => false,
+            'is_published' => true,
             'show_location' => false,
             'show_availability' => false,
-            'published_at' => null,
+            'published_at' => now(),
         ]);
 
         $profile->translations()->firstOrCreate(['locale' => 'fr'], [
@@ -84,6 +84,15 @@ final class EnglishContentSeeder extends Seeder
                 'Analysis of changes, feasibility, breakdown, prioritisation and quality follow-up',
             ],
         ]);
+        foreach (['revesta' => 'REVESTA: the extension that identifies the renovation grants you qualify for.', 'cojeco' => 'CoJeCo: Collectif des jeunes connectés.'] as $key => $summary) {
+            $this->translate(Experience::query()->where('key', $key)->first(), [
+                'role' => 'Co-founder',
+                'employment_type' => null,
+                'location' => 'Angers, France (hybrid)',
+                'summary' => $summary,
+                'highlights' => [],
+            ]);
+        }
         $this->translate(Experience::query()->where('key', 'open-campus-angers')->first(), [
             'role' => 'IT Assistant & Web Developer',
             'employment_type' => 'Work-study',
@@ -107,6 +116,7 @@ final class EnglishContentSeeder extends Seeder
         $education = [
             'manager-projet-web-digital' => ['program' => 'Web and Digital Project Manager', 'level' => 'RNCP level 7 qualification (master’s level)', 'location' => 'Angers, France'],
             'bachelor-concepteur-developpeur-applications' => ['program' => 'Bachelor in Application Design and Development', 'level' => null, 'location' => 'Angers, France'],
+            'universite-angers-bac-2' => ['program' => 'Computer programming, general programme', 'level' => 'Bac+2 (two-year university degree)', 'location' => null],
         ];
         foreach ($education as $key => $fields) {
             $this->translate(EducationRecord::query()->where('key', $key)->first(), [...$fields, 'summary' => null]);
@@ -115,6 +125,11 @@ final class EnglishContentSeeder extends Seeder
         Certification::query()->where('key', 'toeic-2026')->first()?->translations()->firstOrCreate(['locale' => 'en'], [
             'name' => 'TOEIC',
             'skill_label' => 'Professional English',
+        ]);
+
+        Certification::query()->where('key', 'unity-junior-programmer')->first()?->translations()->firstOrCreate(['locale' => 'en'], [
+            'name' => 'Unity Junior Programmer',
+            'skill_label' => 'Game development with Unity and C#',
         ]);
 
         $languages = [
@@ -136,6 +151,7 @@ final class EnglishContentSeeder extends Seeder
             'frontend' => 'Frontend',
             'devops-et-infrastructure' => 'DevOps and infrastructure',
             'architecture-et-outils' => 'Architecture and tools',
+            'jeu-video-et-3d' => 'Video games and 3D',
             'pilotage' => 'Project management',
         ];
         foreach ($categories as $key => $name) {
@@ -160,6 +176,39 @@ final class EnglishContentSeeder extends Seeder
             'recette' => 'Acceptance testing',
             'amélioration continue' => 'Continuous improvement',
             'coordination des parties prenantes' => 'Stakeholder coordination',
+            'Développement back-end' => 'Back-end development',
+            'Développement d’API' => 'API development',
+            'Authentification' => 'Authentication',
+            'Architecture logicielle' => 'Software architecture',
+            'Conception de systèmes' => 'Systems design',
+            'Sécurité des applications web' => 'Web application security',
+            'Conception de bases de données' => 'Database design',
+            'Tests logiciels automatisés' => 'Automated software testing',
+            'Développement web' => 'Web development',
+            'Développement full-stack' => 'Full-stack development',
+            'Responsive design' => 'Responsive web design',
+            'Accessibilité web' => 'Web accessibility',
+            'Applications mobiles' => 'Mobile applications',
+            'Développement de jeux vidéo' => 'Game development',
+            'Développement de jeux 3D' => '3D game development',
+            'Programmation du gameplay' => 'Gameplay programming',
+            'Mécaniques de jeu' => 'Game mechanics',
+            'Physique de jeu' => 'Game physics',
+            'Prototypage de jeux' => 'Game prototyping',
+            'Interface de jeu' => 'Game UI development',
+            'Débogage de jeux' => 'Game debugging',
+            'Level design' => 'Level design',
+            'Modélisation 3D' => '3D modeling',
+            'Intégration d’assets 3D' => '3D asset integration',
+            'Gestion de projet' => 'Project management',
+            'Gestion de projet agile' => 'Agile project management',
+            'Livraison de projet' => 'Project delivery',
+            'Coordination de projet' => 'Project coordination',
+            'Collaboration d’équipe' => 'Team collaboration',
+            'Collaboration transverse' => 'Cross-functional collaboration',
+            'Communication client' => 'Client communication',
+            'Analyse technique' => 'Technical analysis',
+            'Résolution de problèmes' => 'Problem solving',
         ];
 
         foreach (Skill::query()->with('translations')->get() as $skill) {

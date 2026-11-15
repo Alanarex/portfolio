@@ -40,20 +40,29 @@ final class CareerSkillsCmsTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('Admin/Skills/Edit')->has('categories', 0));
     }
 
-    public function test_verified_reference_seeding_is_idempotent_draft_only_and_exact(): void
+    public function test_verified_reference_seeding_is_idempotent_published_and_exact(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertDatabaseCount('career_experiences', 2);
-        $this->assertDatabaseCount('education_records', 2);
-        $this->assertDatabaseCount('certifications', 1);
+        $this->assertDatabaseCount('career_experiences', 4);
+        $this->assertDatabaseCount('education_records', 3);
+        $this->assertDatabaseCount('certifications', 2);
         $this->assertDatabaseCount('language_proficiencies', 3);
-        $this->assertDatabaseCount('skill_categories', 7);
-        $this->assertDatabaseCount('skills', 72);
+        $this->assertDatabaseCount('skill_categories', 8);
+        $this->assertDatabaseCount('skills', 110);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseMissing('career_experiences', ['status' => 'published']);
-        $this->assertDatabaseMissing('skill_categories', ['status' => 'published']);
+        $this->assertDatabaseMissing('career_experiences', ['status' => 'draft']);
+        $this->assertDatabaseMissing('skill_categories', ['status' => 'draft']);
+        $this->assertDatabaseMissing('skills', ['is_visible' => false]);
+        $this->assertDatabaseHas('certifications', [
+            'key' => 'unity-junior-programmer',
+            'issuer' => 'Unity',
+            'issue_year' => 2023,
+            'issue_month' => 6,
+        ]);
+        $this->assertDatabaseHas('career_experiences', ['key' => 'revesta', 'is_current' => true, 'start_year' => 2024, 'start_month' => 12]);
+        $this->assertDatabaseHas('career_experiences', ['key' => 'cojeco', 'is_current' => true, 'start_year' => 2025, 'start_month' => 6]);
         $this->assertDatabaseHas('certifications', [
             'key' => 'toeic-2026',
             'issuer' => null,
@@ -70,8 +79,10 @@ final class CareerSkillsCmsTest extends TestCase
             ...\DB::table('career_achievement_translations')->pluck('statement')->all(),
             ...\DB::table('certification_translations')->pluck('name')->all(),
         ], JSON_THROW_ON_ERROR));
-        self::assertSame([], $this->app->make(PublicCareerReader::class)->forLocale('fr')?->toArray()['experiences']);
-        self::assertSame([], $this->app->make(PublicSkillsReader::class)->forLocale('fr')?->toArray()['categories']);
+        foreach (['fr', 'en'] as $locale) {
+            self::assertCount(4, $this->app->make(PublicCareerReader::class)->forLocale($locale)?->toArray()['experiences']);
+            self::assertCount(8, $this->app->make(PublicSkillsReader::class)->forLocale($locale)?->toArray()['categories']);
+        }
     }
 
     public function test_administrator_can_manage_ordered_published_career_content(): void

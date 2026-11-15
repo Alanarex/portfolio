@@ -17,7 +17,7 @@ final class EnglishContentSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_every_seeded_item_gets_an_english_translation_and_stays_a_draft(): void
+    public function test_every_seeded_item_gets_an_english_translation_and_is_published(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->seed(EnglishContentSeeder::class);
@@ -27,15 +27,15 @@ final class EnglishContentSeederTest extends TestCase
         }
         foreach (Project::query()->with('translations')->get() as $project) {
             $this->assertNotNull($project->translations->firstWhere('locale', 'en'), "project {$project->slug} has no EN");
-            $this->assertSame('draft', $project->publication_status->value);
+            $this->assertSame('published', $project->publication_status->value);
         }
         foreach (Experience::query()->with('translations')->get() as $experience) {
             $this->assertNotNull($experience->translations->firstWhere('locale', 'en'));
-            $this->assertSame('draft', $experience->status->value);
+            $this->assertSame('published', $experience->status->value);
         }
 
         $profile = Profile::query()->where('key', 'main')->firstOrFail();
-        $this->assertFalse($profile->is_published);
+        $this->assertTrue($profile->is_published);
         $this->assertSame(['en', 'fr'], $profile->translations->pluck('locale')->sort()->values()->all());
     }
 
