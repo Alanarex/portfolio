@@ -168,6 +168,13 @@ return [
         'message' => 'Message',
         'show_email' => 'Show email',
         'show_phone' => 'Show phone number',
+        'platforms' => [
+            'github' => 'GitHub',
+            'gitlab' => 'GitLab',
+            'linkedin' => 'LinkedIn',
+            'whatsapp' => 'WhatsApp',
+            'scheduling' => 'Book a call',
+        ],
         'submit' => 'Send message',
         'success' => 'Thank you. Your message has been queued for delivery.',
         'privacy' => 'Your message is queued for email delivery and is not saved in a contact-message database.',

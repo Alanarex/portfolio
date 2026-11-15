@@ -316,7 +316,41 @@ final class ProfileSettingsCmsTest extends TestCase
         $this->assertDatabaseCount('users', 0);
         $this->assertDatabaseCount('profiles', 1);
         $this->assertDatabaseHas('profiles', ['key' => 'main', 'is_published' => true]);
-        $this->assertDatabaseCount('site_settings', 0);
+        // Réglages de contact : une seule ligne, sans coordonnée privée versionnée, et deux seeders consécutifs n'ajoutent rien.
+        $this->assertDatabaseCount('site_settings', 1);
+        $this->assertDatabaseCount('public_feature_flags', 2);
+        $this->assertDatabaseHas('public_feature_flags', ['key' => 'contact', 'enabled' => true]);
+        $this->assertNull(SiteSetting::query()->where('key', 'main')->firstOrFail()->contact_email);
+    }
+
+    public function test_contact_seeding_applies_environment_values_and_never_overwrites_edits(): void
+    {
+        config([
+            'contact.email' => 'contact@example.test',
+            'contact.linkedin_url' => 'https://www.linkedin.com/in/example',
+            'services.github.username' => 'octocat',
+            'services.gitlab.username' => 'tanuki',
+        ]);
+        $this->seed(DatabaseSeeder::class);
+
+        $settings = SiteSetting::query()->where('key', 'main')->firstOrFail();
+        self::assertSame('contact@example.test', $settings->contact_email);
+        self::assertTrue($settings->show_email);
+        // Les URL sont chiffrées en base : on les relit par le modèle.
+        $links = $settings->socialLinks()->get()->mapWithKeys(fn ($link): array => [$link->platform => $link->url])->all();
+        self::assertSame([
+            'github' => 'https://github.com/octocat',
+            'gitlab' => 'https://gitlab.com/tanuki',
+            'linkedin' => 'https://www.linkedin.com/in/example',
+        ], $links);
+        $this->assertDatabaseMissing('social_links', ['platform' => 'whatsapp']);
+
+        $settings->forceFill(['contact_email' => 'edited@example.test'])->save();
+        config(['contact.email' => 'other@example.test']);
+        $this->seed(DatabaseSeeder::class);
+
+        self::assertSame('edited@example.test', $settings->refresh()->contact_email);
+        $this->assertDatabaseCount('social_links', 3);
     }
 
     public function test_administrator_privileges_are_not_mass_assignable(): void
