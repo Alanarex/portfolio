@@ -327,7 +327,6 @@ final class ProfileSettingsCmsTest extends TestCase
     {
         config([
             'contact.email' => 'contact@example.test',
-            'contact.linkedin_url' => 'https://www.linkedin.com/in/example',
             'services.github.username' => 'octocat',
             'services.gitlab.username' => 'tanuki',
         ]);
@@ -341,7 +340,7 @@ final class ProfileSettingsCmsTest extends TestCase
         self::assertSame([
             'github' => 'https://github.com/octocat',
             'gitlab' => 'https://gitlab.com/tanuki',
-            'linkedin' => 'https://www.linkedin.com/in/example',
+            'linkedin' => 'https://www.linkedin.com/in/alaa-khalil-dev/',
         ], $links);
         $this->assertDatabaseMissing('social_links', ['platform' => 'whatsapp']);
 
