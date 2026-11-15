@@ -1,6 +1,7 @@
 import './public/site';
 import './public/skillmap';
 import './public/contact-form';
+import './public/terminal';
 import './three-preview/index';
 import './room-scene/index';
 
