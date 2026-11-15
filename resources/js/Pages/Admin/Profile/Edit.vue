@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { cloneProps } from '@admin/lib/clone';
+import PageHeader from '@admin/Components/PageHeader.vue';
+import ConfirmDialog from '@admin/Components/ConfirmDialog.vue';
+import { useConfirm } from '@admin/lib/confirm';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type Translation = {
@@ -25,6 +28,8 @@ type CvVersion = {
   archived: boolean;
   has_document: boolean;
 };
+
+const confirm = useConfirm();
 
 const props = defineProps<{
   profile: {
@@ -74,67 +79,65 @@ function selectDocument(event: Event, target: { document: File | null }): void {
 }
 
 function deleteCv(id: number): void {
-  if (window.confirm('Supprimer cette version de CV ?')) {
-    router.delete(`/dashboard/cv-versions/${id}`, { preserveScroll: true });
-  }
+  confirm.ask({
+    title: 'Supprimer cette version de CV ?',
+    message: 'Le PDF privé associé sera supprimé. Cette action est définitive.',
+    action: () => router.delete(`/dashboard/cv-versions/${id}`, { preserveScroll: true }),
+  });
 }
 </script>
 
 <template>
   <Head title="Profil — Administration" />
   <AdminLayout>
-    <header class="mb-8">
-      <p class="text-sm font-semibold text-primary">PORT-005</p>
-      <h1 class="mt-1 text-3xl font-bold">Profil professionnel</h1>
-      <p class="mt-2 max-w-3xl text-sm text-muted-foreground">Gérez l’identité publique et ses contenus français et anglais. L’arabe reste un état de préparation non public.</p>
-    </header>
+    <PageHeader class="mb-8" title="Profil professionnel" description="Gérez l’identité publique et ses contenus français et anglais. L’arabe reste un état de préparation non public." />
 
     <form class="space-y-8" :aria-busy="form.processing" @submit.prevent="saveProfile">
-      <section class="rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6" aria-labelledby="identity-heading">
-        <h2 id="identity-heading" class="text-xl font-bold">Identité et publication</h2>
+      <section class="admin-card admin-panel" aria-labelledby="identity-heading">
+        <h2 id="identity-heading" class="text-xl font-semibold">Identité et publication</h2>
         <div class="mt-5 grid gap-5 md:grid-cols-2">
           <div>
-            <label for="display-name" class="mb-2 block text-sm font-semibold">Nom affiché</label>
+            <label for="display-name" class="admin-label">Nom affiché</label>
             <input id="display-name" v-model="form.display_name" class="admin-input" required maxlength="120" :aria-invalid="Boolean(form.errors.display_name)" :aria-describedby="form.errors.display_name ? 'display-name-error' : undefined">
-            <p v-if="form.errors.display_name" id="display-name-error" class="mt-2 text-sm text-destructive" role="alert">{{ form.errors.display_name }}</p>
+            <p v-if="form.errors.display_name" id="display-name-error" class="admin-error" role="alert">{{ form.errors.display_name }}</p>
           </div>
-          <fieldset class="grid gap-3 rounded-xl border border-border p-4">
+          <fieldset class="grid gap-3 admin-fieldset">
             <legend class="px-1 text-sm font-semibold">Visibilité</legend>
-            <label class="flex min-h-11 items-center gap-3"><input v-model="form.is_published" type="checkbox"> Publier le profil</label>
-            <label class="flex min-h-11 items-center gap-3"><input v-model="form.show_location" type="checkbox"> Afficher la localisation</label>
-            <label class="flex min-h-11 items-center gap-3"><input v-model="form.show_availability" type="checkbox"> Afficher la disponibilité</label>
+            <label class="admin-check"><input v-model="form.is_published" type="checkbox"> Publier le profil</label>
+            <label class="admin-check"><input v-model="form.show_location" type="checkbox"> Afficher la localisation</label>
+            <label class="admin-check"><input v-model="form.show_availability" type="checkbox"> Afficher la disponibilité</label>
           </fieldset>
         </div>
       </section>
 
-      <section v-for="locale in (['fr', 'en', 'ar'] as const)" :key="locale" class="rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6" :aria-labelledby="`translation-${locale}`">
-        <h2 :id="`translation-${locale}`" class="text-xl font-bold">{{ localeLabels[locale] }}</h2>
+      <section v-for="locale in (['fr', 'en', 'ar'] as const)" :key="locale" class="admin-card admin-panel" :aria-labelledby="`translation-${locale}`">
+        <h2 :id="`translation-${locale}`" class="text-xl font-semibold">{{ localeLabels[locale] }}</h2>
         <p v-if="locale === 'ar'" class="mt-1 text-sm text-warning">Préparation uniquement : ce contenu n’est jamais exposé par le lecteur public.</p>
         <div class="mt-5 grid gap-5">
           <div>
-            <label :for="`title-${locale}`" class="mb-2 block text-sm font-semibold">Titre professionnel principal</label>
+            <label :for="`title-${locale}`" class="admin-label">Titre professionnel principal</label>
             <input :id="`title-${locale}`" v-model="form.translations[locale].professional_titles[0]" class="admin-input" :required="locale !== 'ar'" maxlength="120" :aria-invalid="Boolean(form.errors[`translations.${locale}.professional_titles.0`])" :aria-describedby="form.errors[`translations.${locale}.professional_titles.0`] ? `title-${locale}-error` : undefined">
-            <p v-if="form.errors[`translations.${locale}.professional_titles.0`]" :id="`title-${locale}-error`" class="mt-2 text-sm text-destructive" role="alert">{{ form.errors[`translations.${locale}.professional_titles.0`] }}</p>
+            <p v-if="form.errors[`translations.${locale}.professional_titles.0`]" :id="`title-${locale}-error`" class="admin-error" role="alert">{{ form.errors[`translations.${locale}.professional_titles.0`] }}</p>
           </div>
           <div>
-            <label :for="`summary-${locale}`" class="mb-2 block text-sm font-semibold">Résumé</label>
+            <label :for="`summary-${locale}`" class="admin-label">Résumé</label>
             <textarea :id="`summary-${locale}`" v-model="form.translations[locale].summary" class="admin-input min-h-28" :required="locale !== 'ar'" maxlength="1000" :aria-invalid="Boolean(form.errors[`translations.${locale}.summary`])" :aria-describedby="form.errors[`translations.${locale}.summary`] ? `summary-${locale}-error` : undefined" />
-            <p v-if="form.errors[`translations.${locale}.summary`]" :id="`summary-${locale}-error`" class="mt-2 text-sm text-destructive" role="alert">{{ form.errors[`translations.${locale}.summary`] }}</p>
+            <p v-if="form.errors[`translations.${locale}.summary`]" :id="`summary-${locale}-error`" class="admin-error" role="alert">{{ form.errors[`translations.${locale}.summary`] }}</p>
           </div>
           <div class="grid gap-5 md:grid-cols-2">
             <div>
-              <label :for="`location-${locale}`" class="mb-2 block text-sm font-semibold">Localisation publique</label>
+              <label :for="`location-${locale}`" class="admin-label">Localisation publique</label>
               <input :id="`location-${locale}`" v-model="form.translations[locale].location_label" class="admin-input" maxlength="160">
             </div>
             <div>
-              <label :for="`availability-${locale}`" class="mb-2 block text-sm font-semibold">Disponibilité</label>
+              <label :for="`availability-${locale}`" class="admin-label">Disponibilité</label>
               <input :id="`availability-${locale}`" v-model="form.translations[locale].availability" class="admin-input" maxlength="240">
             </div>
           </div>
           <div>
-            <label :for="`biography-${locale}`" class="mb-2 block text-sm font-semibold">Biographie</label>
+            <label :for="`biography-${locale}`" class="admin-label">Biographie</label>
             <textarea :id="`biography-${locale}`" v-model="form.translations[locale].biography" class="admin-input min-h-44" :required="locale !== 'ar'" maxlength="10000" :aria-invalid="Boolean(form.errors[`translations.${locale}.biography`])" :aria-describedby="form.errors[`translations.${locale}.biography`] ? `biography-${locale}-error` : undefined" />
-            <p v-if="form.errors[`translations.${locale}.biography`]" :id="`biography-${locale}-error`" class="mt-2 text-sm text-destructive" role="alert">{{ form.errors[`translations.${locale}.biography`] }}</p>
+            <p v-if="form.errors[`translations.${locale}.biography`]" :id="`biography-${locale}-error`" class="admin-error" role="alert">{{ form.errors[`translations.${locale}.biography`] }}</p>
           </div>
         </div>
       </section>
@@ -146,45 +149,47 @@ function deleteCv(id: number): void {
 
     <section class="mt-12" aria-labelledby="cv-heading">
       <div>
-        <h2 id="cv-heading" class="text-2xl font-bold">Versions du CV</h2>
+        <h2 id="cv-heading" class="text-2xl font-semibold">Versions du CV</h2>
         <p class="mt-2 text-sm text-muted-foreground">Les PDF restent privés. Seule une version vérifiée, publiée et activée dans les paramètres peut être téléchargée publiquement.</p>
       </div>
 
-      <div v-if="cvForms.length === 0" class="mt-5 rounded-2xl border border-dashed border-border bg-surface p-6 text-sm text-muted-foreground">Aucune version enregistrée.</div>
-      <form v-for="(cv, index) in cvForms" :key="cv.id" class="mt-5 grid gap-4 rounded-2xl border border-border bg-surface p-5 md:grid-cols-3" :aria-busy="cv.processing" @submit.prevent="updateCv(index)">
-        <div v-if="Object.keys(cv.errors).length" class="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive md:col-span-3" role="alert">Vérifiez les métadonnées de cette version : {{ Object.values(cv.errors).join(' ') }}</div>
-        <div><label :for="`cv-label-${cv.id}`" class="mb-2 block text-sm font-semibold">Libellé</label><input :id="`cv-label-${cv.id}`" v-model="cv.label" class="admin-input" required maxlength="120"></div>
-        <div><label :for="`cv-version-${cv.id}`" class="mb-2 block text-sm font-semibold">Version</label><input :id="`cv-version-${cv.id}`" v-model="cv.version_label" class="admin-input" required maxlength="50"></div>
-        <div><label :for="`cv-locale-${cv.id}`" class="mb-2 block text-sm font-semibold">Langue</label><select :id="`cv-locale-${cv.id}`" v-model="cv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="cv.is_verified" type="checkbox"> Vérifié</label>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="cv.published" type="checkbox"> Marqué publié</label>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="cv.archived" type="checkbox"> Archivé</label>
+      <div v-if="cvForms.length === 0" class="mt-5 admin-empty">Aucune version enregistrée.</div>
+      <form v-for="(cv, index) in cvForms" :key="cv.id" class="mt-5 grid gap-4 admin-card admin-panel md:grid-cols-3" :aria-busy="cv.processing" @submit.prevent="updateCv(index)">
+        <div v-if="Object.keys(cv.errors).length" class="admin-banner md:col-span-3" role="alert">Vérifiez les métadonnées de cette version : {{ Object.values(cv.errors).join(' ') }}</div>
+        <div><label :for="`cv-label-${cv.id}`" class="admin-label">Libellé</label><input :id="`cv-label-${cv.id}`" v-model="cv.label" class="admin-input" required maxlength="120"></div>
+        <div><label :for="`cv-version-${cv.id}`" class="admin-label">Version</label><input :id="`cv-version-${cv.id}`" v-model="cv.version_label" class="admin-input" required maxlength="50"></div>
+        <div><label :for="`cv-locale-${cv.id}`" class="admin-label">Langue</label><select :id="`cv-locale-${cv.id}`" v-model="cv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
+        <label class="admin-check"><input v-model="cv.is_verified" type="checkbox"> Vérifié</label>
+        <label class="admin-check"><input v-model="cv.published" type="checkbox"> Marqué publié</label>
+        <label class="admin-check"><input v-model="cv.archived" type="checkbox"> Archivé</label>
         <div class="md:col-span-3">
-          <label :for="`cv-document-${cv.id}`" class="mb-2 block text-sm font-semibold">Remplacer le PDF</label>
+          <label :for="`cv-document-${cv.id}`" class="admin-label">Remplacer le PDF</label>
           <input :id="`cv-document-${cv.id}`" class="admin-input" type="file" accept="application/pdf,.pdf" :aria-invalid="Boolean(cv.errors.document)" @change="selectDocument($event, cv)">
           <p class="mt-2 text-xs text-muted-foreground">{{ cv.has_document ? 'Un PDF privé est enregistré.' : 'Aucun PDF enregistré.' }}</p>
-          <p v-if="cv.errors.document" class="mt-2 text-sm text-destructive" role="alert">{{ cv.errors.document }}</p>
+          <p v-if="cv.errors.document" class="admin-error" role="alert">{{ cv.errors.document }}</p>
         </div>
-        <div class="flex flex-wrap gap-3 md:col-span-3"><button type="submit" class="admin-button" :disabled="cv.processing">Enregistrer</button><button type="button" class="min-h-11 rounded-md border border-destructive px-4 text-destructive" @click="deleteCv(cv.id)">Supprimer</button></div>
+        <div class="flex flex-wrap gap-3 md:col-span-3"><button type="submit" class="admin-button" :disabled="cv.processing">Enregistrer</button><button type="button" class="admin-button admin-button-danger admin-button-compact" @click="deleteCv(cv.id)">Supprimer</button></div>
       </form>
 
-      <form class="mt-5 grid gap-4 rounded-2xl border border-border bg-surface p-5 md:grid-cols-3" :aria-busy="newCv.processing" @submit.prevent="addCv">
-        <h3 class="text-lg font-bold md:col-span-3">Ajouter une version</h3>
-        <div v-if="Object.keys(newCv.errors).length" class="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive md:col-span-3" role="alert">Vérifiez les métadonnées : {{ Object.values(newCv.errors).join(' ') }}</div>
-        <div><label for="new-cv-label" class="mb-2 block text-sm font-semibold">Libellé</label><input id="new-cv-label" v-model="newCv.label" class="admin-input" required maxlength="120"></div>
-        <div><label for="new-cv-version" class="mb-2 block text-sm font-semibold">Version</label><input id="new-cv-version" v-model="newCv.version_label" class="admin-input" required maxlength="50"></div>
-        <div><label for="new-cv-locale" class="mb-2 block text-sm font-semibold">Langue</label><select id="new-cv-locale" v-model="newCv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
+      <form class="mt-5 grid gap-4 admin-card admin-panel md:grid-cols-3" :aria-busy="newCv.processing" @submit.prevent="addCv">
+        <h3 class="text-lg font-semibold md:col-span-3">Ajouter une version</h3>
+        <div v-if="Object.keys(newCv.errors).length" class="admin-banner md:col-span-3" role="alert">Vérifiez les métadonnées : {{ Object.values(newCv.errors).join(' ') }}</div>
+        <div><label for="new-cv-label" class="admin-label">Libellé</label><input id="new-cv-label" v-model="newCv.label" class="admin-input" required maxlength="120"></div>
+        <div><label for="new-cv-version" class="admin-label">Version</label><input id="new-cv-version" v-model="newCv.version_label" class="admin-input" required maxlength="50"></div>
+        <div><label for="new-cv-locale" class="admin-label">Langue</label><select id="new-cv-locale" v-model="newCv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
         <div class="md:col-span-3">
-          <label for="new-cv-document" class="mb-2 block text-sm font-semibold">Fichier PDF privé</label>
+          <label for="new-cv-document" class="admin-label">Fichier PDF privé</label>
           <input id="new-cv-document" class="admin-input" type="file" accept="application/pdf,.pdf" :aria-invalid="Boolean(newCv.errors.document)" @change="selectDocument($event, newCv)">
           <p class="mt-2 text-xs text-muted-foreground">PDF uniquement, 20 Mo maximum. Le nom, la taille et le SHA-256 sont calculés par le serveur.</p>
-          <p v-if="newCv.errors.document" class="mt-2 text-sm text-destructive" role="alert">{{ newCv.errors.document }}</p>
+          <p v-if="newCv.errors.document" class="admin-error" role="alert">{{ newCv.errors.document }}</p>
         </div>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.is_verified" type="checkbox"> Vérifié</label>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.published" type="checkbox"> Marqué publié</label>
-        <label class="flex min-h-11 items-center gap-3"><input v-model="newCv.archived" type="checkbox"> Archivé</label>
+        <label class="admin-check"><input v-model="newCv.is_verified" type="checkbox"> Vérifié</label>
+        <label class="admin-check"><input v-model="newCv.published" type="checkbox"> Marqué publié</label>
+        <label class="admin-check"><input v-model="newCv.archived" type="checkbox"> Archivé</label>
         <div class="md:col-span-3"><button type="submit" class="admin-button" :disabled="newCv.processing">{{ newCv.processing ? 'Ajout…' : 'Ajouter la version' }}</button></div>
       </form>
     </section>
+
+    <ConfirmDialog :open="confirm.request.value !== null" :title="confirm.request.value?.title ?? ''" :message="confirm.request.value?.message" :confirm-label="confirm.request.value?.confirmLabel" @confirm="confirm.accept" @cancel="confirm.dismiss" />
   </AdminLayout>
 </template>
