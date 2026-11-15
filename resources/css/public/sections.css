@@ -190,16 +190,20 @@ html:not(.js) [data-three-preview-load] { display: none; }
         box-sizing: border-box;
     }
 
-    .js .skillmap__inner { grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
+    /* La scène remplit exactement la fenêtre : la carte routière prend l'espace restant, les panneaux gardent
+       la hauteur du plus grand, donc rien ne déborde sur la section suivante. */
+    .js .skillmap__stick { align-items: stretch; }
+    .js .skillmap__inner { height: 100%; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-4); }
+    .js .map { min-height: 0; }
+    .js .map svg { height: 100%; min-height: 6rem; }
     .js .skillmap__head h2 { margin-bottom: 0.2em; font-size: clamp(1.8rem, 3.4vw, 3rem); }
     .js .skillmap__head .lede { margin: 0; font-size: 1rem; }
     .js .skillmap__panels { display: grid; min-height: 10.5rem; perspective: 1400px; }
 
     /* Écrans bas (portables) : la scène collante doit tenir dans la fenêtre, panneau compris */
     @media (height <= 50rem) {
-        .js .skillmap__stick { padding-block: 4.5rem 1rem; }
+        .js .skillmap__stick { padding-block: 5.25rem 1rem; }
         .js .skillmap__head .lede { display: none; }
-        .js .map svg { height: 24svh; }
     }
 
     .js .skillmap__panel {
