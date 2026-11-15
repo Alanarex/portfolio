@@ -134,7 +134,10 @@ html:not(.js) [data-three-preview-load] { display: none; }
 .map__kerb { stroke: #2a2527; stroke-width: 36; }
 .map__asphalt { stroke: #0f0c0d; stroke-width: 30; }
 .map__lane { stroke: #f5f3f4; stroke-dasharray: 12 12; stroke-opacity: 0.5; stroke-width: 2; }
-.map__draw { stroke: var(--color-accent-light); stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--p, 1)); stroke-width: 5; filter: drop-shadow(0 0 8px var(--color-accent-light)); }
+
+/* Tracé rouge révélé selon --p. Avec pathLength="1", 1px = tout le tracé ; Firefox rejette un calc() sans unité
+   pour stroke-dashoffset (le tracé s'affichait alors en entier dès le départ). */
+.map__draw { stroke: var(--color-accent-light); stroke-dasharray: 1px; stroke-dashoffset: calc((1 - var(--p, 1)) * 1px); stroke-width: 5; filter: drop-shadow(0 0 8px var(--color-accent-light)); }
 .map__car { offset-distance: calc(var(--p, 1) * 100%); offset-rotate: auto; }
 
 .map__ring {
