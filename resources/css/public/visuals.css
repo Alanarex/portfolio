@@ -33,7 +33,7 @@
     background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent-light));
     transform: scaleX(var(--v, 0));
     transform-origin: left;
-    animation: score-fill 1.4s var(--ease) both;
+    animation: score-fill 1.4s var(--ease) backwards;
 }
 
 .score__bar::after {
