@@ -1059,6 +1059,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     // Portrait : la voiture descend dans le tiers inférieur de l'écran (décalage de la fenêtre de projection) ;
     // pendant la lecture d'un panneau, le cadre remonte pour que le panneau reste au-dessus de la feuille d'étape.
     const view = { width: 1, height: 1 };
+    const PORTRAIT_FOV = 54;
+    const CAR_FRAME_WIDTH = 3.7; // demi-largeur visible voulue autour de la voiture, en unités de scène
     // Même seuil que mobile.css : c'est lui qui affiche la feuille d'étape en bas de l'écran.
     const narrowLayout = window.matchMedia('(width <= 44rem)');
     const isPortrait = (): boolean => narrowLayout.matches;
@@ -1081,7 +1083,12 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const free = 1 - state.focus;
         // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
         const azimuth = lerp(2.3, 0.3, intro) + lerp(0, 1.25, outro) + state.yaw * free;
-        const distance = lerp(9.2, 8.4, intro) - 1.2 * outro;
+        let distance = lerp(9.2, 8.4, intro) - 1.2 * outro;
+        if (isPortrait()) {
+            // Écran étroit : on recule jusqu'à ce que la voiture (≈ 4,7 u de long) tienne en entier dans la largeur.
+            const fit = CAR_FRAME_WIDTH / (Math.tan((PORTRAIT_FOV * Math.PI) / 360) * Math.max(camera.aspect, 0.3));
+            distance = Math.max(distance, fit);
+        }
         const height = clamp(lerp(1.7, 2.5, intro) + state.pitch * free, 0.5, 6);
 
         const rear = tangent.clone().multiplyScalar(-1);
@@ -1091,7 +1098,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const aimAhead = 2.4 * (1 - clamp(Math.abs(azimuth), 0, 1.5) / 1.5);
         lookAt.copy(car.position).addScaledVector(tangent, aimAhead).setY(0.8);
 
-        const baseFov = isPortrait() ? 54 : 42;
+        const baseFov = isPortrait() ? PORTRAIT_FOV : 42;
         let fov = baseFov;
         if (state.focus > 0 && state.focusIndex >= 0) {
             signPose(state.focusIndex, camera.aspect);
@@ -1132,6 +1139,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     const sheetDots = [...(sheet?.querySelectorAll<HTMLElement>('[data-sheet-dot]') ?? [])];
     const nextButton = sheet?.querySelector<HTMLButtonElement>('[data-journey-next]');
     const nextLabel = sheet?.querySelector<HTMLElement>('[data-journey-next-label]');
+    const nextArrow = sheet?.querySelector<HTMLElement>('[data-journey-next-arrow]');
 
     const updateSheet = (active: number): void => {
         const card = cards[active];
@@ -1155,6 +1163,9 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const last = active >= count - 1;
         if (nextLabel) {
             nextLabel.textContent = (last ? sheet?.dataset.labelEnd : sheet?.dataset.labelNext) ?? '';
+        }
+        if (nextArrow) {
+            nextArrow.textContent = last ? '↓' : '→';
         }
     };
 
