@@ -77,19 +77,40 @@ if (skillmap && mapPath) {
     };
 
     // Mobile (≤ 45rem) : plus de scène épinglée. Une route verticale, une carte repliable par domaine ;
-    // le tracé rouge va jusqu'à l'étape ouverte, le pointillé gris continue après.
+    // le tracé rouge avance avec le défilement et allume les étapes au passage (le pointillé gris continue après) ;
+    // toucher une étape l'ouvre. Avec « réduire les animations », le tracé s'arrête à l'étape ouverte.
     let opened = 0;
 
     const fillRoute = (): void => {
-        const panel = panels[opened];
-        list?.style.setProperty('--route-fill', panel ? `${panel.offsetTop}px` : '0px');
+        const last = panels[panels.length - 1];
+        if (!list || !last) {
+            return;
+        }
+        const node = parseFloat(getComputedStyle(document.documentElement).fontSize) * 2;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const current = panels[opened];
+        const probe = reduced ? (current ? current.offsetTop + node : 0) : window.innerHeight * 0.6 - list.getBoundingClientRect().top;
+        const reach = clamp(probe, 0, last.offsetTop + node);
+        list.style.setProperty('--route-fill', `${Math.max(reach - node, 0)}px`);
+        panels.forEach((panel) => panel.classList.toggle('is-done', panel.offsetTop + node <= reach + 1));
+    };
+
+    let routeFrame = false;
+    const scheduleRoute = (): void => {
+        if (routeFrame) {
+            return;
+        }
+        routeFrame = true;
+        requestAnimationFrame(() => {
+            routeFrame = false;
+            fillRoute();
+        });
     };
 
     const setOpened = (index: number): void => {
         opened = index;
         panels.forEach((panel, position) => {
             panel.classList.toggle('is-open', position === index);
-            panel.classList.toggle('is-done', index >= 0 && position < index);
             toggles[position]?.setAttribute('aria-expanded', String(position === index));
         });
         fillRoute();
@@ -101,10 +122,12 @@ if (skillmap && mapPath) {
         panels.forEach((panel) => panel.classList.remove('is-active', 'is-passed'));
         toggles.forEach((toggle) => toggle?.removeAttribute('disabled'));
         setOpened(Math.min(opened, panels.length - 1));
+        window.addEventListener('scroll', scheduleRoute, { passive: true });
     };
 
     const disableRoute = (): void => {
         delete skillmap.dataset.accordion;
+        window.removeEventListener('scroll', scheduleRoute);
         list?.style.removeProperty('--route-fill');
         panels.forEach((panel, position) => {
             panel.classList.remove('is-open', 'is-done');
