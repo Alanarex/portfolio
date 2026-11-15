@@ -30,6 +30,25 @@ if (preview) {
 
     loadButton?.addEventListener('click', () => void loadPreview());
 
+    // Mobile : « Voir en liste » remplace la scène par des cartes empilées (et inversement). La scène 3D se met en pause.
+    const viewButton = preview.querySelector<HTMLButtonElement>('[data-journey-view]');
+    if (viewButton) {
+        viewButton.hidden = false;
+        viewButton.addEventListener('click', () => {
+            const list = preview.dataset.view !== 'list';
+            if (list) {
+                preview.dataset.view = 'list';
+            } else {
+                delete preview.dataset.view;
+            }
+            viewButton.setAttribute('aria-pressed', String(list));
+            preview.dispatchEvent(new Event('journey-view'));
+            if (list) {
+                preview.querySelector<HTMLElement>('.journey__steps')?.scrollIntoView({ block: 'nearest' });
+            }
+        });
+    }
+
     // Mobile / économiseur de données : le chargement reste à la demande.
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     const onDemandOnly =

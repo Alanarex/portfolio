@@ -12,11 +12,14 @@ try {
 }
 
 // Défilement inertiel (désactivé si mouvement réduit ou écran tactile).
+export let lenis: Lenis | undefined;
+
 if (!reducedMotion && !coarsePointer) {
-    const lenis = new Lenis({ lerp: 0.1, anchors: true });
+    lenis = new Lenis({ lerp: 0.1, anchors: true });
+    const smooth = lenis;
     root.classList.add('lenis', 'lenis-smooth');
     const frame = (time: number): void => {
-        lenis.raf(time);
+        smooth.raf(time);
         requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);

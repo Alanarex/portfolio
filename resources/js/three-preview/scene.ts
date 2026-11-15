@@ -4,6 +4,8 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const MAX_DEVICE_PIXEL_RATIO = 2;
+/** Petit écran ou toucher : moins de pixels, pas d'ombres portées, décor allégé. */
+const COMPACT_PIXEL_RATIO = 1.5;
 const MODEL_URL = '/models/amg-gt-roadster.glb';
 const CAR_LENGTH = 4.6;
 const ROAD_HALF_WIDTH = 4.4;
@@ -691,12 +693,15 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DEVICE_PIXEL_RATIO));
+    const compact = window.matchMedia('(width <= 44rem), (pointer: coarse)').matches;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true, powerPreference: compact ? 'default' : 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, compact ? COMPACT_PIXEL_RATIO : MAX_DEVICE_PIXEL_RATIO));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
-    renderer.shadowMap.enabled = true;
+    // Ombres portées coûteuses : seulement sur grand écran (l'ombre de contact sous la voiture reste dessinée).
+    renderer.shadowMap.enabled = !compact;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.domElement.setAttribute('aria-hidden', 'true');
     canvasHost.append(renderer.domElement);
@@ -715,7 +720,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     const rim = new THREE.DirectionalLight('#e5383b', 1.2);
     scene.add(rim, rim.target);
     const key = new THREE.DirectionalLight('#f5f3f4', 1.1);
-    key.castShadow = true;
+    key.castShadow = !compact;
     key.shadow.mapSize.set(2048, 2048);
     Object.assign(key.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
     key.shadow.bias = -0.0004;
@@ -738,7 +743,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         false,
         'centripetal',
     );
-    const segments = 480;
+    const segments = compact ? 240 : 480;
 
     const asphalt = makeAsphaltTexture();
     const road = buildRibbon(curve, segments, -ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, () => 0, asphalt, 8, { roughness: 0.5, metalness: 0.25 });
@@ -819,7 +824,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
 
     // Montagnes lointaines (silhouettes basses)
     const mountainMaterial = new THREE.MeshStandardMaterial({ color: '#150f12', roughness: 1, flatShading: true });
-    for (let i = 0; i < 46; i++) {
+    for (let i = 0; i < (compact ? 24 : 46); i++) {
         const t = Math.random();
         const point = curve.getPointAt(t);
         const tangent = curve.getTangentAt(t);
@@ -834,7 +839,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     }
 
     // Ciel : étoiles et lune rouge qui suivent la caméra
-    const starCount = 1600;
+    const starCount = compact ? 600 : 1600;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i++) {
         const theta = Math.random() * Math.PI * 2;
@@ -972,6 +977,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     for (const light of rig.tailLights) {
         const lamp = new THREE.PointLight('#ff2a2e', 1.4, 4.5, 2);
         lamp.position.copy(light);
+        lamp.visible = !compact;
         const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: tailGlow, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.8 }));
         flare.position.copy(light).add(new THREE.Vector3(0, 0, 0.05));
         flare.scale.setScalar(0.7);
@@ -1050,6 +1056,23 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         signEye.copy(sign.group.position).addScaledVector(sign.facing, distance).setY(Math.min(SIGN_CENTER_Y - 0.5, 4.3));
     };
 
+    // Portrait : la voiture descend dans le tiers inférieur de l'écran (décalage de la fenêtre de projection) ;
+    // pendant la lecture d'un panneau, le cadre remonte pour que le panneau reste au-dessus de la feuille d'étape.
+    const view = { width: 1, height: 1 };
+    // Même seuil que mobile.css : c'est lui qui affiche la feuille d'étape en bas de l'écran.
+    const narrowLayout = window.matchMedia('(width <= 44rem)');
+    const isPortrait = (): boolean => narrowLayout.matches;
+    const frameView = (): void => {
+        if (!isPortrait()) {
+            if (camera.view?.enabled) {
+                camera.clearViewOffset();
+            }
+            return;
+        }
+        const shift = lerp(-0.03, 0.12, state.focus);
+        camera.setViewOffset(view.width, view.height, 0, shift * view.height, view.width, view.height);
+    };
+
     const placeCamera = (delta: number): void => {
         const p = state.progress;
         const lead = Math.max(travelLength * 0.9, 0.02);
@@ -1068,13 +1091,14 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const aimAhead = 2.4 * (1 - clamp(Math.abs(azimuth), 0, 1.5) / 1.5);
         lookAt.copy(car.position).addScaledVector(tangent, aimAhead).setY(0.8);
 
-        let fov = 42;
+        const baseFov = isPortrait() ? 54 : 42;
+        let fov = baseFov;
         if (state.focus > 0 && state.focusIndex >= 0) {
             signPose(state.focusIndex, camera.aspect);
             const k = smooth(0, 1, state.focus);
             desired.lerp(signEye, k);
             lookAt.lerp(signLook, k);
-            fov = lerp(42, 36, k);
+            fov = lerp(baseFov, 36, k);
         }
 
         if (!cameraReady || reducedMotion) {
@@ -1090,6 +1114,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const kick = clamp(Math.abs(state.velocity) * 60, 0, 1);
         camera.fov = lerp(camera.fov, fov + kick * 7 * free, damp(5, delta));
         camera.updateProjectionMatrix();
+        frameView();
     };
 
     const updateLights = (): void => {
@@ -1099,6 +1124,52 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         key.target.position.copy(car.position);
         sky.position.copy(camera.position);
     };
+
+    const sheet = container.querySelector<HTMLElement>('[data-journey-sheet]');
+    const sheetPeriod = sheet?.querySelector<HTMLElement>('[data-sheet-period]');
+    const sheetTitle = sheet?.querySelector<HTMLElement>('[data-sheet-title]');
+    const sheetOrg = sheet?.querySelector<HTMLElement>('[data-sheet-org]');
+    const sheetDots = [...(sheet?.querySelectorAll<HTMLElement>('[data-sheet-dot]') ?? [])];
+    const nextButton = sheet?.querySelector<HTMLButtonElement>('[data-journey-next]');
+    const nextLabel = sheet?.querySelector<HTMLElement>('[data-journey-next-label]');
+
+    const updateSheet = (active: number): void => {
+        const card = cards[active];
+        if (!card) {
+            return;
+        }
+        if (sheetPeriod) {
+            sheetPeriod.textContent = [card.period, card.counter].filter(Boolean).join(' · ');
+        }
+        if (sheetTitle) {
+            sheetTitle.textContent = card.title;
+        }
+        if (sheetOrg) {
+            sheetOrg.textContent = card.org;
+            sheetOrg.hidden = card.org === '';
+        }
+        sheetDots.forEach((dot, index) => {
+            dot.classList.toggle('is-active', index === active);
+            dot.classList.toggle('is-done', index < active);
+        });
+        const last = active >= count - 1;
+        if (nextLabel) {
+            nextLabel.textContent = (last ? sheet?.dataset.labelEnd : sheet?.dataset.labelNext) ?? '';
+        }
+    };
+
+    // « Étape suivante » fait défiler jusqu'à l'arrêt devant le panneau suivant (la voiture rattrape ensuite le défilement).
+    nextButton?.addEventListener('click', () => {
+        const behavior: ScrollBehavior = reducedMotion ? 'auto' : 'smooth';
+        const index = state.activeStep + 1;
+        if (index >= count) {
+            (document.getElementById('competences') ?? container.nextElementSibling)?.scrollIntoView({ behavior });
+            return;
+        }
+        const rect = container.getBoundingClientRect();
+        const runway = Math.max(rect.height - window.innerHeight, 1);
+        window.scrollTo({ top: window.scrollY + rect.top + (holdStart(index) + HOLD / 2) * runway, behavior });
+    });
 
     const updateSteps = (): void => {
         let active = 0;
@@ -1121,6 +1192,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
             if (hudCount) {
                 hudCount.textContent = cards[active]?.counter ?? '';
             }
+            updateSheet(active);
         }
         container.dataset.moving = state.progress > 0.02 ? 'true' : 'false';
         container.dataset.focus = state.focus > 0.25 ? 'true' : 'false';
@@ -1185,6 +1257,8 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
         const width = Math.max(canvasHost.clientWidth, 1);
         const height = Math.max(canvasHost.clientHeight, 1);
         renderer.setSize(width, height, false);
+        view.width = width;
+        view.height = height;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
     };
@@ -1226,7 +1300,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
     // Visibilité : contrôle géométrique au défilement (fiable même quand l'IntersectionObserver est silencieux).
     const checkVisibility = (): void => {
         const rect = container.getBoundingClientRect();
-        state.visible = rect.bottom > 0 && rect.top < window.innerHeight;
+        state.visible = rect.bottom > 0 && rect.top < window.innerHeight && container.dataset.view !== 'list';
         if (state.visible) {
             wake();
         } else if (animationFrame !== undefined) {
@@ -1234,6 +1308,7 @@ export const mountThreePreview = async (container: HTMLElement): Promise<void> =
             animationFrame = undefined;
         }
     };
+    container.addEventListener('journey-view', checkVisibility);
     window.addEventListener('scroll', checkVisibility, { passive: true });
     window.addEventListener('resize', checkVisibility, { passive: true });
 

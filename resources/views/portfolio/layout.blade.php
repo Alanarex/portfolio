@@ -118,9 +118,37 @@
                     <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="currentColor"/></svg>
                 </button>
                 <a class="button button--small site-cta" href="{{ $homeUrl }}#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
+                <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu" aria-label="{{ __('portfolio.menu.open') }}" data-label-open="{{ __('portfolio.menu.open') }}" data-label-close="{{ __('portfolio.menu.close') }}">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path class="menu-toggle__bars" d="M3 6h14M3 14h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="menu-toggle__cross" d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                </button>
             </div>
         </div>
     </header>
+
+    {{-- Feuille de menu mobile : réservée aux écrans étroits avec JavaScript (public/menu.ts) ; sans JS, la navigation reste dans l'en-tête. --}}
+    <div class="menu-sheet" id="mobile-menu" role="dialog" aria-modal="true" aria-label="{{ __('portfolio.menu.label') }}" data-menu hidden>
+        <nav class="menu-sheet__nav" aria-label="{{ __('portfolio.navigation') }}">
+            @foreach ([['projets', 'projects'], ['experience', 'experience'], ['competences', 'skills'], ['contact', 'contact']] as [$anchor, $key])
+                <a href="{{ $homeUrl }}#{{ $anchor }}"><span><span class="menu-sheet__num" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>{{ __('portfolio.nav.'.$key) }}</span><span aria-hidden="true">→</span></a>
+            @endforeach
+        </nav>
+        <div class="menu-sheet__prefs" role="group" aria-label="{{ __('portfolio.menu.preferences') }}">
+            <div class="menu-sheet__row">
+                <span>{{ __('portfolio.theme.label') }}</span>
+                <button class="theme-toggle theme-toggle--menu" type="button" data-theme-toggle-menu aria-label="{{ __('portfolio.theme.label') }}" data-label-dark="{{ __('portfolio.theme.to_dark') }}" data-label-light="{{ __('portfolio.theme.to_light') }}">
+                    <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                    <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="currentColor"/></svg>
+                </button>
+            </div>
+            @if (($page ?? 'home') === 'home')
+                <label class="menu-sheet__row switch" data-menu-lamp-row>
+                    <span>{{ __('portfolio.hero.lamp') }}</span>
+                    <input class="switch__input" type="checkbox" role="switch" checked data-menu-lamp aria-label="{{ __('portfolio.hero.lamp_label') }}"><span class="switch__track"></span>
+                </label>
+            @endif
+            <a class="button" href="{{ $homeUrl }}#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
+        </div>
+    </div>
 
     <main id="main-content" tabindex="-1">
         @yield('content')

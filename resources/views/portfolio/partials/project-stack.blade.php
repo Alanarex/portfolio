@@ -5,7 +5,7 @@
     $url = route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]);
     $number = str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT);
 @endphp
-<article class="stack__card" style="--n: {{ $index }}">
+<article class="stack__card" style="--n: {{ $index }}" data-pr data-status="{{ $project->lifecycleStatus }}">
     <div class="stack__body">
         <div>
             @if ($cover)@include('portfolio.partials.project-logo', ['project' => $project, 'class' => 'logo--mark'])@endif

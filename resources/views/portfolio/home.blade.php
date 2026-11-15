@@ -158,7 +158,7 @@
     <div class="marquee" aria-hidden="true">
         <div class="marquee__track">
             @foreach (range(1, 2) as $group)
-                <div class="marquee__group">@foreach (range(1, 2) as $repeat)@foreach ($marqueeNames as $name)<span>{{ $name }}</span>@endforeach @endforeach</div>
+                <div @class(['marquee__group', 'marquee__group--clone' => ! $loop->first])>@foreach (range(1, 2) as $repeat)@foreach ($marqueeNames as $name)<span @class(['marquee__dup' => $repeat === 2])>{{ $name }}</span>@endforeach @endforeach</div>
             @endforeach
         </div>
     </div>
@@ -231,8 +231,20 @@
             <a class="button button--ghost" href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}"><span>{{ __('portfolio.sections.all_projects') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
         </div>
         @if ($featuredProjects !== [])
-            <div class="stack">
-                @foreach (array_slice($featuredProjects, 0, 5) as $project)
+            @php
+                $stackProjects = array_slice($featuredProjects, 0, 5);
+                $stackStatuses = collect($stackProjects)->pluck('lifecycleStatus')->unique()->values();
+            @endphp
+            @if ($stackStatuses->count() > 1)
+                <div class="filters" role="group" aria-label="{{ __('portfolio.projects.filter_label') }}" data-project-filters hidden>
+                    <button type="button" class="filters__chip" data-filter="all" aria-pressed="true">{{ __('portfolio.projects.filter_all') }}</button>
+                    @foreach ($stackStatuses as $status)
+                        <button type="button" class="filters__chip" data-filter="{{ $status }}" aria-pressed="false">{{ __('portfolio.lifecycle.'.$status) }}</button>
+                    @endforeach
+                </div>
+            @endif
+            <div class="stack" data-project-stack>
+                @foreach ($stackProjects as $project)
                     @include('portfolio.partials.project-stack', ['project' => $project, 'index' => $loop->index])
                 @endforeach
             </div>
@@ -249,7 +261,7 @@
             <h2 id="proof-title" data-scroll-reveal>{{ __('portfolio.sections.metrics') }}</h2>
             <ol class="strips strips--proof">
                 @foreach ($proofItems as $metric)
-                    <li class="strip" data-scroll-reveal>
+                    <li class="strip" data-scroll-reveal data-pr>
                         <span class="strip__code mono" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                         {{-- Chiffres mis en valeur : le texte est échappé avant l'ajout des balises. --}}
                         <div class="strip__body"><p class="proof__text">{!! preg_replace('/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u', '<b>$0</b>', e($metric)) !!}</p></div>
@@ -275,6 +287,7 @@
                         <p class="lede journey__lede">{{ __('portfolio.three_d.intro') }}</p>
                         <button class="button" type="button" data-three-preview-load><span>{{ __('portfolio.three_d.load') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
                         <p class="error" role="status" data-three-preview-status hidden>{{ __('portfolio.three_d.unavailable') }}</p>
+                        <button class="button button--ghost journey__view" type="button" data-journey-view aria-pressed="false" hidden><span class="journey__view-list">{{ __('portfolio.three_d.view_list') }}</span><span class="journey__view-scene">{{ __('portfolio.three_d.view_scene') }}</span></button>
                     @endif
                 </div>
                 <ol class="journey__steps" aria-label="{{ __('portfolio.three_d.steps') }}">
@@ -307,6 +320,17 @@
                             @foreach ($milestones as $milestone)<li @class(['is-active' => $loop->first]) data-journey-dot></li>@endforeach
                         </ol>
                     </div>
+                    <div class="journey__sheet" role="group" aria-label="{{ __('portfolio.three_d.sheet') }}" data-journey-sheet data-label-next="{{ __('portfolio.three_d.next') }}" data-label-end="{{ __('portfolio.three_d.to_skills') }}">
+                        <p class="journey__sheet-period mono" data-sheet-period aria-live="polite"></p>
+                        <p class="journey__sheet-title" data-sheet-title></p>
+                        <p class="journey__sheet-org" data-sheet-org></p>
+                        <div class="journey__sheet-nav">
+                            <ol class="journey__sheet-dots" aria-hidden="true">
+                                @foreach ($milestones as $milestone)<li @class(['is-active' => $loop->first]) data-sheet-dot></li>@endforeach
+                            </ol>
+                            <button class="button button--ghost journey__next" type="button" data-journey-next><span data-journey-next-label>{{ __('portfolio.three_d.next') }}</span></button>
+                        </div>
+                    </div>
                     <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
                     <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
                         'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer" target="_blank">« Mercedes Amg GT roadster »</a>',
@@ -326,7 +350,7 @@
                 <header class="skillmap__head">
                     <p class="eyebrow">{{ __('portfolio.sections.strengths') }}</p>
                     <h2 id="skills-title">{{ __('portfolio.sections.skills') }}</h2>
-                    <p class="lede">{{ __('portfolio.sections.skills_intro') }}</p>
+                    <p class="lede"><span class="skillmap__lede-wide">{{ __('portfolio.sections.skills_intro') }}</span><span class="skillmap__lede-narrow">{{ __('portfolio.sections.skills_intro_touch') }}</span></p>
                 </header>
                 <div class="map">
                     <svg viewBox="0 0 1000 520" role="group" aria-label="{{ __('portfolio.map.label', ['count' => $mapCount]) }}">
@@ -359,7 +383,8 @@
                     @foreach ($categories as $category)
                         <li @class(['skillmap__panel', 'is-active' => $loop->first]) data-map-panel="{{ $loop->index }}" data-num="{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}">
                             <p class="mono skillmap__meta">0{{ $loop->iteration }} · {{ __('portfolio.map.count', ['count' => count($category['skills'] ?? [])]) }}</p>
-                            <h3>{{ $category['name'] }}</h3>
+                            <h3><button class="skillmap__toggle" type="button" data-map-toggle aria-expanded="true" aria-controls="skillmap-body-{{ $loop->index }}" disabled>{{ $category['name'] }}</button></h3>
+                            <div class="skillmap__body" id="skillmap-body-{{ $loop->index }}">
                             <ul class="tag-row">
                                 @foreach ($category['skills'] ?? [] as $skill)<li class="chip" style="--i: {{ $loop->index }}">{{ $skill['name'] }}</li>@endforeach
                             </ul>
@@ -372,6 +397,7 @@
                                     @foreach ($relatedProjects as $related)<a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $related->slug]) }}">{{ $related->title }}</a>@endforeach
                                 </p>
                             @endif
+                            </div>
                         </li>
                     @endforeach
                 </ol>
@@ -397,7 +423,7 @@
                         <h3 class="activity__title">{{ __('portfolio.activity.grid.title') }}</h3>
                         <p class="mono contrib__total">{{ __('portfolio.activity.grid.total', ['count' => number_format($grid->total, 0, ',', ' ')]) }}</p>
                     </figcaption>
-                    <div class="contrib__scroll">
+                    <div class="contrib__scroll" tabindex="0" role="group" aria-label="{{ __('portfolio.activity.grid.title') }}">
                         <div class="contrib__grid" role="img" aria-label="{{ __('portfolio.activity.grid.aria', ['count' => $grid->total, 'sources' => $sourceSummary]) }}" style="--weeks: {{ count($grid->weeks) }}">
                             @foreach ($grid->weeks as $week)
                                 @php
@@ -590,8 +616,8 @@
             @if ($settings?->email || $settings?->phone || ($settings?->socialLinks ?? []) !== [])
                 <div class="actions contact__channels" data-scroll-reveal>
                     {{-- Email and phone never appear in clear in the HTML: resources/js/public.ts decodes them on click. --}}
-                    @if ($settings?->email)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('mailto:'.$settings->email, $settings->email) }}"><span>{{ __('portfolio.contact.show_email') }}</span></button>@endif
-                    @if ($settings?->phone)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('tel:'.preg_replace('/\\s+/', '', $settings->phone), $settings->phone) }}"><span>{{ __('portfolio.contact.show_phone') }}</span></button>@endif
+                    @if ($settings?->email)<button type="button" class="button button--ghost contact__reveal" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('mailto:'.$settings->email, $settings->email) }}"><span>{{ __('portfolio.contact.show_email') }}</span></button>@endif
+                    @if ($settings?->phone)<button type="button" class="button button--ghost contact__reveal" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('tel:'.preg_replace('/\\s+/', '', $settings->phone), $settings->phone) }}"><span>{{ __('portfolio.contact.show_phone') }}</span></button>@endif
                     @foreach ($settings?->socialLinks ?? [] as $platform => $url)
                         <a class="button button--ghost" href="{{ $url }}" rel="noopener noreferrer" target="_blank"><span>{{ __('portfolio.contact.platforms.'.$platform) }}</span></a>
                     @endforeach
