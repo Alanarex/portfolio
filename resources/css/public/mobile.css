@@ -399,7 +399,7 @@ html.menu-open { overflow: hidden; }
         border-radius: 2px;
         background: var(--color-accent-light);
         box-shadow: 0 0 0.9rem var(--color-glow);
-        transition: height 350ms var(--ease);
+        transition: height 120ms linear;
     }
 
     [data-accordion] .skillmap__panel {
@@ -429,6 +429,7 @@ html.menu-open { overflow: hidden; }
         font-weight: 700;
     }
 
+    [data-accordion] .skillmap__panel.is-done { box-shadow: inset 0 0 0 1px rgb(229 56 59 / 45%); }
     [data-accordion] .skillmap__panel.is-done::before { color: var(--color-text); box-shadow: inset 0 0 0 3px var(--color-accent-light); }
 
     [data-accordion] .skillmap__panel.is-open { box-shadow: inset 0 0 0 1px var(--color-accent-light), 0 1.1rem 2.5rem -1.5rem rgb(229 56 59 / 70%); }

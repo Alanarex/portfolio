@@ -49,12 +49,10 @@ if (preview) {
         });
     }
 
-    // Mobile / économiseur de données : le chargement reste à la demande.
+    // Économiseur de données ou mouvement réduit : le chargement reste à la demande.
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    const onDemandOnly =
-        window.matchMedia('(pointer: coarse)').matches ||
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-        connection?.saveData === true;
+    // Le toucher ne suffit plus à différer la scène : sur téléphone aussi, elle démarre à l'approche de la section.
+    const onDemandOnly = window.matchMedia('(prefers-reduced-motion: reduce)').matches || connection?.saveData === true;
 
     if (!onDemandOnly) {
         // Chargement dès que la section approche du viewport. Le contrôle au défilement
