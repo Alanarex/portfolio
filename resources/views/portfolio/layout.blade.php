@@ -133,7 +133,7 @@
                 <a href="{{ $homeUrl }}">{{ __('portfolio.nav.home') }}</a>
                 <a href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">{{ __('portfolio.nav.projects') }}</a>
                 @foreach ($socialLinks as $platform => $url)
-                    <a href="{{ $url }}" rel="noopener noreferrer">{{ ucfirst($platform) }}</a>
+                    <a href="{{ $url }}" rel="noopener noreferrer" target="_blank">{{ __('portfolio.contact.platforms.'.$platform) }}</a>
                 @endforeach
                 <a href="{{ route('portfolio.privacy', ['locale' => $locale]) }}">{{ __('portfolio.footer.privacy') }}</a>
                 <a href="{{ route('portfolio.legal', ['locale' => $locale]) }}">{{ __('portfolio.footer.legal') }}</a>

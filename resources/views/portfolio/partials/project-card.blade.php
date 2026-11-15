@@ -23,7 +23,7 @@
     @endif
     <p class="project-card__actions">
         <a href="{{ $url }}">{{ __('portfolio.projects.view') }} <span aria-hidden="true">→</span></a>
-        @if ($project->repositoryUrl)<a class="mono" href="{{ $project->repositoryUrl }}" rel="noopener noreferrer">{{ __('portfolio.projects.repository') }}</a>@endif
-        @if ($project->demoUrl)<a class="mono" href="{{ $project->demoUrl }}" rel="noopener noreferrer">{{ __('portfolio.projects.demo') }}</a>@endif
+        @if ($project->repositoryUrl)<a class="mono" href="{{ $project->repositoryUrl }}" rel="noopener noreferrer" target="_blank">{{ __('portfolio.projects.repository') }}</a>@endif
+        @if ($project->demoUrl)<a class="mono" href="{{ $project->demoUrl }}" rel="noopener noreferrer" target="_blank">{{ __('portfolio.projects.demo') }}</a>@endif
     </p>
 </article>

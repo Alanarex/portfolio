@@ -174,7 +174,7 @@
                             {{-- Plain text only: escaped, line breaks kept. --}}
                             <p>{!! nl2br(e($post->body), false) !!}</p>
                             @if ($post->linkUrl)
-                                <p><a href="{{ $post->linkUrl }}" rel="noopener noreferrer">{{ $post->linkLabel ?? $post->linkUrl }}</a></p>
+                                <p><a href="{{ $post->linkUrl }}" rel="noopener noreferrer" target="_blank">{{ $post->linkLabel ?? $post->linkUrl }}</a></p>
                             @endif
                         </article>
                     </li>
@@ -272,9 +272,9 @@
                     </div>
                     <p class="journey__drag" aria-hidden="true"><span class="journey__drag-icon">↔</span> {{ __('portfolio.three_d.drag') }}</p>
                     <p class="journey__credit hint">{!! __('portfolio.three_d.credit', [
-                        'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer">« Mercedes Amg GT roadster »</a>',
-                        'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener noreferrer">RES1N</a>',
-                        'licence' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer">CC BY 4.0</a>',
+                        'model' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer" target="_blank">« Mercedes Amg GT roadster »</a>',
+                        'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener noreferrer" target="_blank">RES1N</a>',
+                        'licence' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer" target="_blank">CC BY 4.0</a>',
                     ]) !!}</p>
                 @endif
             </div>
@@ -393,7 +393,7 @@
                         <ol class="events">
                             @foreach ($githubActivity->events as $event)
                                 <li>
-                                    <a href="{{ $event['url'] }}" rel="noopener noreferrer">{{ trans_choice('portfolio.activity.events.'.$event['type'], $event['count'], ['repo' => $event['repo'], 'title' => $event['title'] ?? '', 'count' => $event['count']]) }}</a>
+                                    <a href="{{ $event['url'] }}" rel="noopener noreferrer" target="_blank">{{ trans_choice('portfolio.activity.events.'.$event['type'], $event['count'], ['repo' => $event['repo'], 'title' => $event['title'] ?? '', 'count' => $event['count']]) }}</a>
                                     <time class="mono" datetime="{{ $event['at'] }}">{{ Carbon::parse($event['at'])->locale(app()->getLocale())->diffForHumans() }}</time>
                                 </li>
                             @endforeach
@@ -422,7 +422,7 @@
                                     <span class="plate__name">{{ $certification['name'] }}</span>
                                     @if ($certification['issuer'])<span class="plate__issuer mono">{{ $certification['issuer'] }}</span>@endif
                                     @if (! empty($certification['verification_url']))
-                                        <a class="plate__link mono" href="{{ $certification['verification_url'] }}" rel="noopener noreferrer" aria-label="{{ __('portfolio.sections.certification_link') }} : {{ $certification['name'] }}">{{ __('portfolio.sections.certification_link') }} <span aria-hidden="true">↗</span></a>
+                                        <a class="plate__link mono" href="{{ $certification['verification_url'] }}" rel="noopener noreferrer" target="_blank" aria-label="{{ __('portfolio.sections.certification_link') }} : {{ $certification['name'] }}">{{ __('portfolio.sections.certification_link') }} <span aria-hidden="true">↗</span></a>
                                     @endif
                                     @if (str_contains(strtoupper((string) $certification['name']), 'TOEIC') && is_numeric($certification['result'] ?? null))
                                         @include('portfolio.partials.score', ['label' => 'TOEIC', 'value' => (int) $certification['result'], 'max' => 990])
@@ -556,7 +556,7 @@
                     @if ($settings?->email)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('mailto:'.$settings->email, $settings->email) }}"><span>{{ __('portfolio.contact.show_email') }}</span></button>@endif
                     @if ($settings?->phone)<button type="button" class="button button--ghost" data-contact-reveal="{{ \App\Support\ContactObfuscator::encode('tel:'.preg_replace('/\\s+/', '', $settings->phone), $settings->phone) }}"><span>{{ __('portfolio.contact.show_phone') }}</span></button>@endif
                     @foreach ($settings?->socialLinks ?? [] as $platform => $url)
-                        <a class="button button--ghost" href="{{ $url }}" rel="noopener noreferrer"><span>{{ __('portfolio.contact.platforms.'.$platform) }}</span></a>
+                        <a class="button button--ghost" href="{{ $url }}" rel="noopener noreferrer" target="_blank"><span>{{ __('portfolio.contact.platforms.'.$platform) }}</span></a>
                     @endforeach
                 </div>
             @endif

@@ -32,7 +32,7 @@
         <dl class="legal__list">
             <div class="legal__item"><dt class="mono">{{ __('portfolio.legal.host') }}</dt><dd>{{ $legal['host_name'] }}</dd></div>
             <div class="legal__item"><dt class="mono">{{ __('portfolio.legal.address') }}</dt><dd>{{ $legal['host_address'] }}</dd></div>
-            <div class="legal__item"><dt class="mono">{{ __('portfolio.legal.website') }}</dt><dd><a href="{{ $legal['host_url'] }}" rel="noopener noreferrer">{{ $legal['host_url'] }}</a></dd></div>
+            <div class="legal__item"><dt class="mono">{{ __('portfolio.legal.website') }}</dt><dd><a href="{{ $legal['host_url'] }}" rel="noopener noreferrer" target="_blank">{{ $legal['host_url'] }}</a></dd></div>
         </dl>
     </section>
 
@@ -48,9 +48,9 @@
         <p>{{ __('portfolio.legal.ip_text') }}</p>
         <ul class="legal__credits">
             <li>{!! __('portfolio.legal.credit_model', [
-                'title' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer">Mercedes Amg GT roadster</a>',
-                'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener noreferrer">RES1N</a>',
-                'license' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer">CC BY 4.0</a>',
+                'title' => '<a href="https://sketchfab.com/3d-models/mercedes-amg-gt-roadster-30255e1d942a455e970e7c776998f695" rel="noopener noreferrer" target="_blank">Mercedes Amg GT roadster</a>',
+                'author' => '<a href="https://sketchfab.com/Resinnnn" rel="noopener noreferrer" target="_blank">RES1N</a>',
+                'license' => '<a href="http://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer" target="_blank">CC BY 4.0</a>',
             ]) !!}</li>
             <li>{{ __('portfolio.legal.credit_fonts') }}</li>
             <li>{{ __('portfolio.legal.credit_libs') }}</li>
