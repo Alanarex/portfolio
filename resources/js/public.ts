@@ -142,10 +142,76 @@ document.querySelectorAll<HTMLButtonElement>('[data-contact-reveal]').forEach((b
             if (icon !== null) {
                 link.append(icon.cloneNode(true));
             }
-            link.append(document.createTextNode(contact.l));
+            const text = document.createTextNode(contact.l);
+            link.append(text);
+
+            const row = button.parentElement;
+            const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches && row !== null;
+            const before = animate ? snapshotRects(row) : null;
+
             button.replaceWith(link);
             link.focus();
+
+            if (animate && before !== null) {
+                revealLink(link, text, contact.l);
+                slideSiblings(row, link, before);
+            }
         },
         { once: true },
     );
 });
+
+type RectMap = Map<Element, DOMRect>;
+
+function snapshotRects(row: HTMLElement): RectMap {
+    return new Map(Array.from(row.children, (child) => [child, child.getBoundingClientRect()]));
+}
+
+/** Les voisins glissent de leur ancienne place à la nouvelle (FLIP), y compris quand ils passent à la ligne. */
+function slideSiblings(row: HTMLElement, revealed: Element, before: RectMap): void {
+    Array.from(row.children).forEach((child) => {
+        const old = before.get(child);
+        if (child === revealed || old === undefined) {
+            return;
+        }
+        const now = child.getBoundingClientRect();
+        const dx = old.left - now.left;
+        const dy = old.top - now.top;
+        if (dx === 0 && dy === 0) {
+            return;
+        }
+        child.animate(
+            [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }],
+            { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+        );
+    });
+}
+
+/** Le bouton s'ouvre en balayant, et le texte se « déchiffre » avant d'afficher la vraie valeur. */
+function revealLink(link: HTMLAnchorElement, text: Text, finalText: string): void {
+    link.setAttribute('aria-label', finalText);
+    link.animate(
+        [
+            { clipPath: 'inset(0 100% 0 0)', opacity: 0.4 },
+            { clipPath: 'inset(0 0 0 0)', opacity: 1 },
+        ],
+        { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+    );
+
+    const glyphs = '0123456789@._-+#%&';
+    const started = performance.now();
+    const duration = 560;
+    const tick = (now: number): void => {
+        const progress = Math.min((now - started) / duration, 1);
+        const fixed = Math.floor(progress * finalText.length);
+        text.data = Array.from(finalText, (char, index) =>
+            index < fixed || char === ' ' ? char : glyphs[Math.floor(Math.random() * glyphs.length)],
+        ).join('');
+        if (progress < 1) {
+            requestAnimationFrame(tick);
+        } else {
+            text.data = finalText;
+        }
+    };
+    requestAnimationFrame(tick);
+}
