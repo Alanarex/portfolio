@@ -18,7 +18,7 @@
             @endif
         </div>
         <div class="stack__footer">
-            <span class="tag">{{ strtoupper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
+            <span class="tag">{{ \Illuminate\Support\Str::upper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
             <a class="stack__cta" href="{{ $url }}">{{ __('portfolio.projects.view') }} <span aria-hidden="true">→</span></a>
         </div>
     </div>

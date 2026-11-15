@@ -59,18 +59,10 @@
 .gauge__gear b::before { content: counter(gear); }
 
 /* Compte-tours à segments : suit l'aiguille */
-.gauge__rpm { stroke-dasharray: calc(var(--p) * 100) 200; }
+
+/* Longueurs avec unité : Firefox ignore un calc() sans unité dans stroke-dasharray */
+.gauge__rpm { stroke-dasharray: calc(var(--p) * 100px) 200px; }
 .gauge__redglow { opacity: clamp(0, calc((var(--p) - 0.72) * 4), 1); }
-
-/* Voyants : test à l'allumage, puis veille */
-.gauge__lamp { color: var(--c, #ffb02e); opacity: 0.28; animation: lamp-check 1.6s var(--d, 0s) ease-out 1; }
-
-@keyframes lamp-check {
-    0%,
-    35% { opacity: 1; filter: drop-shadow(0 0 3px currentcolor); }
-
-    100% { opacity: 0.28; filter: none; }
-}
 
 /* Petits cadrans : l'aiguille oscille lentement */
 .gauge__mini { animation: mini-sway 7s ease-in-out infinite; rotate: var(--a, 0deg); }
@@ -122,8 +114,6 @@
     100% { --p: 0.09; --k: 29; }
 }
 
-@keyframes boot-pct { from { --pct: 0; } to { --pct: 100; } }
-
 @keyframes loader-out {
     0%,
     90% { opacity: 1; visibility: visible; }
@@ -144,7 +134,7 @@
 
 .js:not(.no-loader) .loader {
     display: grid;
-    animation: loader-out 3.9s linear both, boot 3.4s cubic-bezier(0.45, 0, 0.2, 1) both, boot-pct 3.4s linear both;
+    animation: loader-out 3.9s linear both, boot 3.4s cubic-bezier(0.45, 0, 0.2, 1) both;
 }
 
 .loader__inner {
@@ -153,17 +143,6 @@
     justify-items: center;
     width: min(22rem, 80%);
     animation: loader-lift 700ms 3.2s var(--ease) both;
-}
-
-.loader__meter { width: 100%; height: 3px; overflow: hidden; border-radius: 3px; background: var(--color-border); }
-
-.loader__meter i {
-    display: block;
-    height: 100%;
-    background: var(--color-accent-light);
-    box-shadow: 0 0 12px var(--color-accent-light);
-    transform: scaleX(calc(var(--pct) / 100));
-    transform-origin: left;
 }
 
 /* Hero : l'aiguille monte jusqu'à 220 km/h (220 / 320 = 0,6875 de la course) pendant le défilement dans la section */

@@ -63,13 +63,7 @@
             @endforeach
         </g>
 
-        {{-- Marque, voyants et unité --}}
-        <g class="gauge__lamps" font-family="JetBrains Mono Variable, monospace" font-size="6.5" font-weight="700" text-anchor="middle" dominant-baseline="central">
-            <g class="gauge__lamp" style="--c: #ffb02e"><rect x="152" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="163" y="110.5" fill="currentColor">ABS</text></g>
-            <g class="gauge__lamp" style="--c: #ffb02e; --d: .15s"><rect x="177" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="188" y="110.5" fill="currentColor">ESP</text></g>
-            <g class="gauge__lamp" style="--c: #e5383b; --d: .3s"><rect x="202" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="213" y="110.5" fill="currentColor">OIL</text></g>
-            <g class="gauge__lamp" style="--c: #3ddc84; --d: .45s"><rect x="227" y="104" width="22" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="238" y="110.5" fill="currentColor">LED</text></g>
-        </g>
+        {{-- Unité --}}
         <text x="200" y="152" text-anchor="middle" font-family="JetBrains Mono Variable, monospace" font-size="8" letter-spacing="3" fill="#b1a7a6">KM/H</text>
         <text x="200" y="164" text-anchor="middle" font-family="JetBrains Mono Variable, monospace" font-size="5.5" letter-spacing="2" fill="#6b6566">RPM ×1000</text>
 

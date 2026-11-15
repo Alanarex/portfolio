@@ -64,6 +64,7 @@
     --color-accent: var(--mahogany-red-2);
     --color-accent-hover: var(--dark-garnet);
     --color-accent-light: var(--strawberry-red);
+    --color-accent-text: color-mix(in srgb, var(--strawberry-red) 75%, #fff);
     --color-accent-deep: var(--dark-garnet);
     --color-accent-ink: #fff;
     --color-focus: #fff;
@@ -97,6 +98,7 @@
     --color-accent: #ba181b;
     --color-accent-hover: #a4161a;
     --color-accent-light: #b3141a;
+    --color-accent-text: #b3141a;
     --color-accent-deep: #8e1014;
     --color-accent-ink: #fff;
     --color-focus: #1a1214;
@@ -130,6 +132,7 @@
         --color-accent: #ba181b;
         --color-accent-hover: #a4161a;
         --color-accent-light: #b3141a;
+        --color-accent-text: #b3141a;
         --color-accent-deep: #8e1014;
         --color-accent-ink: #fff;
         --color-focus: #1a1214;
