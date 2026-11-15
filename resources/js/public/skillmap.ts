@@ -80,6 +80,8 @@ if (skillmap && mapPath) {
     // le tracé rouge avance avec le défilement et allume les étapes au passage (le pointillé gris continue après) ;
     // toucher une étape l'ouvre. Avec « réduire les animations », le tracé s'arrête à l'étape ouverte.
     let opened = 0;
+    let lastDone = -1;
+    let syncing = false;
 
     const fillRoute = (): void => {
         const last = panels[panels.length - 1];
@@ -93,6 +95,24 @@ if (skillmap && mapPath) {
         const reach = clamp(probe, 0, last.offsetTop + node);
         list.style.setProperty('--route-fill', `${Math.max(reach - node, 0)}px`);
         panels.forEach((panel) => panel.classList.toggle('is-done', panel.offsetTop + node <= reach + 1));
+
+        // Quand un point s'allume (ou s'éteint en remontant), sa carte s'ouvre et les autres se referment.
+        const doneIndex = panels.reduce((best, panel, index) => (panel.classList.contains('is-done') ? index : best), -1);
+        if (doneIndex !== lastDone) {
+            lastDone = doneIndex;
+            if (!reduced && !syncing && doneIndex >= 0 && doneIndex !== opened) {
+                syncing = true;
+                const anchor = panels[doneIndex];
+                const before = anchor?.getBoundingClientRect().top ?? 0;
+                setOpened(doneIndex);
+                // Les cartes qui se referment au-dessus décaleraient la page : on compense pour que la carte reste en place.
+                const shift = (anchor?.getBoundingClientRect().top ?? 0) - before;
+                if (Math.abs(shift) > 1) {
+                    window.scrollBy({ top: shift, behavior: 'instant' });
+                }
+                syncing = false;
+            }
+        }
     };
 
     let routeFrame = false;
