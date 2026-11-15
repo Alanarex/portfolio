@@ -319,4 +319,16 @@ return [
         'legal_title' => 'Legal notice — Alaa Khalil',
         'legal_description' => 'Publisher, host, personal data and credits for Alaa Khalil’s portfolio.',
     ],
+    'http_errors' => [
+        'back_home' => 'Back to the portfolio',
+        'contact' => 'Get in touch',
+        'error_label' => 'Error',
+        '401' => ['title' => 'Authentication required', 'message' => 'You need to sign in to access this page.'],
+        '403' => ['title' => 'Access denied', 'message' => 'You are not allowed to access this page.'],
+        '404' => ['title' => 'Page not found', 'message' => 'The requested page does not exist or is no longer public.'],
+        '419' => ['title' => 'Page expired', 'message' => 'Your session has expired. Reload the page and try again.'],
+        '429' => ['title' => 'Too many requests', 'message' => 'You have sent too many requests. Please wait a moment before trying again.'],
+        '500' => ['title' => 'Something went wrong', 'message' => 'The service cannot complete this request right now. Please try again later.'],
+        '503' => ['title' => 'Down for maintenance', 'message' => 'The site is temporarily unavailable. Please come back in a few moments.'],
+    ],
 ];
