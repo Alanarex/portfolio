@@ -281,6 +281,184 @@
     background: var(--surface);
     box-shadow: var(--shadow-card);
   }
+
+  .admin-panel {
+    padding: 1.25rem;
+  }
+
+  @media (width >= 40rem) {
+    .admin-panel {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Boutons secondaire / danger : se combinent avec .admin-button. */
+  .admin-button.admin-button-secondary {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--border-strong);
+    color: var(--text);
+  }
+
+  .admin-button.admin-button-secondary:hover {
+    background: var(--surface-strong);
+    box-shadow: inset 0 0 0 1.5px var(--text-muted);
+  }
+
+  .admin-button.admin-button-danger {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--danger);
+    color: var(--danger);
+  }
+
+  .admin-button.admin-button-danger:hover {
+    background: var(--danger-surface);
+    box-shadow: inset 0 0 0 1.5px var(--danger);
+  }
+
+  .admin-button.admin-button-secondary:disabled,
+  .admin-button.admin-button-danger:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .admin-button.admin-button-compact {
+    padding-inline: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-button.admin-button-icon {
+    min-width: 2.75rem;
+    padding-inline: 0.75rem;
+  }
+
+  /* Champ : étiquette qui enveloppe son contrôle, ou étiquette seule suivie d'un contrôle. */
+  .admin-field {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .admin-field > .admin-input {
+    margin-top: 0.5rem;
+  }
+
+  .admin-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .admin-hint {
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-weight: 400;
+  }
+
+  .admin-error {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--danger);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .admin-check {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+  }
+
+  .admin-fieldset {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+  }
+
+  .admin-fieldset > legend {
+    padding: 0 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .admin-subcard {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    padding: 1rem;
+  }
+
+  .admin-empty {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .admin-banner {
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-lg);
+    background: var(--danger-surface);
+    padding: 1rem;
+    color: var(--danger);
+    font-size: 0.875rem;
+  }
+
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--surface-muted);
+    padding: 0.15rem 0.65rem;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .admin-badge-accent {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent-text);
+  }
+
+  .admin-badge-warning {
+    background: color-mix(in srgb, var(--warning) 18%, transparent);
+    color: var(--warning);
+  }
+
+  .admin-badge-success {
+    background: var(--success-surface);
+    color: var(--success);
+  }
+
+  .admin-savebar {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 10;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .admin-dialog {
+    /* Le reset de Tailwind retire la marge automatique qui centre un <dialog> modal. */
+    margin: auto;
+    width: calc(100% - 2rem);
+    max-width: 28rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    padding: 1.5rem;
+    color: var(--text);
+    box-shadow: var(--shadow-card);
+  }
+
+  .admin-dialog::backdrop {
+    background: rgb(0 0 0 / 60%);
+  }
 }
 
 @utility shadow-card {
