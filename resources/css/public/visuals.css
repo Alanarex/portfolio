@@ -181,6 +181,112 @@
 
 .terminal__caret { display: inline-block; width: 0.6ch; height: 1.1em; vertical-align: text-bottom; background: var(--color-accent-text); animation: term-blink 1s steps(1) infinite; }
 
+/* Mode interactif (public/terminal.ts) : réponses, champ de saisie réel, défilement interne */
+.terminal--live { display: flex; flex-direction: column; width: min(100%, 32rem); min-width: min(100%, 17rem); max-width: none; }
+
+/* Hauteur fixe façon fenêtre de terminal : le contenu part du haut et défile, la fenêtre ne grandit pas avec lui.
+   Une fois redimensionnée (.terminal--sized), le corps occupe la hauteur choisie. */
+.terminal--live .terminal__body { display: block; flex: 1 1 20rem; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-radius: 0 0 var(--radius-lg) var(--radius-lg); cursor: text; }
+
+/* Barre de défilement discrète, aux couleurs du terminal */
+@supports not selector(::-webkit-scrollbar) {
+    .terminal--live .terminal__body { scrollbar-width: thin; scrollbar-color: #4a4042 transparent; }
+}
+.terminal--live .terminal__body::-webkit-scrollbar { width: 0.75rem; }
+.terminal--live .terminal__body::-webkit-scrollbar-track { background: transparent; }
+.terminal--live .terminal__body::-webkit-scrollbar-thumb { border: 0.25rem solid transparent; border-radius: 999px; background: #4a4042 padding-box; }
+.terminal--live .terminal__body::-webkit-scrollbar-thumb:hover { background: var(--color-accent-text) padding-box; }
+.terminal--live .terminal__body::-webkit-scrollbar-corner { background: transparent; }
+
+/* Poignées de redimensionnement : 4 bords et 4 coins, invisibles, légèrement en débord de la fenêtre.
+   L'arrondi passe sur la barre et le corps pour que la fenêtre ne rogne pas les poignées. */
+.terminal__handle { position: absolute; z-index: 3; touch-action: none; }
+
+.terminal__handle--n,
+.terminal__handle--s { inset-inline: 0.9rem; height: 0.7rem; cursor: ns-resize; }
+
+.terminal__handle--e,
+.terminal__handle--w { inset-block: 0.9rem; width: 0.7rem; cursor: ew-resize; }
+.terminal__handle--n { top: -0.3rem; }
+.terminal__handle--s { bottom: -0.3rem; }
+.terminal__handle--e { right: -0.3rem; }
+.terminal__handle--w { left: -0.3rem; }
+
+.terminal__handle--ne,
+.terminal__handle--nw,
+.terminal__handle--se,
+.terminal__handle--sw { width: 1.3rem; height: 1.3rem; }
+.terminal__handle--ne { top: -0.45rem; right: -0.45rem; cursor: nesw-resize; }
+.terminal__handle--sw { bottom: -0.45rem; left: -0.45rem; cursor: nesw-resize; }
+.terminal__handle--nw { top: -0.45rem; left: -0.45rem; cursor: nwse-resize; }
+.terminal__handle--se { right: -0.45rem; bottom: -0.45rem; cursor: nwse-resize; }
+
+@media (pointer: coarse) {
+    .terminal__handle--n,
+    .terminal__handle--s { height: 1rem; }
+
+    .terminal__handle--e,
+    .terminal__handle--w { width: 1rem; }
+
+    .terminal__handle--ne,
+    .terminal__handle--nw,
+    .terminal__handle--se,
+    .terminal__handle--sw { width: 1.6rem; height: 1.6rem; }
+}
+.terminal--live .terminal__bar { flex: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0; cursor: grab; touch-action: none; user-select: none; }
+.terminal--dragging .terminal__bar { cursor: grabbing; }
+.terminal--live .terminal__bar:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: -4px; }
+.terminal--moved { z-index: 20; }
+.terminal.terminal--live { overflow: visible; transition-property: color, background-color, box-shadow; }
+.terminal--sized { margin-inline: 0; }
+.terminal__log { display: grid; gap: 0.35rem; }
+
+.terminal__log[hidden],
+.terminal__form[hidden] { display: none; }
+.terminal__reply { animation: none; opacity: 1; }
+.terminal__reply a { color: var(--color-accent-text); text-underline-offset: 0.2em; }
+.terminal__reply a:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 2px; }
+.terminal__key { color: #b1a7a6; }
+.terminal__out .terminal__key::after { content: none; }
+.terminal__ok { color: #3ddc84; }
+.terminal__form { display: flex; align-items: baseline; gap: 0.6ch; margin: 0; }
+
+.terminal__field { position: relative; flex: 1; min-width: 0; }
+
+.terminal__input {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #f2eded;
+    background: transparent;
+    caret-color: var(--color-accent-text);
+    font: inherit;
+    outline: 0;
+}
+
+/* Le curseur bloc remplace le curseur natif (masqué) ; le focus reste visible par l'anneau de la fenêtre. */
+.terminal__input--block { caret-color: transparent; }
+.terminal__cursor { display: none; }
+.terminal__input--block ~ .terminal__cursor { position: absolute; top: 0.2em; bottom: 0.2em; left: calc(var(--pos, 0) * 1ch - var(--scroll, 0) * 1px); width: 1ch; background: color-mix(in srgb, var(--color-accent-text) 70%, transparent); opacity: 0; pointer-events: none; }
+.terminal__input--block:focus ~ .terminal__cursor { display: block; opacity: 1; animation: term-blink 1s steps(1) infinite; }
+.terminal--live:focus-within { box-shadow: inset 0 0 0 2px var(--color-accent-text), 0 1.8rem 3.5rem -1.5rem rgb(164 22 26 / 45%); }
+
+/* 16 px minimum sur écran tactile : évite le zoom automatique de iOS à la prise de focus */
+@media (pointer: coarse) {
+    .terminal__input { font-size: 16px; }
+}
+
+/* Interligne fixe façon terminal : aucune marge entre les lignes, une ligne vide garde sa hauteur. */
+.terminal--live .terminal__log { display: block; }
+.terminal__ls { display: flex; flex-wrap: wrap; column-gap: 2ch; }
+.terminal__dir { color: #6cb6ff; }
+.terminal__reply a.terminal__dir { color: #6cb6ff; text-decoration: none; }
+.terminal__reply a.terminal__dir:hover { text-decoration: underline; }
+.terminal--live .terminal__line { min-height: 1.6em; }
+.terminal--live .terminal__form { min-height: 1.6em; }
+
 @keyframes term-show { to { opacity: 1; } }
 @keyframes term-type { from { width: 0; } }
 @keyframes term-blink { 50% { opacity: 0; } }

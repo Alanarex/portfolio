@@ -87,7 +87,7 @@
             </div>
             <p class="scroll-cue mono" data-reveal style="--i: 5" aria-hidden="true"><i></i>{{ __('portfolio.hero.scroll') }}</p>
         </div>
-        {{-- Terminal décoratif : contenu issu du profil, des compétences et des projets publiés (rien d'inventé). --}}
+        {{-- Terminal : équivalent HTML statique sans JavaScript ; public/terminal.ts le rend interactif. Contenu issu du profil, des compétences, des projets et du parcours publiés (rien d'inventé, aucune coordonnée privée). --}}
         @php
             $terminalRole = $profile?->professionalTitles[0] ?? $titleLead;
             $terminalStack = $skillNames->intersect(['PHP', 'Laravel', 'Vue.js', 'MySQL', 'PHPUnit', 'Docker', 'Playwright'])->take(5)->values();
@@ -96,8 +96,39 @@
             }
             $terminalCommands = ['php artisan about', 'php artisan projects:list'];
             $terminalProjects = collect($featuredProjects)->take(3)->pluck('title')->filter()->values();
+            $terminalData = [
+                'locale' => $locale,
+                'about' => [
+                    'name' => $profile?->displayName,
+                    'role' => $terminalRole,
+                    'summary' => $profile?->summary,
+                    'location' => $profile?->location,
+                    'availability' => $profile?->availability,
+                ],
+                'skills' => collect($categories)->map(fn (array $category): array => [
+                    'name' => $category['name'] ?? '',
+                    'items' => collect($category['skills'] ?? [])->pluck('name')->filter()->values()->all(),
+                ])->filter(fn (array $category): bool => $category['name'] !== '' && $category['items'] !== [])->values()->all(),
+                'projects' => collect($featuredProjects)->take(5)->map(fn ($project): array => [
+                    'title' => $project->title,
+                    'url' => route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]),
+                ])->values()->all(),
+                'projectsUrl' => route('portfolio.projects.index', ['locale' => $locale]),
+                'experience' => $milestones->map(fn (array $item): array => [
+                    'period' => $item['period'],
+                    'title' => $item['title'],
+                    'org' => $item['org'],
+                ])->all(),
+                'links' => collect($settings?->socialLinks ?? [])->map(fn (string $url, string $platform): array => [
+                    'label' => __('portfolio.contact.platforms.'.$platform),
+                    'url' => $url,
+                ])->values()->all(),
+                'alternateUrl' => $alternateUrl,
+                'text' => __('portfolio.terminal'),
+            ];
         @endphp
-        <div class="hero__terminal terminal theme-dark" data-reveal style="--i: 3" aria-hidden="true">
+        <div class="hero__terminal terminal theme-dark" data-reveal style="--i: 3" aria-hidden="true" data-terminal>
+            <script type="application/json" data-terminal-data>{!! json_encode($terminalData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
             <div class="terminal__bar"><i></i><i></i><i></i><span class="mono">~/portfolio</span></div>
             <div class="terminal__body mono">
                 <p class="terminal__line" style="--d: 0.5s"><span class="terminal__prompt">$</span> <span class="terminal__cmd" style="--n: {{ strlen($terminalCommands[0]) }}">{{ $terminalCommands[0] }}</span></p>
@@ -111,7 +142,13 @@
                         <p class="terminal__line terminal__out" style="--d: {{ 3.8 + $loop->index * 0.3 }}s"><b>✓</b> {{ $terminalProject }}</p>
                     @endforeach
                 @endif
-                <p class="terminal__line" style="--d: 5s"><span class="terminal__prompt">$</span> <span class="terminal__caret"></span></p>
+                <p class="terminal__line" style="--d: 5s" data-terminal-idle><span class="terminal__prompt">$</span> <span class="terminal__caret"></span></p>
+                <div class="terminal__log" role="log" aria-live="polite" aria-label="{{ __('portfolio.terminal.label') }}" data-terminal-log hidden></div>
+                <form class="terminal__form" hidden data-terminal-form>
+                    <label class="terminal__prompt" for="hero-terminal-input">$<span class="visually-hidden"> {{ __('portfolio.terminal.input_label') }}</span></label>
+                    <span class="terminal__field"><input class="terminal__input" id="hero-terminal-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="hero-terminal-hint" data-terminal-input><span class="terminal__cursor" aria-hidden="true" data-terminal-cursor></span></span>
+                    <span id="hero-terminal-hint" class="visually-hidden">{{ __('portfolio.terminal.input_hint') }}</span>
+                </form>
             </div>
         </div>
     </div>

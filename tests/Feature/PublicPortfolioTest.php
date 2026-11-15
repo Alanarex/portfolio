@@ -89,6 +89,40 @@ final class PublicPortfolioTest extends TestCase
         );
     }
 
+    public function test_hero_terminal_embeds_published_data_only_and_degrades_without_javascript(): void
+    {
+        $this->bindReaders([$this->projectData('portfolio', 'Portfolio V3')]);
+
+        $html = (string) $this->get('/fr')->assertOk()->getContent();
+
+        // Équivalent HTML statique conservé (décoratif) et terminal interactif déclaré en amélioration.
+        self::assertStringContainsString('data-terminal', $html);
+        self::assertStringContainsString('php artisan about', $html);
+        self::assertStringContainsString('for="hero-terminal-input"', $html);
+        self::assertSame(1, preg_match('/<form class="terminal__form" hidden/', $html));
+
+        self::assertSame(1, preg_match('#<script type="application/json" data-terminal-data>(.*?)</script>#s', $html, $match));
+        $data = json_decode($match[1], true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame('fr', $data['locale']);
+        self::assertSame('Portfolio V3', $data['projects'][0]['title']);
+        self::assertSame('Tapez help pour voir les commandes disponibles.', $data['text']['welcome']);
+        self::assertArrayHasKey('help', $data['text']['help_desc']);
+        self::assertArrayHasKey('ls', $data['text']['help_desc']);
+        self::assertNotEmpty($data['alternateUrl']);
+
+        // Aucune coordonnée privée dans les données du terminal.
+        self::assertStringNotContainsString('contact@example.test', $match[1]);
+        self::assertStringNotContainsString('mailto:', $match[1]);
+        self::assertStringNotContainsString('tel:', $match[1]);
+
+        $english = (string) $this->get('/en')->assertOk()->getContent();
+        self::assertSame(1, preg_match('#<script type="application/json" data-terminal-data>(.*?)</script>#s', $english, $enMatch));
+        $enData = json_decode($enMatch[1], true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('en', $enData['locale']);
+        self::assertSame('Type help to see the available commands.', $enData['text']['welcome']);
+    }
+
     public function test_localized_project_index_and_stable_case_study_routes_render_public_data(): void
     {
         $project = $this->projectData('stable-project', 'Projet stable');
