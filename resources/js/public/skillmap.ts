@@ -6,6 +6,9 @@ if (skillmap && mapPath) {
     const stops = [...skillmap.querySelectorAll<SVGAElement>('[data-map-stop]')];
     const panels = [...skillmap.querySelectorAll<HTMLElement>('[data-map-panel]')];
     const stage = window.matchMedia('(prefers-reduced-motion: no-preference) and (width > 45rem)');
+    const mobile = window.matchMedia('(width <= 45rem)');
+    const list = skillmap.querySelector<HTMLElement>('.skillmap__panels');
+    const toggles = panels.map((panel) => panel.querySelector<HTMLButtonElement>('[data-map-toggle]'));
     const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
     // Le dernier domaine est atteint avant la fin de la section épinglée : la dernière carte reste affichée un moment
     // au lieu de n'apparaître qu'au moment où l'on quitte la section.
@@ -73,7 +76,71 @@ if (skillmap && mapPath) {
         }
     };
 
+    // Mobile (≤ 45rem) : plus de scène épinglée. Une route verticale, une carte repliable par domaine ;
+    // le tracé rouge va jusqu'à l'étape ouverte, le pointillé gris continue après.
+    let opened = 0;
+
+    const fillRoute = (): void => {
+        const panel = panels[opened];
+        list?.style.setProperty('--route-fill', panel ? `${panel.offsetTop}px` : '0px');
+    };
+
+    const setOpened = (index: number): void => {
+        opened = index;
+        panels.forEach((panel, position) => {
+            panel.classList.toggle('is-open', position === index);
+            panel.classList.toggle('is-done', index >= 0 && position < index);
+            toggles[position]?.setAttribute('aria-expanded', String(position === index));
+        });
+        fillRoute();
+    };
+
+    const enableRoute = (): void => {
+        skillmap.dataset.accordion = 'true';
+        skillmap.style.removeProperty('--p');
+        panels.forEach((panel) => panel.classList.remove('is-active', 'is-passed'));
+        toggles.forEach((toggle) => toggle?.removeAttribute('disabled'));
+        setOpened(Math.min(opened, panels.length - 1));
+    };
+
+    const disableRoute = (): void => {
+        delete skillmap.dataset.accordion;
+        list?.style.removeProperty('--route-fill');
+        panels.forEach((panel, position) => {
+            panel.classList.remove('is-open', 'is-done');
+            toggles[position]?.setAttribute('aria-expanded', 'true');
+        });
+        toggles.forEach((toggle) => toggle?.setAttribute('disabled', ''));
+    };
+
+    list?.addEventListener('click', (event) => {
+        const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-map-toggle]');
+        const index = toggle ? toggles.indexOf(toggle) : -1;
+        if (!mobile.matches || index < 0) {
+            return;
+        }
+        setOpened(index === opened ? -1 : index);
+        if (index !== opened) {
+            return;
+        }
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        panels[index]?.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+    });
+
+    if (list && 'ResizeObserver' in window) {
+        new ResizeObserver(() => {
+            if (mobile.matches) {
+                fillRoute();
+            }
+        }).observe(list);
+    }
+
     const reset = (): void => {
+        if (mobile.matches) {
+            enableRoute();
+            return;
+        }
+        disableRoute();
         if (stage.matches) {
             smoothed = target();
             apply(smoothed);
@@ -99,6 +166,7 @@ if (skillmap && mapPath) {
         { rootMargin: '200px 0px' },
     ).observe(skillmap);
     stage.addEventListener('change', reset);
+    mobile.addEventListener('change', reset);
     reset();
 
     // Un clic sur un arrêt fait défiler jusqu'au point où la voiture l'atteint.

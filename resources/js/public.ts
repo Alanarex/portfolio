@@ -1,4 +1,6 @@
 import './public/site';
+import './public/menu';
+import './public/scroll-cards';
 import './public/skillmap';
 import './public/contact-form';
 import './public/terminal';
@@ -8,7 +10,8 @@ import './room-scene/index';
 type Theme = 'dark' | 'light';
 
 const root = document.documentElement;
-const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
+// Bouton de l'en-tête (bureau) et celui de la feuille de menu (mobile).
+const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle], [data-theme-toggle-menu]')];
 
 function currentTheme(): Theme {
     const set = root.dataset.theme;

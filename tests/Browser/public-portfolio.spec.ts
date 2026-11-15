@@ -103,7 +103,11 @@ test('light, dark, desktop, and mobile implementation captures render', async ({
     const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const mobile = await mobileContext.newPage();
     await mobile.goto('/fr');
+    // En mobile, la navigation passe dans la feuille ouverte par le bouton burger.
+    await expect(mobile.getByRole('button', { name: 'Ouvrir le menu' })).toBeVisible();
+    await mobile.getByRole('button', { name: 'Ouvrir le menu' }).click();
     await expect(mobile.getByRole('navigation', { name: 'Navigation principale' }).last()).toBeVisible();
+    await mobile.keyboard.press('Escape');
     await mobile.screenshot({
         path: path.join(captureDirectory, 'PORT-008-home-light-mobile.png'),
         fullPage: true,
