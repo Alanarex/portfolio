@@ -14,7 +14,10 @@
     $turn = ($seed >> 3) % 30;
     $ringDash = [['2 6', 7], ['14 8', 5], ['1 3', 9]][($seed >> 7) % 3];
     $arcStart = ($seed >> 11) % 360;
-    $stack = Str::upper(Str::limit((string) ($project->technologies[0] ?? ''), 10, ''));
+    // Libellé de pile : le nom complet s'il tient dans l'emblème, sinon son premier mot (jamais un mot coupé).
+    $stackName = trim((string) ($project->technologies[0] ?? ''));
+    $stack = Str::upper(mb_strlen($stackName) <= 12 ? $stackName : Str::before($stackName, ' '));
+    $stack = Str::limit($stack, 12, '');
     $polygon = function (float $radius) use ($sides, $turn): string {
         $points = [];
         for ($i = 0; $i < $sides; $i++) {

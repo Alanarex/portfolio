@@ -89,9 +89,7 @@
     @if (($page ?? 'home') === 'home')
         <div class="loader theme-dark" role="status" aria-label="{{ __('portfolio.loading') }}">
             <div class="loader__inner">
-                <img class="loader__logo" src="{{ asset('assets/brand/logo-dark-96.webp') }}" width="56" height="56" alt="">
                 @include('portfolio.partials.gauge', ['class' => 'gauge--loader'])
-                <div class="loader__meter" aria-hidden="true"><i></i></div>
             </div>
         </div>
     @endif

@@ -69,6 +69,7 @@ return [
         'experience_kicker' => 'Des études aux missions actuelles',
         'skills_intro' => 'Chaque étape de la carte regroupe un domaine que je pratique au quotidien. Faites défiler pour avancer.',
         'certifications' => 'Certifications',
+        'certification_link' => 'Voir la certification',
         'languages' => 'Langues',
         'interests_intro' => 'Ce qui me fait décoller quand l’écran est éteint.',
     ],

@@ -69,6 +69,7 @@ return [
         'experience_kicker' => 'From studies to current work',
         'skills_intro' => 'Each stop on the map groups a domain I work with every day. Scroll to move forward.',
         'certifications' => 'Certifications',
+        'certification_link' => 'View credential',
         'languages' => 'Languages',
         'interests_intro' => 'What takes off when the screen is turned off.',
     ],

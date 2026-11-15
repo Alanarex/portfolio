@@ -10,12 +10,6 @@
     initial-value: 0;
 }
 
-@property --pct {
-    syntax: "<integer>";
-    inherits: true;
-    initial-value: 0;
-}
-
 @keyframes spin { to { rotate: 1turn; } }
 
 @keyframes blink { 50% { opacity: 0.25; } }
@@ -108,7 +102,6 @@
         transition-duration: 0.01ms !important;
     }
 
-    .proof__item,
     [data-reveal],
     [data-scroll-reveal] {
         animation: none !important;

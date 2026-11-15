@@ -56,7 +56,6 @@
     :root:not([data-theme]) .theme-toggle__moon { opacity: 0; }
 }
 
-.loader__logo { width: 3.5rem; height: 3.5rem; border-radius: 0.9rem; }
 
 /* Titres de section avec action */
 .section-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-4); }
@@ -130,12 +129,15 @@
 
 .page-head { padding-bottom: 0; }
 
+/* Liste des projets : de l'air avant le pied de page */
+.page-head > .container { padding-bottom: var(--space-9); }
+
 /* Parcours */
 .timeline { display: grid; gap: var(--space-5); margin: var(--space-7) 0 0; padding: 0; list-style: none; }
 .timeline__item { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: var(--space-5); align-items: start; }
 .timeline__date { padding-top: var(--space-5); }
 .timeline__card h3 { margin-bottom: var(--space-1); font-size: clamp(1.4rem, 2.6vw, 2rem); }
-.timeline__org { margin-bottom: var(--space-3); color: var(--color-accent-light); font-weight: 600; }
+.timeline__org { margin-bottom: var(--space-3); color: var(--color-accent-text); font-weight: 600; }
 
 /* Compétences */
 .skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--space-4); margin-top: var(--space-7); }
@@ -175,6 +177,13 @@
     .site-nav { order: 3; width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
     .site-nav a:not(.button) { flex: none; }
     .site-cta { display: none; }
+}
+
+/* Petits écrans : les quatre liens tiennent sans défilement horizontal caché */
+@media (width <= 30rem) {
+    .site-nav { justify-content: space-between; gap: 0; }
+    .site-nav a:not(.button) { padding: 0.6rem 0.5rem; font-size: 0.875rem; }
+    .site-nav a:not(.button)::after { right: 0.5rem; left: 0.5rem; }
 }
 
 @media (width <= 44rem) {

@@ -26,7 +26,9 @@
         ->map(fn (array $item): array => [
             'kind' => 'experience',
             'year' => (int) ($item['start']['year'] ?? 0),
-            'period' => ($item['start']['year'] ?? '').' — '.(($item['is_current'] ?? false) ? __('portfolio.three_d.now') : ($item['end']['year'] ?? '')),
+            'period' => ($item['is_current'] ?? false)
+                ? ($item['start']['year'] ?? '').' — '.__('portfolio.three_d.now')
+                : collect([$item['start']['year'] ?? null, $item['end']['year'] ?? null])->filter()->unique()->implode(' — '),
             'title' => $item['role'] ?? '',
             'org' => $item['organization'] ?? '',
             'summary' => $item['summary'] ?? null,
@@ -35,7 +37,7 @@
         ->concat(collect($education)->map(fn (array $item): array => [
             'kind' => 'education',
             'year' => (int) ($item['start']['year'] ?? 0),
-            'period' => trim(($item['start']['year'] ?? '').' — '.($item['end']['year'] ?? ''), ' —'),
+            'period' => collect([$item['start']['year'] ?? null, $item['end']['year'] ?? null])->filter()->unique()->implode(' — '),
             'title' => $item['program'] ?? '',
             'org' => $item['institution'] ?? '',
             'summary' => null,
@@ -184,12 +186,12 @@
         <div class="container">
             <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.metrics_intro') }}</p>
             <h2 id="proof-title" data-scroll-reveal>{{ __('portfolio.sections.metrics') }}</h2>
-            <ol class="proof__list">
+            <ol class="strips strips--proof">
                 @foreach ($proofItems as $metric)
-                    <li class="proof__item card" data-scroll-reveal>
-                        <span class="proof__index mono">{{ __('portfolio.proof.item', ['n' => str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)]) }}</span>
+                    <li class="strip" data-scroll-reveal>
+                        <span class="strip__code mono" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                         {{-- Chiffres mis en valeur : le texte est échappé avant l'ajout des balises. --}}
-                        <p class="proof__text">{!! preg_replace('/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u', '<b>$0</b>', e($metric)) !!}</p>
+                        <div class="strip__body"><p class="proof__text">{!! preg_replace('/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u', '<b>$0</b>', e($metric)) !!}</p></div>
                     </li>
                 @endforeach
             </ol>
@@ -395,6 +397,9 @@
                                     <span class="plate__year mono">{{ $certification['issued']['year'] ?? '' }}</span>
                                     <span class="plate__name">{{ $certification['name'] }}</span>
                                     @if ($certification['issuer'])<span class="plate__issuer mono">{{ $certification['issuer'] }}</span>@endif
+                                    @if (! empty($certification['verification_url']))
+                                        <a class="plate__link mono" href="{{ $certification['verification_url'] }}" rel="noopener noreferrer" aria-label="{{ __('portfolio.sections.certification_link') }} : {{ $certification['name'] }}">{{ __('portfolio.sections.certification_link') }} <span aria-hidden="true">↗</span></a>
+                                    @endif
                                     @if (str_contains(strtoupper((string) $certification['name']), 'TOEIC') && is_numeric($certification['result'] ?? null))
                                         @include('portfolio.partials.score', ['label' => 'TOEIC', 'value' => (int) $certification['result'], 'max' => 990])
                                     @endif

@@ -12,7 +12,7 @@
     @endif
     <div class="project-card__top">
         @include('portfolio.partials.project-logo', ['project' => $project, 'class' => 'logo--mark'])
-        <span class="tag">{{ strtoupper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
+        <span class="tag">{{ \Illuminate\Support\Str::upper(__('portfolio.lifecycle.'.$project->lifecycleStatus)) }}</span>
     </div>
     <h3><a class="project-card__link" href="{{ $url }}">{{ $project->title }}</a></h3>
     <p>{{ $project->summary }}</p>
