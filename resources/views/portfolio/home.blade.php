@@ -286,6 +286,10 @@
                     @if ($threeDEnabled)
                         <p class="lede journey__lede">{{ __('portfolio.three_d.intro') }}</p>
                         <button class="button" type="button" data-three-preview-load><span>{{ __('portfolio.three_d.load') }}</span><span class="button__arrow" aria-hidden="true">→</span></button>
+                        <div class="journey__loader" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="{{ __('portfolio.three_d.loading') }}" data-journey-loader>
+                            <span class="journey__loader-bar"><span class="journey__loader-fill"></span></span>
+                            <span class="journey__loader-label mono" data-journey-loader-label data-label="{{ __('portfolio.three_d.loading') }}">{{ __('portfolio.three_d.loading') }}</span>
+                        </div>
                         <p class="error" role="status" data-three-preview-status hidden>{{ __('portfolio.three_d.unavailable') }}</p>
                         <button class="button button--ghost journey__view" type="button" data-journey-view aria-pressed="false" hidden><span class="journey__view-list">{{ __('portfolio.three_d.view_list') }}</span><span class="journey__view-scene">{{ __('portfolio.three_d.view_scene') }}</span></button>
                     @endif

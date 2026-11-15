@@ -278,6 +278,14 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 .journey[data-state="ready"] [data-three-preview-load] { display: none; }
 .journey[data-state="loading"] [data-three-preview-load] { opacity: 0.6; cursor: wait; }
 
+/* Chargement automatique : plus de bouton, une barre de progression à la place */
+.journey[data-auto] [data-three-preview-load] { display: none; }
+.journey__loader { display: none; max-width: 20rem; margin-top: var(--space-5); }
+.journey[data-state="loading"] .journey__loader { display: block; }
+.journey__loader-bar { display: block; height: 0.3rem; overflow: hidden; border-radius: 999px; background: var(--color-border-strong); }
+.journey__loader-fill { display: block; width: var(--load, 0%); height: 100%; border-radius: inherit; background: var(--color-accent-light); box-shadow: 0 0 0.8rem var(--color-glow); transition: width 200ms ease-out; }
+.journey__loader-label { display: block; margin-top: var(--space-2); color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.08em; }
+
 .journey__drag {
     position: absolute;
     right: 0;
