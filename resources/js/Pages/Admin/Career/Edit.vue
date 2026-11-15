@@ -192,7 +192,7 @@ function save(): void {
         </article>
       </section>
 
-      <div class="sticky bottom-4 flex justify-end"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le parcours' }}</button></div>
+      <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le parcours' }}</button></div>
     </form>
   </AdminLayout>
 </template>

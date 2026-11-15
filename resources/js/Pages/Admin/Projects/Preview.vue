@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import PageHeader from '@admin/Components/PageHeader.vue';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
+import { lifecycleLabel, mediaKindLabel, publicationLabel } from '@admin/lib/labels';
 
 type Locale = 'fr' | 'en';
 type Project = {
@@ -46,8 +47,8 @@ const locales: Locale[] = ['fr', 'en'];
       <Link :href="`/dashboard/projects/${project.id}/edit`" class="admin-button">Modifier</Link>
     </PageHeader>
     <div class="mt-6 grid gap-4 admin-card admin-panel sm:grid-cols-3">
-      <div><p class="text-xs uppercase text-muted-foreground">Publication</p><p class="mt-1 font-semibold">{{ project.publication_status }}</p></div>
-      <div><p class="text-xs uppercase text-muted-foreground">Cycle</p><p class="mt-1 font-semibold">{{ project.lifecycle_status }}</p></div>
+      <div><p class="text-xs uppercase text-muted-foreground">Publication</p><p class="mt-1 font-semibold">{{ publicationLabel(project.publication_status) }}</p></div>
+      <div><p class="text-xs uppercase text-muted-foreground">Cycle</p><p class="mt-1 font-semibold">{{ lifecycleLabel(project.lifecycle_status) }}</p></div>
       <div><p class="text-xs uppercase text-muted-foreground">Dépôt</p><p class="mt-1 font-semibold">{{ project.repository_visibility }} · {{ project.show_repository ? 'visible' : 'masqué' }}</p></div>
     </div>
     <section v-for="locale in locales" :key="locale" class="mt-6 admin-card admin-panel">
@@ -64,7 +65,7 @@ const locales: Locale[] = ['fr', 'en'];
     <section class="mt-6 admin-card admin-panel">
       <h2 class="text-2xl font-semibold">Médias</h2>
       <p v-if="media.length === 0" class="mt-3 text-muted-foreground">Aucun média.</p>
-      <ul v-else class="mt-4 space-y-3"><li v-for="asset in media" :key="asset.id" class="admin-subcard"><span class="font-semibold">{{ asset.original_filename }}</span> · {{ asset.kind }} · {{ asset.is_public ? 'public' : 'privé' }}<p class="mt-2 text-sm text-muted-foreground">{{ asset.translations.fr.alt_text || 'Sans texte alternatif FR' }}</p></li></ul>
+      <ul v-else class="mt-4 space-y-3"><li v-for="asset in media" :key="asset.id" class="admin-subcard"><span class="font-semibold">{{ asset.original_filename }}</span> · {{ mediaKindLabel(asset.kind) }} · {{ asset.is_public ? 'public' : 'privé' }}<p class="mt-2 text-sm text-muted-foreground">{{ asset.translations.fr.alt_text || 'Sans texte alternatif FR' }}</p></li></ul>
     </section>
   </AdminLayout>
 </template>

@@ -142,7 +142,7 @@ function deleteCv(id: number): void {
         </div>
       </section>
 
-      <div class="sticky bottom-4 flex justify-end">
+      <div class="admin-savebar">
         <button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le profil' }}</button>
       </div>
     </form>

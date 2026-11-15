@@ -72,7 +72,7 @@ function save(): void {
           <label class="admin-field">Poster (chemin d’image du site)<input v-model="form.poster_path" class="admin-input" placeholder="/assets/room/poster.webp" maxlength="255" :aria-invalid="Boolean(form.errors.poster_path)"><span v-if="form.errors.poster_path" class="admin-error" role="alert">{{ form.errors.poster_path }}</span></label>
           <label class="admin-field">Repli mobile (chemin d’image du site)<input v-model="form.mobile_fallback_path" class="admin-input" placeholder="/assets/room/mobile.webp" maxlength="255" :aria-invalid="Boolean(form.errors.mobile_fallback_path)"><span v-if="form.errors.mobile_fallback_path" class="admin-error" role="alert">{{ form.errors.mobile_fallback_path }}</span></label>
           <label class="admin-field">Message d’accueil (FR)<textarea v-model="form.greeting_fr" class="admin-input min-h-20" maxlength="280" /></label>
-          <label class="admin-field">Greeting (EN)<textarea v-model="form.greeting_en" class="admin-input min-h-20" maxlength="280" /></label>
+          <label class="admin-field">Message d’accueil (EN)<textarea v-model="form.greeting_en" class="admin-input min-h-20" maxlength="280" /></label>
         </div>
       </section>
       <section class="admin-card admin-panel" aria-labelledby="scene-hotspots">
@@ -90,13 +90,13 @@ function save(): void {
             <label class="admin-check"><input v-model="hotspot.is_visible" type="checkbox"> Visible</label>
             <label class="admin-field">Section ciblée<select v-model="hotspot.target" class="admin-input"><option v-for="target in targets" :key="target" :value="target">{{ targetNames[target] ?? target }}</option></select></label>
             <label class="admin-field">Libellé (FR)<input v-model="hotspot.label_fr" class="admin-input" maxlength="80"></label>
-            <label class="admin-field">Label (EN)<input v-model="hotspot.label_en" class="admin-input" maxlength="80"></label>
+            <label class="admin-field">Libellé (EN)<input v-model="hotspot.label_en" class="admin-input" maxlength="80"></label>
             <label class="admin-field">Description (FR)<input v-model="hotspot.description_fr" class="admin-input" maxlength="280"></label>
             <label class="admin-field">Description (EN)<input v-model="hotspot.description_en" class="admin-input" maxlength="280"></label>
           </div>
         </article>
       </section>
-      <div class="sticky bottom-4 flex justify-end"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer la scène' }}</button></div>
+      <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer la scène' }}</button></div>
     </form>
   </AdminLayout>
 </template>

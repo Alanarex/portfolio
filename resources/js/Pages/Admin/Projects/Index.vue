@@ -3,6 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import PageHeader from '@admin/Components/PageHeader.vue';
 import ConfirmDialog from '@admin/Components/ConfirmDialog.vue';
 import { useConfirm } from '@admin/lib/confirm';
+import { lifecycleLabel, publicationLabel } from '@admin/lib/labels';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
 
 type ProjectRow = {
@@ -72,7 +73,7 @@ function remove(project: ProjectRow): void {
         <label class="admin-field">Mise en avant
           <select v-model="filters.featured" class="admin-input" @change="applyFilters">
             <option value="">Tous</option>
-            <option value="yes">Featured</option>
+            <option value="yes">En avant</option>
             <option value="no">Secondaire</option>
           </select>
         </label>
@@ -89,11 +90,11 @@ function remove(project: ProjectRow): void {
         <div>
           <div class="flex flex-wrap items-center gap-2">
             <h2 class="font-semibold">{{ project.title }}</h2>
-            <span class="admin-badge">{{ project.publication_status }}</span>
-            <span v-if="project.is_featured" class="admin-badge admin-badge-accent">Featured</span>
+            <span class="admin-badge">{{ publicationLabel(project.publication_status) }}</span>
+            <span v-if="project.is_featured" class="admin-badge admin-badge-accent">En avant</span>
             <span v-if="project.deletion_pending" class="admin-badge admin-badge-warning">Suppression à réessayer</span>
           </div>
-          <p class="mt-1 text-sm text-muted-foreground">/{{ project.slug }} · {{ project.lifecycle_status }}</p>
+          <p class="mt-1 text-sm text-muted-foreground">/{{ project.slug }} · {{ lifecycleLabel(project.lifecycle_status) }}</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" class="admin-button admin-button-secondary admin-button-icon" :disabled="!canReorder || index === 0" :aria-label="`Monter ${project.title}`" @click="move(index, -1)">↑</button>
