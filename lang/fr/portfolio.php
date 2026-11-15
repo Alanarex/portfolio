@@ -42,8 +42,8 @@ return [
         'lamp' => 'Phares',
         'lamp_label' => 'Phares : zone éclairée qui suit le curseur',
         'scroll' => 'Faites défiler',
-        'gauge_label' => 'Compteur de vitesse qui accélère pendant le défilement',
-        'gauge_proof_label' => 'Compteur de vitesse qui monte pendant le défilement',
+        'terminal_role' => 'poste',
+        'terminal_stack' => 'stack',
     ],
     'sections' => [
         'posts' => 'Publications',
