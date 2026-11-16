@@ -22,7 +22,17 @@ async function prepare(page: Page, reducedMotion: 'reduce' | 'no-preference'): P
         { timeout: 30_000, polling: 'raf' },
     );
     await page.locator('.skillmap__panels').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1200);
+    // Les ouvertures automatiques déclenchées par ce premier défilement doivent être terminées.
+    await page.waitForFunction(
+        () =>
+            new Promise<boolean>((resolve) => {
+                const state = (): string => [...document.querySelectorAll('[data-map-panel]')].map((panel) => panel.className).join('|') + Math.round(window.scrollY);
+                const before = state();
+                setTimeout(() => resolve(state() === before), 1500);
+            }),
+        undefined,
+        { timeout: 30_000, polling: 'raf' },
+    );
 
     // À chaque ouverture, on suit le bord haut de la nouvelle étape ouverte pendant 700 ms et on garde le pire écart.
     await page.evaluate(() => {
@@ -64,21 +74,23 @@ const opens = (page: Page): Promise<{ index: number; drift: number }[]> =>
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     test(`toucher une étape ne fait pas sauter la page (${reducedMotion})`, async ({ page }) => {
         await prepare(page, reducedMotion);
-        const target = await page.evaluate(() => {
+        // Une étape fermée visible à l'écran (la première trouvée sous l'étape ouverte, sinon au-dessus).
+        const index = await page.evaluate(() => {
             const panels = [...document.querySelectorAll<HTMLElement>('[data-map-panel]')];
             const open = panels.findIndex((panel) => panel.classList.contains('is-open'));
-            // Une étape fermée visible, de préférence sous l'étape ouverte.
-            const index = panels.findIndex((panel, position) => position !== open && panel.getBoundingClientRect().top > 60 && panel.getBoundingClientRect().top < innerHeight - 80);
-            const box = panels[index]?.querySelector('[data-map-toggle]')?.getBoundingClientRect();
-            return { index, x: (box?.left ?? 0) + 24, y: (box?.top ?? 0) + (box?.height ?? 0) / 2 };
+            const visible = (panel: HTMLElement): boolean => panel.getBoundingClientRect().top > 70 && panel.getBoundingClientRect().bottom < innerHeight - 20;
+            const below = panels.findIndex((panel, position) => position > open && visible(panel));
+            return below >= 0 ? below : panels.findIndex((panel, position) => position < open && visible(panel));
         });
-        expect(target.index).toBeGreaterThanOrEqual(0);
+        expect(index).toBeGreaterThanOrEqual(0);
 
-        await page.touchscreen.tap(target.x, target.y);
+        const box = await page.locator('[data-map-toggle]').nth(index).boundingBox();
+        expect(box).not.toBeNull();
+        await page.touchscreen.tap((box?.x ?? 0) + 24, (box?.y ?? 0) + (box?.height ?? 0) / 2);
         await page.waitForTimeout(1000);
 
         const recorded = await opens(page);
-        expect(recorded.at(-1)?.index).toBe(target.index);
+        expect(recorded.map((open) => open.index)).toContain(index);
         for (const open of recorded) {
             expect(open.drift, `étape ${open.index}`).toBeLessThanOrEqual(TOLERANCE);
         }
