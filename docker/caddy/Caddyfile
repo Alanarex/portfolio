@@ -4,7 +4,21 @@
 }
 
 {$APP_DOMAIN} {
-    encode zstd gzip
+    # Le modèle 3D (.glb, déjà en Meshopt) gagne encore ~30 % en zstd/gzip : on l'ajoute aux types compressés
+    # (le défaut de Caddy ne couvre ni model/gltf-binary ni application/octet-stream).
+    encode zstd gzip {
+        match {
+            header Content-Type text/*
+            header Content-Type application/json*
+            header Content-Type application/javascript*
+            header Content-Type application/xml*
+            header Content-Type application/manifest+json*
+            header Content-Type application/wasm*
+            header Content-Type image/svg+xml*
+            header Content-Type font/*
+            header Content-Type model/gltf-binary
+        }
+    }
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         -Server

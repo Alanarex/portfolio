@@ -8,9 +8,12 @@ const TOLERANCE = 3;
 
 async function prepare(page: Page, reducedMotion: 'reduce' | 'no-preference'): Promise<void> {
     await page.emulateMedia({ reducedMotion });
+    // Le modèle 3D (chargé en arrière-plan) change la hauteur de la page en cours de route : hors sujet ici.
+    await page.route('**/*.glb', (route) => route.abort());
+    // Le chargeur plein écran (qui intercepte les touchers) ne doit jamais s'afficher.
+    await page.addInitScript(() => sessionStorage.setItem('loaded', '1'));
     await page.goto('/fr');
     await page.waitForLoadState('load');
-    await page.evaluate(() => sessionStorage.setItem('loaded', '1'));
     // La page (sections chargées en différé) doit avoir fini de changer de hauteur avant de mesurer.
     await page.waitForFunction(
         () =>
