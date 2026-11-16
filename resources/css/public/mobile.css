@@ -152,7 +152,7 @@ html.menu-open { overflow: hidden; }
 
     /* 2. Héros : une colonne, boutons pleins, pile technique en chips défilables */
     .hero { padding-block: calc(var(--header-h) + var(--space-5)) var(--space-7); }
-    .hero h1 { max-width: none; font-size: clamp(2.1rem, 11vw, 2.75rem); }
+    .hero h1 { max-width: none; font-size: clamp(1.5rem, 7.2vw, 2.4rem); }
     .hero__grid { gap: var(--space-6); }
     .hero .actions { flex-direction: column; align-items: stretch; margin-top: var(--space-5); }
     .scroll-cue { display: none; }
