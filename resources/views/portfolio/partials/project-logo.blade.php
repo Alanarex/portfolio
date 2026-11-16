@@ -43,7 +43,7 @@
         <polygon points="{{ $polygon(70) }}" fill="url(#{{ $gradient }})" stroke="#ff5457" stroke-width="2" stroke-linejoin="round"/>
         <polygon points="{{ $polygon(84) }}" fill="none" stroke="#e5383b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{{ round(84 * 6.28 / $sides * 1.1) }} 900" transform="rotate({{ $arcStart }} 100 100)"/>
     @endif
-    <text x="100" y="{{ $stack !== '' ? 112 : 120 }}" text-anchor="middle" font-family="Jost Variable, sans-serif" font-size="{{ mb_strlen($initials) > 1 ? 56 : 66 }}" font-weight="700" letter-spacing="-2" fill="#fff">{{ $initials }}</text>
+    <text x="100" y="{{ $stack !== '' ? 112 : 120 }}" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="{{ mb_strlen($initials) > 1 ? 56 : 66 }}" font-weight="700" letter-spacing="-2" fill="#fff">{{ $initials }}</text>
     @if ($stack !== '')
         <text x="100" y="136" text-anchor="middle" font-family="JetBrains Mono Variable, monospace" font-size="9" letter-spacing="3" fill="#ffb3b4">{{ $stack }}</text>
     @endif

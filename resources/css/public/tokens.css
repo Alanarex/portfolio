@@ -13,9 +13,9 @@
     --white-smoke: #f5f3f4;
 
     /* Typographie (polices auto-hébergées) */
-    --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-display: "Jost Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-    --font-outline: "Orbitron", "Jost Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Orbitron", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Orbitron", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-outline: var(--font-display);
     --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", consolas, monospace;
 
     /* Ombres et rayons */

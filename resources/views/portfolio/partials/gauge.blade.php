@@ -46,7 +46,7 @@
                 <line x1="{{ $ox }}" y1="{{ $oy }}" x2="{{ $ix }}" y2="{{ $iy }}" stroke="{{ $value >= 280 ? '#ff5457' : '#f5f3f4' }}" stroke-width="{{ $major ? 3.2 : ($mid ? 2 : 1.2) }}" @if (! $major && ! $mid) stroke-opacity=".6" @endif/>
             @endforeach
         </g>
-        <g font-family="Jost Variable, sans-serif" font-size="15" font-weight="600" fill="#f5f3f4" text-anchor="middle" dominant-baseline="central">
+        <g font-family="Orbitron, sans-serif" font-size="15" font-weight="600" fill="#f5f3f4" text-anchor="middle" dominant-baseline="central">
             @foreach (range(0, 320, 40) as $value)
                 @php([$tx, $ty] = $point(143, $value))
                 <text x="{{ $tx }}" y="{{ $ty }}" @if ($value === 320) fill="#ff5457" @endif>{{ $value }}</text>

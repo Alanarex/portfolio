@@ -315,7 +315,7 @@ return [
         'ip' => 'Intellectual property and credits',
         'ip_text' => 'Editorial content and site code belong to their author unless stated otherwise. Reproduction without permission is prohibited.',
         'credit_model' => '3D model: “:title” by :author, licensed :license, modified (simplified, colours changed).',
-        'credit_fonts' => 'Inter, Jost, Orbitron and JetBrains Mono fonts: SIL Open Font License 1.1.',
+        'credit_fonts' => 'Inter, Orbitron and JetBrains Mono fonts: SIL Open Font License 1.1.',
         'credit_libs' => 'Three.js and Lenis: MIT license.',
         'trademarks' => 'Trademarks mentioned belong to their respective owners; their presence implies no affiliation.',
         'back' => 'Back to home',
