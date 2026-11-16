@@ -10,12 +10,12 @@ class ExampleTest extends TestCase
     /**
      * A basic test example.
      */
-    public function test_the_application_redirects_to_the_default_locale(): void
+    public function test_the_application_redirects_the_root_to_a_locale(): void
     {
         $this->withoutVite();
 
-        $this->get('/')
-            ->assertStatus(301)
+        $this->withHeader('Accept-Language', 'fr-FR')->get('/')
+            ->assertStatus(302)
             ->assertRedirect('/fr');
     }
 }

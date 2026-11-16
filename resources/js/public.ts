@@ -75,7 +75,18 @@ toggles.forEach((button) => {
 const langSwitch = document.querySelector<HTMLAnchorElement>('.lang-switch');
 const wipe = document.querySelector<HTMLElement>('.lang-wipe');
 
+// Mémorise le choix manuel (cookie fonctionnel, sans donnée personnelle, un an, SameSite=Lax) : la racine le respecte ensuite.
+function rememberLocale(): void {
+    const chosen = (langSwitch?.getAttribute('hreflang') ?? '').toLowerCase();
+    if (chosen === 'fr' || chosen === 'en') {
+        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `portfolio_locale=${chosen}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    }
+}
+
+langSwitch?.addEventListener('auxclick', rememberLocale);
 langSwitch?.addEventListener('click', (event) => {
+    rememberLocale();
     if (reducedMotion || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return;
     }

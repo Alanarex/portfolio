@@ -33,7 +33,7 @@ final class PublicPortfolioTest extends TestCase
         $project = $this->projectData('portfolio', 'Portfolio V3');
         $this->bindReaders([$project]);
 
-        $this->get('/')->assertStatus(301)->assertRedirect('/fr');
+        $this->withHeader('Accept-Language', 'fr-FR')->get('/')->assertStatus(302)->assertRedirect('/fr');
 
         $response = $this->get('/fr')
             ->assertOk()

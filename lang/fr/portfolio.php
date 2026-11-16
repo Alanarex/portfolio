@@ -312,7 +312,7 @@ return [
         'website' => 'Site',
         'data' => 'Données personnelles et cookies',
         'data_1' => 'Le site public n’utilise aucun outil de mesure d’audience, aucun cookie publicitaire et aucun traceur tiers. Les polices sont hébergées sur le site lui-même.',
-        'data_2' => 'Un cookie de session technique est utilisé uniquement pour l’espace d’administration privé ; il n’est pas déposé pour les visiteurs du portfolio.',
+        'data_2' => 'Un cookie de session technique est utilisé uniquement pour l’espace d’administration privé ; il n’est pas déposé pour les visiteurs du portfolio. Si vous choisissez FR ou EN, un cookie fonctionnel « portfolio_locale » (fr ou en, sans donnée personnelle, un an) mémorise ce choix pour la page d’accueil ; il n’est jamais utilisé pour vous suivre.',
         'data_3' => 'Pour toute question relative à vos données, ou pour exercer vos droits d’accès, de rectification et de suppression, utilisez le contact de l’éditeur ci-dessus.',
         'ip' => 'Propriété intellectuelle et crédits',
         'ip_text' => 'Le contenu éditorial et le code du site sont la propriété de leur auteur, sauf mention contraire. Toute reproduction sans autorisation est interdite.',
