@@ -124,3 +124,23 @@ test('light, dark, desktop, and mobile implementation captures render', async ({
     });
     await mobileContext.close();
 });
+
+test('SEO markup: site name, icons and navigation structured data are served', async ({ page, request }) => {
+    for (const locale of ['fr', 'en']) {
+        await page.goto(`/${locale}`);
+        const graph = JSON.parse((await page.locator('script[type="application/ld+json"]').first().textContent()) ?? '{}')['@graph'];
+        const site = graph.find((node: { '@type': string }) => node['@type'] === 'WebSite');
+        expect(site.name).toBe('Alaa Khalil');
+        expect(site.alternateName).toContain('alaakhalil.dev');
+        expect(graph.filter((node: { '@type': string }) => node['@type'] === 'SiteNavigationElement').length).toBeGreaterThanOrEqual(4);
+        await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'Alaa Khalil');
+        await expect(page.locator('link[rel="icon"][sizes="48x48"]')).toHaveCount(1);
+    }
+
+    for (const path of ['/favicon.ico', '/favicons/favicon-48x48.png', '/robots.txt', '/sitemap.xml']) {
+        const response = await request.get(path, { maxRedirects: 0 });
+        expect(response.status(), path).toBe(200);
+    }
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).toContain('/fr/projects/handicapacite');
+});

@@ -29,6 +29,7 @@ final class FaviconAndRobotsTest extends TestCase
             'favicon.ico',
             'apple-touch-icon.png',
             'site.webmanifest',
+            'favicons/favicon-48x48.png',
             'favicons/android-chrome-192x192.png',
             'favicons/android-chrome-512x512.png',
             'favicons/light/favicon-16x16.png',
@@ -57,5 +58,26 @@ final class FaviconAndRobotsTest extends TestCase
             ->assertOk()
             ->assertSee('Sitemap: '.route('portfolio.sitemap'), false)
             ->assertSee('Disallow: /dashboard', false);
+    }
+
+    public function test_favicons_follow_google_search_requirements(): void
+    {
+        $this->get('/fr')
+            ->assertOk()
+            ->assertSee('<link rel="icon" href="'.asset('favicon.ico').'" sizes="any">', false)
+            ->assertSee('<link rel="icon" type="image/png" sizes="48x48" href="'.asset('favicons/favicon-48x48.png').'">', false)
+            ->assertSee('<link rel="icon" type="image/png" sizes="192x192"', false);
+
+        $size = getimagesize(public_path('favicons/favicon-48x48.png'));
+        self::assertSame([48, 48], [$size[0], $size[1]]);
+
+        // L'ICO embarque une image 48 px et /favicon.ico répond sans redirection.
+        $ico = (string) file_get_contents(public_path('favicon.ico'));
+        $entries = unpack('v', substr($ico, 4, 2))[1];
+        $widths = [];
+        for ($i = 0; $i < $entries; $i++) {
+            $widths[] = ord($ico[6 + $i * 16]);
+        }
+        self::assertContains(48, $widths);
     }
 }

@@ -322,12 +322,16 @@ return [
         'trademarks' => 'Trademarks mentioned belong to their respective owners; their presence implies no affiliation.',
         'back' => 'Back to home',
     ],
+    'seo' => [
+        'alternate_names' => ['Alaa Khalil developer', 'Alaa Khalil portfolio', 'alaakhalil.dev'],
+        'breadcrumb_home' => 'Home',
+    ],
     'meta' => [
         'home_title' => 'Alaa Khalil — PHP / Laravel Developer',
         'home_description' => 'Alaa Khalil’s professional portfolio: projects, skills, experience, and verified outcomes.',
         'projects_title' => 'Projects — Alaa Khalil',
         'projects_description' => 'Published projects and case studies by Alaa Khalil.',
-        'project_title' => ':project — Case study',
+        'project_title' => ':project — Case study | Alaa Khalil',
         'privacy_title' => 'Privacy — Alaa Khalil',
         'privacy_description' => 'Privacy and public-data controls for Alaa Khalil’s portfolio.',
         'legal_title' => 'Legal notice — Alaa Khalil',

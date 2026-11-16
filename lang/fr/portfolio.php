@@ -322,12 +322,16 @@ return [
         'trademarks' => 'Les marques citées appartiennent à leurs propriétaires respectifs ; leur présence n’indique aucun lien avec eux.',
         'back' => 'Retour à l’accueil',
     ],
+    'seo' => [
+        'alternate_names' => ['Alaa Khalil développeur', 'Alaa Khalil portfolio', 'alaakhalil.dev'],
+        'breadcrumb_home' => 'Accueil',
+    ],
     'meta' => [
         'home_title' => 'Alaa Khalil — Développeur PHP / Laravel',
         'home_description' => 'Portfolio professionnel d’Alaa Khalil : projets, compétences, expérience et résultats vérifiés.',
         'projects_title' => 'Projets — Alaa Khalil',
         'projects_description' => 'Projets et études de cas publiés d’Alaa Khalil.',
-        'project_title' => ':project — Étude de cas',
+        'project_title' => ':project — Étude de cas | Alaa Khalil',
         'privacy_title' => 'Confidentialité — Alaa Khalil',
         'privacy_description' => 'Confidentialité et contrôles des données publiques du portfolio d’Alaa Khalil.',
         'legal_title' => 'Mentions légales — Alaa Khalil',

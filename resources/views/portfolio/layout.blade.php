@@ -26,6 +26,9 @@
     @endphp
     {{-- Tab icon follows the browser/OS colour scheme; favicon.ico is the fallback. --}}
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    {{-- Google Search : icône sans media query, taille multiple de 48 px, dans le HTML initial. --}}
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicons/favicon-48x48.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicons/android-chrome-192x192.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/light/favicon-32x32.png') }}" media="(prefers-color-scheme: light)">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicons/light/favicon-16x16.png') }}" media="(prefers-color-scheme: light)">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/dark/favicon-32x32.png') }}" media="(prefers-color-scheme: dark)">

@@ -60,7 +60,7 @@ final class PublicPortfolioController extends Controller
                 description: $data['profile']->summary ?? __('portfolio.meta.home_description'),
                 canonical: route('portfolio.home', ['locale' => $locale]),
             ),
-            'structuredData' => $this->structuredData($data, route('portfolio.home', ['locale' => $locale])),
+            'structuredData' => $this->structuredData($data, route('portfolio.home', ['locale' => $locale]), __('portfolio.meta.home_title'), $this->homeNavigation($locale)),
         ]);
     }
 
@@ -114,7 +114,10 @@ final class PublicPortfolioController extends Controller
                 description: __('portfolio.meta.projects_description'),
                 canonical: route('portfolio.projects.index', ['locale' => $locale]),
             ),
-            'structuredData' => $this->structuredData($data, route('portfolio.projects.index', ['locale' => $locale])),
+            'structuredData' => $this->structuredData($data, route('portfolio.projects.index', ['locale' => $locale]), __('portfolio.meta.projects_title'), [], [
+                ['name' => __('portfolio.seo.breadcrumb_home'), 'url' => route('portfolio.home', ['locale' => $locale])],
+                ['name' => __('portfolio.nav.projects'), 'url' => route('portfolio.projects.index', ['locale' => $locale])],
+            ]),
         ]);
     }
 
@@ -141,7 +144,11 @@ final class PublicPortfolioController extends Controller
                 description: $project->summary,
                 canonical: route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]),
             ),
-            'structuredData' => $this->structuredData($data, route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug])),
+            'structuredData' => $this->structuredData($data, route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]), __('portfolio.meta.project_title', ['project' => $project->title]), [], [
+                ['name' => __('portfolio.seo.breadcrumb_home'), 'url' => route('portfolio.home', ['locale' => $locale])],
+                ['name' => __('portfolio.nav.projects'), 'url' => route('portfolio.projects.index', ['locale' => $locale])],
+                ['name' => $project->title, 'url' => route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug])],
+            ]),
         ]);
     }
 
@@ -161,7 +168,7 @@ final class PublicPortfolioController extends Controller
                 description: __('portfolio.meta.privacy_description'),
                 canonical: $canonical,
             ),
-            'structuredData' => $this->structuredData($data, $canonical),
+            'structuredData' => $this->structuredData($data, $canonical, __('portfolio.meta.privacy_title')),
         ]);
     }
 
@@ -182,7 +189,7 @@ final class PublicPortfolioController extends Controller
                 description: __('portfolio.meta.legal_description'),
                 canonical: $canonical,
             ),
-            'structuredData' => $this->structuredData($data, $canonical),
+            'structuredData' => $this->structuredData($data, $canonical, __('portfolio.meta.legal_title')),
         ]);
     }
 
@@ -247,40 +254,99 @@ final class PublicPortfolioController extends Controller
     }
 
     /**
+     * Balisage schema.org : WebSite (nom du site pour Google), Person, WebPage, navigation et fil d'Ariane.
+     * Le WebSite et la Person pointent vers la racine du domaine, qui est l'identité unique du site (FR et EN).
+     *
      * @param array{
      *   locale: string,
      *   profile: PublicProfileData|null,
      *   settings: PublicSettingsData|null
      * } $data
+     * @param  list<array{name: string, url: string}>  $navigation
+     * @param  list<array{name: string, url: string}>  $breadcrumbs
      * @return array<string, mixed>
      */
-    private function structuredData(array $data, string $url): array
+    private function structuredData(array $data, string $url, string $title, array $navigation = [], array $breadcrumbs = []): array
     {
         $settings = $data['settings'];
+        $root = rtrim(route('portfolio.x-default'), '/').'/';
+        $siteName = $settings instanceof PublicSettingsData ? $settings->siteName : __('portfolio.brand_fallback');
+        $alternateNames = array_values(array_filter(
+            (array) __('portfolio.seo.alternate_names'),
+            static fn (mixed $name): bool => is_string($name) && $name !== $siteName,
+        ));
+        $person = ['@id' => $root.'#person'];
+
         $graph = [[
             '@type' => 'WebSite',
-            '@id' => route('portfolio.home', ['locale' => $data['locale']]).'#website',
-            'url' => route('portfolio.home', ['locale' => $data['locale']]),
-            'name' => $settings instanceof PublicSettingsData ? $settings->siteName : __('portfolio.brand_fallback'),
-            'inLanguage' => $data['locale'],
+            '@id' => $root.'#website',
+            'url' => $root,
+            'name' => $siteName,
+            'alternateName' => $alternateNames,
+            'inLanguage' => ['fr', 'en'],
+            'publisher' => $person,
         ]];
 
+        $graph[] = [
+            '@type' => 'WebPage',
+            '@id' => $url.'#webpage',
+            'url' => $url,
+            'name' => $title,
+            'inLanguage' => $data['locale'],
+            'isPartOf' => ['@id' => $root.'#website'],
+            'about' => $person,
+        ];
+
         if ($data['profile'] instanceof PublicProfileData) {
-            $person = [
+            $graph[] = array_filter([
                 '@type' => 'Person',
-                '@id' => route('portfolio.home', ['locale' => $data['locale']]).'#person',
+                '@id' => $root.'#person',
                 'name' => $data['profile']->displayName,
-                'url' => $url,
+                'url' => $root,
+                'image' => asset('assets/brand/portrait-hero-640.webp'),
                 'jobTitle' => $data['profile']->professionalTitles[0] ?? null,
                 'description' => $data['profile']->summary,
                 'sameAs' => $settings instanceof PublicSettingsData ? array_values($settings->socialLinks) : [],
+            ], static fn (mixed $value): bool => $value !== null && $value !== []);
+        }
+
+        foreach ($navigation as $item) {
+            $graph[] = ['@type' => 'SiteNavigationElement', 'name' => $item['name'], 'url' => $item['url']];
+        }
+
+        if ($breadcrumbs !== []) {
+            $graph[] = [
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => array_map(
+                    static fn (array $crumb, int $index): array => [
+                        '@type' => 'ListItem',
+                        'position' => $index + 1,
+                        'name' => $crumb['name'],
+                        'item' => $crumb['url'],
+                    ],
+                    $breadcrumbs,
+                    array_keys($breadcrumbs),
+                ),
             ];
-            $graph[] = array_filter($person, static fn (mixed $value): bool => $value !== null && $value !== []);
         }
 
         return [
             '@context' => 'https://schema.org',
             '@graph' => $graph,
+        ];
+    }
+
+    /** @return list<array{name: string, url: string}> */
+    private function homeNavigation(string $locale): array
+    {
+        $home = route('portfolio.home', ['locale' => $locale]);
+
+        return [
+            ['name' => __('portfolio.nav.projects'), 'url' => $home.'#projets'],
+            ['name' => __('portfolio.nav.experience'), 'url' => $home.'#experience'],
+            ['name' => __('portfolio.nav.skills'), 'url' => $home.'#competences'],
+            ['name' => __('portfolio.nav.contact'), 'url' => $home.'#contact'],
+            ['name' => __('portfolio.footer.legal'), 'url' => route('portfolio.legal', ['locale' => $locale])],
         ];
     }
 
