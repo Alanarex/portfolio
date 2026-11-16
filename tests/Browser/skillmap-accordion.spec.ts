@@ -8,6 +8,8 @@ const TOLERANCE = 3;
 
 async function prepare(page: Page, reducedMotion: 'reduce' | 'no-preference'): Promise<void> {
     await page.emulateMedia({ reducedMotion });
+    // Le modèle 3D (chargé en arrière-plan) change la hauteur de la page en cours de route : hors sujet ici.
+    await page.route('**/*.glb', (route) => route.abort());
     await page.goto('/fr');
     await page.waitForLoadState('load');
     await page.evaluate(() => sessionStorage.setItem('loaded', '1'));
