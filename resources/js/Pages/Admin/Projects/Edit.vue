@@ -3,10 +3,14 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { cloneProps } from '@admin/lib/clone';
 import { computed, shallowRef, watch } from 'vue';
 import ErrorSummary from '@admin/Components/ErrorSummary.vue';
+import CollapsibleControls from '@admin/Components/CollapsibleControls.vue';
+import CollapsibleSection from '@admin/Components/CollapsibleSection.vue';
 import PageHeader from '@admin/Components/PageHeader.vue';
+import ToggleSwitch from '@admin/Components/ToggleSwitch.vue';
 import ConfirmDialog from '@admin/Components/ConfirmDialog.vue';
 import { useConfirm } from '@admin/lib/confirm';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
+import { hasErrorUnder, provideSectionGroup } from '@admin/lib/collapsible';
 import { lifecycleLabel, mediaKindLabel, publicationLabel, visibilityLabel } from '@admin/lib/labels';
 
 type Locale = 'fr' | 'en';
@@ -86,6 +90,8 @@ const sectionLabels: Record<string, Record<Locale, string>> = {
 };
 
 const form = useForm(cloneProps(props.project));
+const sectionGroup = provideSectionGroup('project-edit');
+const sectionKey = (section: Section, index: number): string => `case-${section.id ?? `${section.type}-${index}`}`;
 const skillGroups = computed(() => {
   const groups = new Map<string, { category: string; skills: { key: string; name: string }[] }>();
   for (const skill of props.options.skills) {
@@ -132,6 +138,7 @@ function addTechnology(): void {
 function addSection(): void {
   const type = Object.keys(sectionLabels).find((candidate) => !form.sections.some((section) => section.type === candidate));
   if (!type) return;
+  sectionGroup.set(`case-${type}-${form.sections.length}`, true);
   form.sections.push({
     type,
     is_public: false,
@@ -184,10 +191,10 @@ function deleteMedia(id: number): void {
 
     <ErrorSummary :errors="form.errors" class="mt-6" />
 
-    <form class="mt-8 space-y-8" :aria-busy="form.processing" @submit.prevent="save">
-      <section class="admin-card admin-panel" aria-labelledby="project-core">
-        <h2 id="project-core" class="text-xl font-semibold">Identité, statut et ordre</h2>
-        <div class="mt-5 grid gap-5 md:grid-cols-3">
+    <form class="mt-8 space-y-6" :aria-busy="form.processing" @submit.prevent="save">
+      <div class="flex justify-end"><CollapsibleControls /></div>
+      <CollapsibleSection id="core" title="Identité, statut et ordre" default-open :summary="publicationLabel(form.publication_status)" :invalid="hasErrorUnder(form.errors, 'slug', 'lifecycle_status', 'publication_status', 'sort_order', 'is_featured', 'featured_order')">
+        <div class="grid gap-5 md:grid-cols-3">
           <label class="admin-field">Slug stable
             <input v-model="form.slug" class="admin-input" required :readonly="!isNew" :aria-invalid="Boolean(form.errors.slug)">
           </label>
@@ -200,16 +207,18 @@ function deleteMedia(id: number): void {
           <label class="admin-field">Ordre global
             <input v-model="form.sort_order" type="number" min="0" class="admin-input">
           </label>
-          <label class="admin-check self-end"><input v-model="form.is_featured" type="checkbox"> Projet en avant</label>
+          <ToggleSwitch v-model="form.is_featured" class="self-end">Projet en avant</ToggleSwitch>
           <label class="admin-field">Ordre de mise en avant
             <input v-model="form.featured_order" type="number" min="0" class="admin-input" :disabled="!form.is_featured">
           </label>
         </div>
-      </section>
+      </CollapsibleSection>
 
-      <section v-for="locale in locales" :key="locale" class="admin-card admin-panel" :aria-labelledby="`project-${locale}`">
-        <h2 :id="`project-${locale}`" class="text-xl font-semibold">{{ locale.toUpperCase() }}</h2>
-        <div class="mt-5 grid gap-5 md:grid-cols-2">
+      <CollapsibleSection
+        v-for="locale in locales" :id="`locale-${locale}`" :key="locale" :title="`Contenu ${locale.toUpperCase()}`" :default-open="isNew || locale === 'fr'"
+        :summary="form.translations[locale].title || 'Vide'" :invalid="hasErrorUnder(form.errors, `translations.${locale}`)"
+      >
+        <div class="grid gap-5 md:grid-cols-2">
           <label class="admin-field">Titre
             <input v-model="form.translations[locale].title" class="admin-input" maxlength="180">
           </label>
@@ -226,17 +235,16 @@ function deleteMedia(id: number): void {
             <textarea v-model="form.translations[locale].seo_description" class="admin-input min-h-20" maxlength="320" />
           </label>
         </div>
-      </section>
+      </CollapsibleSection>
 
-      <section class="admin-card admin-panel" aria-labelledby="project-details">
-        <h2 id="project-details" class="text-xl font-semibold">Technologies, dates et liens</h2>
-        <div class="mt-5 grid gap-5 md:grid-cols-4">
+      <CollapsibleSection id="details" title="Technologies, dates et liens" :default-open="isNew" :summary="`${form.technologies.length} technologies · ${form.skill_keys.length} compétences`" :invalid="hasErrorUnder(form.errors, 'technologies', 'skill_keys', 'start_year', 'start_month', 'end_year', 'end_month', 'is_ongoing', 'repository_visibility', 'repository_url', 'show_repository', 'demo_url', 'show_demo')">
+        <div class="grid gap-5 md:grid-cols-4">
           <label class="admin-field">Début — année<input v-model="form.start_year" type="number" min="1950" max="2100" class="admin-input"></label>
           <label class="admin-field">Début — mois<input v-model="form.start_month" type="number" min="1" max="12" class="admin-input"></label>
           <label class="admin-field">Fin — année<input v-model="form.end_year" type="number" min="1950" max="2100" class="admin-input" :disabled="form.is_ongoing"></label>
           <label class="admin-field">Fin — mois<input v-model="form.end_month" type="number" min="1" max="12" class="admin-input" :disabled="form.is_ongoing"></label>
         </div>
-        <label class="admin-check mt-4"><input v-model="form.is_ongoing" type="checkbox"> Projet en cours</label>
+        <ToggleSwitch v-model="form.is_ongoing" class="mt-4">Projet en cours</ToggleSwitch>
         <div class="mt-5">
           <div class="flex items-center justify-between gap-3"><h3 class="font-semibold">Technologies vérifiées</h3><button type="button" class="admin-button admin-button-secondary admin-button-compact" @click="addTechnology">Ajouter</button></div>
           <div v-for="(_, index) in form.technologies" :key="index" class="mt-3 flex gap-2"><input v-model="form.technologies[index]" class="admin-input" maxlength="80" :aria-label="`Technologie ${index + 1}`"><button type="button" class="admin-button admin-button-danger admin-button-compact" :aria-label="`Supprimer la technologie ${index + 1}`" @click="form.technologies.splice(index, 1)">Supprimer</button></div>
@@ -258,26 +266,29 @@ function deleteMedia(id: number): void {
             <legend class="px-1 font-semibold">Dépôt</legend>
             <label class="admin-field">Visibilité<select v-model="form.repository_visibility" class="admin-input"><option v-for="visibility in options.repository_visibilities" :key="visibility" :value="visibility">{{ visibilityLabel(visibility) }}</option></select></label>
             <label class="admin-field mt-4">URL chiffrée au repos<input v-model="form.repository_url" type="url" class="admin-input"></label>
-            <label class="admin-check mt-4"><input v-model="form.show_repository" type="checkbox"> Afficher dans le lecteur public</label>
+            <ToggleSwitch v-model="form.show_repository" class="mt-4">Afficher dans le lecteur public</ToggleSwitch>
           </fieldset>
           <fieldset class="admin-fieldset">
             <legend class="px-1 font-semibold">Démo</legend>
             <label class="admin-field">URL<input v-model="form.demo_url" type="url" class="admin-input"></label>
-            <label class="admin-check mt-4"><input v-model="form.show_demo" type="checkbox"> Afficher dans le lecteur public</label>
+            <ToggleSwitch v-model="form.show_demo" class="mt-4">Afficher dans le lecteur public</ToggleSwitch>
           </fieldset>
         </div>
-      </section>
+      </CollapsibleSection>
 
-      <section class="space-y-5" aria-labelledby="case-study-heading">
-        <div class="flex items-center justify-between gap-3"><div><h2 id="case-study-heading" class="text-2xl font-semibold">Étude de cas</h2><p class="mt-1 text-sm text-muted-foreground">Une section publique doit être vérifiée et complète en FR/EN.</p></div><button type="button" class="admin-button admin-button-secondary admin-button-compact" :disabled="form.sections.length >= 8" @click="addSection">Ajouter une section</button></div>
-        <article v-for="(section, index) in form.sections" :key="section.id ?? `${section.type}-${index}`" class="admin-card admin-panel">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-lg font-semibold">{{ sectionLabels[section.type]?.fr ?? section.type }}</h3>
-            <div class="flex flex-wrap gap-4">
-              <label class="admin-check"><input v-model="section.is_verified" type="checkbox"> Vérifiée</label>
-              <label class="admin-check"><input v-model="section.is_public" type="checkbox"> Publique</label>
-              <button type="button" class="admin-button admin-button-danger admin-button-compact" @click="form.sections.splice(index, 1)">Supprimer</button>
-            </div>
+      <CollapsibleSection id="case-study" title="Étude de cas" description="Une section publique doit être vérifiée et complète en FR/EN." :default-open="isNew" :summary="form.sections.length === 1 ? '1 section' : `${form.sections.length} sections`" :invalid="hasErrorUnder(form.errors, 'sections')">
+        <template #actions><button type="button" class="admin-button admin-button-secondary admin-button-compact" :disabled="form.sections.length >= 8" @click="addSection">Ajouter une section</button></template>
+        <div v-if="form.sections.length === 0" class="admin-empty">Aucune section.</div>
+        <CollapsibleSection
+          v-for="(section, index) in form.sections" :id="sectionKey(section, index)" :key="section.id ?? `${section.type}-${index}`" class="mt-4" variant="sub" :level="3"
+          :default-open="!section.id" :title="sectionLabels[section.type]?.fr ?? section.type" :summary="section.is_public ? 'Publique' : 'Privée'" :invalid="hasErrorUnder(form.errors, `sections.${index}`)"
+        >
+          <template #actions>
+            <button type="button" class="admin-button admin-button-danger admin-button-compact" @click="form.sections.splice(index, 1)">Supprimer</button>
+          </template>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <ToggleSwitch v-model="section.is_verified">Vérifiée</ToggleSwitch>
+            <ToggleSwitch v-model="section.is_public">Publique</ToggleSwitch>
           </div>
           <div class="mt-4 grid gap-4 md:grid-cols-2">
             <fieldset v-for="locale in locales" :key="locale" class="admin-fieldset">
@@ -286,17 +297,14 @@ function deleteMedia(id: number): void {
               <label class="admin-field mt-4">Contenu<textarea v-model="section.translations[locale].body" class="admin-input min-h-40" maxlength="20000" /></label>
             </fieldset>
           </div>
-        </article>
-      </section>
+        </CollapsibleSection>
+      </CollapsibleSection>
 
       <div class="admin-savebar"><button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le projet' }}</button></div>
     </form>
 
-    <section v-if="!isNew" class="mt-12" aria-labelledby="media-heading">
-      <h2 id="media-heading" class="text-2xl font-semibold">Médias privés</h2>
-      <p class="mt-2 text-sm text-muted-foreground">JPEG, PNG et WebP : 8 Mo maximum. PDF : 20 Mo maximum. Aucun nom fourni n’est utilisé comme chemin de stockage.</p>
-
-      <form class="mt-5 grid gap-4 admin-card admin-panel md:grid-cols-2" :aria-busy="newMedia.processing" enctype="multipart/form-data" @submit.prevent="uploadMedia">
+    <CollapsibleSection v-if="!isNew" id="media" class="mt-8" title="Médias privés" description="JPEG, PNG et WebP : 8 Mo maximum. PDF : 20 Mo maximum. Aucun nom fourni n’est utilisé comme chemin de stockage." :summary="media.length === 1 ? '1 média' : `${media.length} médias`" :invalid="newMedia.hasErrors || mediaForms.some((asset) => asset.hasErrors)">
+      <form class="grid gap-4 admin-card admin-panel md:grid-cols-2" :aria-busy="newMedia.processing" enctype="multipart/form-data" @submit.prevent="uploadMedia">
         <div v-if="Object.keys(newMedia.errors).length" class="admin-banner md:col-span-2" role="alert">{{ Object.values(newMedia.errors).join(' ') }}</div>
         <label class="admin-field">Type<select v-model="newMedia.kind" class="admin-input"><option v-for="kind in options.media_kinds" :key="kind" :value="kind">{{ mediaKindLabel(kind) }}</option></select></label>
         <label class="admin-field">Fichier<input type="file" class="admin-input" accept=".jpg,.jpeg,.png,.webp,.pdf" required @change="selectFile"></label>
@@ -305,7 +313,7 @@ function deleteMedia(id: number): void {
           <label class="admin-field">Texte alternatif<input v-model="newMedia.translations[locale].alt_text" class="admin-input" maxlength="240"></label>
           <label class="admin-field mt-4">Légende<textarea v-model="newMedia.translations[locale].caption" class="admin-input min-h-20" maxlength="2000" /></label>
         </fieldset>
-        <label class="admin-check"><input v-model="newMedia.is_public" type="checkbox"> Préparer comme média public</label>
+        <ToggleSwitch v-model="newMedia.is_public">Préparer comme média public</ToggleSwitch>
         <div class="flex justify-end"><button type="submit" class="admin-button" :disabled="newMedia.processing">{{ newMedia.processing ? 'Téléversement…' : 'Téléverser' }}</button></div>
       </form>
 
@@ -319,9 +327,9 @@ function deleteMedia(id: number): void {
         </div>
         <div v-if="Object.keys(asset.errors).length" class="mt-4 admin-banner" role="alert">{{ Object.values(asset.errors).join(' ') }}</div>
         <div class="mt-4 grid gap-4 md:grid-cols-2"><fieldset v-for="locale in locales" :key="locale" class="admin-fieldset"><legend class="px-1 font-semibold">{{ locale.toUpperCase() }}</legend><label class="admin-field">Texte alternatif<input v-model="asset.translations[locale].alt_text" class="admin-input" maxlength="240"></label><label class="admin-field mt-4">Légende<textarea v-model="asset.translations[locale].caption" class="admin-input min-h-20" maxlength="2000" /></label></fieldset></div>
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3"><label class="admin-check"><input v-model="asset.is_public" type="checkbox"> Média public</label><button type="submit" class="admin-button" :disabled="asset.processing">Enregistrer le média</button></div>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3"><ToggleSwitch v-model="asset.is_public" class="!w-auto">Média public</ToggleSwitch><button type="submit" class="admin-button" :disabled="asset.processing">Enregistrer le média</button></div>
       </form>
-    </section>
+    </CollapsibleSection>
 
     <ConfirmDialog :open="confirm.request.value !== null" :title="confirm.request.value?.title ?? ''" :message="confirm.request.value?.message" :confirm-label="confirm.request.value?.confirmLabel" @confirm="confirm.accept" @cancel="confirm.dismiss" />
   </AdminLayout>

@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { cloneProps } from '@admin/lib/clone';
+import CollapsibleControls from '@admin/Components/CollapsibleControls.vue';
+import CollapsibleSection from '@admin/Components/CollapsibleSection.vue';
 import PageHeader from '@admin/Components/PageHeader.vue';
+import ToggleSwitch from '@admin/Components/ToggleSwitch.vue';
 import ConfirmDialog from '@admin/Components/ConfirmDialog.vue';
 import { useConfirm } from '@admin/lib/confirm';
 import AdminLayout from '@admin/Layouts/AdminLayout.vue';
+import { hasErrorUnder, provideSectionGroup } from '@admin/lib/collapsible';
 
 type Translation = {
   professional_titles: string[];
@@ -49,6 +53,8 @@ for (const locale of ['fr', 'en'] as const) {
 }
 
 const form = useForm({ ...props.profile, translations });
+provideSectionGroup('profile');
+const cvHasErrors = (): boolean => newCv.hasErrors || cvForms.some((cv) => cv.hasErrors);
 const newCv = useForm({
   locale: 'fr', label: '', version_label: '', document: null as File | null,
   is_verified: false, published: false, archived: false,
@@ -92,10 +98,10 @@ function deleteCv(id: number): void {
   <AdminLayout>
     <PageHeader class="mb-8" title="Profil professionnel" description="Gérez l’identité publique et ses contenus français et anglais. L’arabe reste un état de préparation non public." />
 
-    <form class="space-y-8" :aria-busy="form.processing" @submit.prevent="saveProfile">
-      <section class="admin-card admin-panel" aria-labelledby="identity-heading">
-        <h2 id="identity-heading" class="text-xl font-semibold">Identité et publication</h2>
-        <div class="mt-5 grid gap-5 md:grid-cols-2">
+    <div class="mb-4 flex justify-end"><CollapsibleControls /></div>
+    <form class="space-y-6" :aria-busy="form.processing" @submit.prevent="saveProfile">
+      <CollapsibleSection id="identity" title="Identité et publication" default-open :invalid="hasErrorUnder(form.errors, 'display_name', 'is_published', 'show_location', 'show_availability')">
+        <div class="grid gap-5 md:grid-cols-2">
           <div>
             <label for="display-name" class="admin-label">Nom affiché</label>
             <input id="display-name" v-model="form.display_name" class="admin-input" required maxlength="120" :aria-invalid="Boolean(form.errors.display_name)" :aria-describedby="form.errors.display_name ? 'display-name-error' : undefined">
@@ -103,17 +109,19 @@ function deleteCv(id: number): void {
           </div>
           <fieldset class="grid gap-3 admin-fieldset">
             <legend class="px-1 text-sm font-semibold">Visibilité</legend>
-            <label class="admin-check"><input v-model="form.is_published" type="checkbox"> Publier le profil</label>
-            <label class="admin-check"><input v-model="form.show_location" type="checkbox"> Afficher la localisation</label>
-            <label class="admin-check"><input v-model="form.show_availability" type="checkbox"> Afficher la disponibilité</label>
+            <ToggleSwitch v-model="form.is_published">Publier le profil</ToggleSwitch>
+            <ToggleSwitch v-model="form.show_location">Afficher la localisation</ToggleSwitch>
+            <ToggleSwitch v-model="form.show_availability">Afficher la disponibilité</ToggleSwitch>
           </fieldset>
         </div>
-      </section>
+      </CollapsibleSection>
 
-      <section v-for="locale in (['fr', 'en', 'ar'] as const)" :key="locale" class="admin-card admin-panel" :aria-labelledby="`translation-${locale}`">
-        <h2 :id="`translation-${locale}`" class="text-xl font-semibold">{{ localeLabels[locale] }}</h2>
-        <p v-if="locale === 'ar'" class="mt-1 text-sm text-warning">Préparation uniquement : ce contenu n’est jamais exposé par le lecteur public.</p>
-        <div class="mt-5 grid gap-5">
+      <CollapsibleSection
+        v-for="locale in (['fr', 'en', 'ar'] as const)" :id="`translation-${locale}`" :key="locale" :default-open="locale === 'fr'" :title="localeLabels[locale]"
+        :description="locale === 'ar' ? 'Préparation uniquement : ce contenu n’est jamais exposé par le lecteur public.' : undefined"
+        :summary="form.translations[locale].professional_titles[0] || 'Vide'" :invalid="hasErrorUnder(form.errors, `translations.${locale}`)"
+      >
+        <div class="grid gap-5">
           <div>
             <label :for="`title-${locale}`" class="admin-label">Titre professionnel principal</label>
             <input :id="`title-${locale}`" v-model="form.translations[locale].professional_titles[0]" class="admin-input" :required="locale !== 'ar'" maxlength="120" :aria-invalid="Boolean(form.errors[`translations.${locale}.professional_titles.0`])" :aria-describedby="form.errors[`translations.${locale}.professional_titles.0`] ? `title-${locale}-error` : undefined">
@@ -140,28 +148,23 @@ function deleteCv(id: number): void {
             <p v-if="form.errors[`translations.${locale}.biography`]" :id="`biography-${locale}-error`" class="admin-error" role="alert">{{ form.errors[`translations.${locale}.biography`] }}</p>
           </div>
         </div>
-      </section>
+      </CollapsibleSection>
 
       <div class="admin-savebar">
         <button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le profil' }}</button>
       </div>
     </form>
 
-    <section class="mt-12" aria-labelledby="cv-heading">
-      <div>
-        <h2 id="cv-heading" class="text-2xl font-semibold">Versions du CV</h2>
-        <p class="mt-2 text-sm text-muted-foreground">Les PDF restent privés. Seule une version vérifiée, publiée et activée dans les paramètres peut être téléchargée publiquement.</p>
-      </div>
-
-      <div v-if="cvForms.length === 0" class="mt-5 admin-empty">Aucune version enregistrée.</div>
+    <CollapsibleSection id="cv" class="mt-8" title="Versions du CV" description="Les PDF restent privés. Seule une version vérifiée, publiée et activée dans les paramètres peut être téléchargée publiquement." :summary="cvForms.length === 1 ? '1 version' : `${cvForms.length} versions`" :invalid="cvHasErrors()">
+      <div v-if="cvForms.length === 0" class="admin-empty">Aucune version enregistrée.</div>
       <form v-for="(cv, index) in cvForms" :key="cv.id" class="mt-5 grid gap-4 admin-card admin-panel md:grid-cols-3" :aria-busy="cv.processing" @submit.prevent="updateCv(index)">
         <div v-if="Object.keys(cv.errors).length" class="admin-banner md:col-span-3" role="alert">Vérifiez les métadonnées de cette version : {{ Object.values(cv.errors).join(' ') }}</div>
         <div><label :for="`cv-label-${cv.id}`" class="admin-label">Libellé</label><input :id="`cv-label-${cv.id}`" v-model="cv.label" class="admin-input" required maxlength="120"></div>
         <div><label :for="`cv-version-${cv.id}`" class="admin-label">Version</label><input :id="`cv-version-${cv.id}`" v-model="cv.version_label" class="admin-input" required maxlength="50"></div>
         <div><label :for="`cv-locale-${cv.id}`" class="admin-label">Langue</label><select :id="`cv-locale-${cv.id}`" v-model="cv.locale" class="admin-input"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select></div>
-        <label class="admin-check"><input v-model="cv.is_verified" type="checkbox"> Vérifié</label>
-        <label class="admin-check"><input v-model="cv.published" type="checkbox"> Marqué publié</label>
-        <label class="admin-check"><input v-model="cv.archived" type="checkbox"> Archivé</label>
+        <ToggleSwitch v-model="cv.is_verified">Vérifié</ToggleSwitch>
+        <ToggleSwitch v-model="cv.published">Marqué publié</ToggleSwitch>
+        <ToggleSwitch v-model="cv.archived">Archivé</ToggleSwitch>
         <div class="md:col-span-3">
           <label :for="`cv-document-${cv.id}`" class="admin-label">Remplacer le PDF</label>
           <input :id="`cv-document-${cv.id}`" class="admin-input" type="file" accept="application/pdf,.pdf" :aria-invalid="Boolean(cv.errors.document)" @change="selectDocument($event, cv)">
@@ -183,12 +186,12 @@ function deleteCv(id: number): void {
           <p class="mt-2 text-xs text-muted-foreground">PDF uniquement, 20 Mo maximum. Le nom, la taille et le SHA-256 sont calculés par le serveur.</p>
           <p v-if="newCv.errors.document" class="admin-error" role="alert">{{ newCv.errors.document }}</p>
         </div>
-        <label class="admin-check"><input v-model="newCv.is_verified" type="checkbox"> Vérifié</label>
-        <label class="admin-check"><input v-model="newCv.published" type="checkbox"> Marqué publié</label>
-        <label class="admin-check"><input v-model="newCv.archived" type="checkbox"> Archivé</label>
+        <ToggleSwitch v-model="newCv.is_verified">Vérifié</ToggleSwitch>
+        <ToggleSwitch v-model="newCv.published">Marqué publié</ToggleSwitch>
+        <ToggleSwitch v-model="newCv.archived">Archivé</ToggleSwitch>
         <div class="md:col-span-3"><button type="submit" class="admin-button" :disabled="newCv.processing">{{ newCv.processing ? 'Ajout…' : 'Ajouter la version' }}</button></div>
       </form>
-    </section>
+    </CollapsibleSection>
 
     <ConfirmDialog :open="confirm.request.value !== null" :title="confirm.request.value?.title ?? ''" :message="confirm.request.value?.message" :confirm-label="confirm.request.value?.confirmLabel" @confirm="confirm.accept" @cancel="confirm.dismiss" />
   </AdminLayout>
