@@ -30,6 +30,11 @@ final class PublicSeoController extends Controller
                 'alternates' => $this->alternates('portfolio.legal'),
             ];
 
+            $urls[] = [
+                'location' => route('portfolio.privacy', ['locale' => $locale]),
+                'alternates' => $this->alternates('portfolio.privacy'),
+            ];
+
             foreach ($this->projects->all($locale) as $project) {
                 $urls[] = [
                     'location' => route('portfolio.projects.show', ['locale' => $locale, 'slug' => $project->slug]),
