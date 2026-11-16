@@ -6,11 +6,11 @@ namespace App\Console\Commands;
 
 use App\Core\Security\SecurityAudit;
 use App\Models\User;
+use App\Support\AdministratorPassword;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 
 final class ProvisionAdministrator extends Command
 {
@@ -25,7 +25,7 @@ final class ProvisionAdministrator extends Command
         $confirmation = (string) $this->secret('Confirm administrator password');
         $validator = validator(compact('email', 'password', 'confirmation'), [
             'email' => ['required', 'email:rfc'],
-            'password' => ['required', Password::min(12)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['required', AdministratorPassword::rule()],
             'confirmation' => ['same:password'],
         ]);
 
