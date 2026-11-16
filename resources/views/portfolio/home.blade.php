@@ -273,7 +273,7 @@
 @endif
 
 @if ($milestones->isNotEmpty())
-    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" @endif>
+    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" data-model-bytes="{{ (int) @filesize(public_path('models/amg-gt-roadster.glb')) }}" @endif>
         <div class="journey__stick">
             <div class="journey__stage" data-three-preview-canvas>
                 <div class="journey__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
