@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Support\PreferredLocale;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -16,6 +17,7 @@ final class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'locale' => fn (): string => PreferredLocale::fromRequest($request),
             'auth' => [
                 'user' => $request->user()?->only(['id', 'name']),
             ],

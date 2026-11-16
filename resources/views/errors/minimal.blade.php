@@ -1,8 +1,8 @@
 @php
-    // Les vues d'erreur n'ont pas de contrôleur : la langue vient de l'URL (/fr, /en), sinon du navigateur.
+    // Les vues d'erreur n'ont pas de contrôleur : la langue vient de l'URL (/fr, /en), sinon du cookie de choix puis du navigateur.
     $errorLocale = in_array(request()->segment(1), ['fr', 'en'], true)
         ? request()->segment(1)
-        : (request()->getPreferredLanguage(['fr', 'en']) ?? 'fr');
+        : \App\Support\PreferredLocale::fromRequest(request());
     app()->setLocale($errorLocale);
     $errorCode = trim($__env->yieldContent('code'));
     $alternate = $errorLocale === 'fr' ? 'en' : 'fr';

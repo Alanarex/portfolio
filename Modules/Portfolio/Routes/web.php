@@ -2,11 +2,19 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Support\Facades\Route;
+use Modules\Portfolio\Http\Controllers\LocaleRedirectController;
 use Modules\Portfolio\Http\Controllers\PublicPortfolioController;
 use Modules\Portfolio\Http\Controllers\PublicSeoController;
 
-Route::permanentRedirect('/', '/fr')->name('portfolio.x-default');
+// Racine : 302 vers la langue du visiteur (cookie, puis Accept-Language ; robots → /fr, le x-default).
+// Sans HandleInertiaRequests : il réécrit l'en-tête Vary (X-Inertia) et masquerait Accept-Language.
+Route::get('/', LocaleRedirectController::class)->withoutMiddleware(HandleInertiaRequests::class)->name('portfolio.x-default');
+Route::get('/{path}', LocaleRedirectController::class)
+    ->where('path', 'projects|privacy|legal|projects/[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->withoutMiddleware(HandleInertiaRequests::class)
+    ->name('portfolio.unprefixed');
 Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('portfolio.sitemap');
 Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('portfolio.robots');
 

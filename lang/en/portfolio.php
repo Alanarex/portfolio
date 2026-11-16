@@ -312,7 +312,7 @@ return [
         'website' => 'Website',
         'data' => 'Personal data and cookies',
         'data_1' => 'The public site uses no analytics tool, no advertising cookie and no third-party tracker. Fonts are self-hosted.',
-        'data_2' => 'A technical session cookie is used only for the private administration area; it is not set for portfolio visitors.',
+        'data_2' => 'A technical session cookie is used only for the private administration area; it is not set for portfolio visitors. If you pick FR or EN, a functional “portfolio_locale” cookie (fr or en, no personal data, one year) remembers that choice for the home page; it is never used to track you.',
         'data_3' => 'For any question about your data, or to exercise your rights of access, rectification and deletion, use the publisher contact above.',
         'ip' => 'Intellectual property and credits',
         'ip_text' => 'Editorial content and site code belong to their author unless stated otherwise. Reproduction without permission is prohibited.',
