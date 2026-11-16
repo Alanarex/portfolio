@@ -40,7 +40,7 @@
 .case__content section > .mono { margin-bottom: var(--space-2); }
 .case__content p:not(.mono, .case__metric) { color: var(--color-text-soft); font-size: 1.1rem; line-height: 1.7; }
 .case__content section > p:last-child { margin-bottom: var(--space-4); }
-.case__metric { margin-block: var(--space-3); color: transparent; -webkit-text-stroke: 2px var(--color-accent-light); font-family: var(--font-display); font-size: clamp(3.5rem, 10vw, 8rem); font-weight: 600; letter-spacing: -0.05em; line-height: 1; }
+.case__metric { margin-block: var(--space-3); color: transparent; -webkit-text-stroke: 2px var(--color-accent-light); font-family: var(--font-outline); font-size: clamp(2.5rem, 8vw, 6rem); font-weight: 700; letter-spacing: 0; line-height: 1; }
 .case__gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
 .case__gallery li { overflow: hidden; border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--color-border); transition: transform 600ms var(--ease); }
 .case__gallery li:hover { transform: scale(1.025) rotate(-0.6deg); }

@@ -238,7 +238,7 @@ html:not(.js) [data-three-preview-load] { display: none; }
         right: 1.2rem;
         color: transparent;
         content: attr(data-num);
-        font-family: var(--font-display);
+        font-family: var(--font-outline);
         font-size: 8rem;
         font-weight: 700;
         line-height: 1;
