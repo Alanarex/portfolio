@@ -14,8 +14,6 @@
 
 @keyframes blink { 50% { opacity: 0.25; } }
 
-@keyframes marquee { to { transform: translateX(-50%); } }
-
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 @keyframes shake {

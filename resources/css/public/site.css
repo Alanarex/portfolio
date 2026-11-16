@@ -97,46 +97,6 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 .hero h1 { max-width: 10ch; margin-block: var(--space-4) var(--space-5); font-size: clamp(2.8rem, 8vw, 7.4rem); }
 .hero__terminal { position: relative; z-index: 8; }
 
-.hero__veil,
-.hero__glow { display: none; }
-
-.hero__veil {
-    z-index: 6;
-    background: radial-gradient(circle 21rem at var(--mx, 33%) var(--my, 40%), rgb(var(--bg-rgb) / 0%) 0, rgb(var(--bg-rgb) / 40%) 45%, rgb(var(--bg-rgb) / 90%) 100%);
-}
-
-.hero__glow {
-    z-index: 7;
-    background: radial-gradient(circle 24rem at var(--mx, 33%) var(--my, 40%), rgb(229 56 59 / 24%) 0, rgb(164 22 26 / 10%) 45%, transparent 72%);
-    mix-blend-mode: screen;
-}
-
-.js .hero__veil,
-.js .hero__glow {
-    position: absolute;
-    inset: 0;
-    display: block;
-    pointer-events: none;
-    transition: opacity var(--transition-slow);
-}
-
-.hero.is-lit .hero__veil,
-.hero.is-lit .hero__glow { opacity: 0; }
-
-.hero__lamp {
-    position: absolute;
-    z-index: 9;
-    top: calc(var(--header-h) + var(--space-3));
-    right: var(--space-5);
-    display: none;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.js .hero__lamp { display: inline-flex; }
-
 .scroll-cue { display: inline-flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
 
 .scroll-cue i {
@@ -169,30 +129,6 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 }
 
 /* Bandeau des technologies */
-.marquee { position: relative; z-index: 2; overflow: hidden; border-block: 1px solid var(--color-line); background: var(--color-bg-elevated); }
-
-.marquee__track {
-    display: flex;
-    width: max-content;
-    padding-block: 1.1rem;
-    animation: marquee 40s linear infinite;
-}
-
-/* Chaque groupe porte son propre espacement final : -50 % tombe exactement sur le début du 2e groupe. */
-.marquee__group { display: flex; flex: none; gap: 3.5rem; padding-right: 3.5rem; }
-
-.marquee:hover .marquee__track { animation-play-state: paused; }
-
-.marquee__group span {
-    color: var(--color-text-muted);
-    font-family: var(--font-display);
-    font-size: 1.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: color var(--transition-base);
-}
-
-.marquee__group span:hover { color: var(--color-accent-light); }
 
 /* Positionnement */
 .statement { max-width: 20ch; font-size: clamp(2rem, 4.4vw, 3.75rem); line-height: 1.08; }

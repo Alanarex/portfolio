@@ -11,7 +11,6 @@
     $titleTech = $techPosition !== false && $techPosition > 0 ? trim(mb_substr($title, $techPosition)) : null;
 
     $skillNames = collect($skills?->categories ?? [])->flatMap(fn (array $category): array => $category['skills'] ?? [])->pluck('name')->filter()->unique()->values();
-    $marqueeNames = $skillNames->take(16);
     $experiences = $career?->experiences ?? [];
     $education = $career?->education ?? [];
     $certifications = $career?->certifications ?? [];
@@ -71,12 +70,10 @@
 
 @section('content')
 <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
-    <div class="hero__veil" aria-hidden="true"></div><div class="hero__glow" aria-hidden="true"></div>
-    <label class="hero__lamp switch"><span>{{ __('portfolio.hero.lamp') }}</span><input class="switch__input" type="checkbox" role="switch" checked data-hero-lamp aria-label="{{ __('portfolio.hero.lamp_label') }}"><span class="switch__track"></span></label>
     <div class="container hero__grid">
         <div class="hero__content">
             <p class="eyebrow" data-reveal style="--i: 1">{{ __('portfolio.hero.eyebrow') }}</p>
-            <h1 id="hero-title" data-reveal style="--i: 2">{{ $titleLead }}@if ($titleTech) <span class="stroke">{{ $titleTech }}</span>@endif</h1>
+            <h1 id="hero-title" data-reveal style="--i: 2">{{ $titleLead }}@if ($titleTech) <span class="stroke" data-text="{{ $titleTech }}">{{ $titleTech }}</span>@endif</h1>
             <p class="lede" data-reveal style="--i: 3">{{ $profile?->summary ?? __('portfolio.hero.summary_fallback') }}</p>
             <div class="actions" data-reveal style="--i: 4">
                 <a class="button" href="#projets"><span>{{ __('portfolio.hero.projects_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
@@ -153,16 +150,6 @@
         </div>
     </div>
 </section>
-
-@if ($marqueeNames->isNotEmpty())
-    <div class="marquee" aria-hidden="true">
-        <div class="marquee__track">
-            @foreach (range(1, 2) as $group)
-                <div @class(['marquee__group', 'marquee__group--clone' => ! $loop->first])>@foreach (range(1, 2) as $repeat)@foreach ($marqueeNames as $name)<span @class(['marquee__dup' => $repeat === 2])>{{ $name }}</span>@endforeach @endforeach</div>
-            @endforeach
-        </div>
-    </div>
-@endif
 
 <section class="section" id="positionnement" aria-labelledby="positioning-title">
     <div class="container about">

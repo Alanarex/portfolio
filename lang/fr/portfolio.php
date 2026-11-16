@@ -45,8 +45,6 @@ return [
         'contact_cta' => 'Me contacter',
         'cv_cta' => 'Télécharger mon CV',
         'portrait_alt' => 'Portrait professionnel d’Alaa Khalil',
-        'lamp' => 'Phares',
-        'lamp_label' => 'Phares : zone éclairée qui suit le curseur',
         'scroll' => 'Faites défiler',
         'terminal_role' => 'poste',
         'terminal_stack' => 'stack',
