@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -21,15 +22,23 @@ final class AdminAccountTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const CURRENT = 'Old-Passw0rd!x';
+    // Mots de passe factices générés à l'exécution (aucun secret en clair dans le dépôt).
+    private static string $current;
 
-    private const STRONG = 'Brand-New#Passw0rd9';
+    private static string $strong;
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        self::$current = Str::random(10).'-aA1!';
+        self::$strong = Str::random(10).'#Zz9?';
+    }
 
     private function admin(): User
     {
         return User::factory()->administrator()->create([
             'email' => 'admin@example.test',
-            'password' => self::CURRENT,
+            'password' => self::$current,
         ]);
     }
 
@@ -113,7 +122,7 @@ final class AdminAccountTest extends TestCase
             ->assertSessionHasErrors('current_password');
         $this->assertSame('admin@example.test', $admin->fresh()->email);
 
-        $this->as($admin)->put('/dashboard/account/profile', ['name' => 'A', 'email' => ' New@Example.test ', 'current_password' => self::CURRENT])
+        $this->as($admin)->put('/dashboard/account/profile', ['name' => 'A', 'email' => ' New@Example.test ', 'current_password' => self::$current])
             ->assertSessionHasNoErrors();
         $this->assertSame('new@example.test', $admin->fresh()->email);
     }
@@ -125,7 +134,7 @@ final class AdminAccountTest extends TestCase
 
         $this->as($admin)->put('/dashboard/account/profile', ['name' => '', 'email' => 'not-an-email'])
             ->assertSessionHasErrors(['name', 'email']);
-        $this->as($admin)->put('/dashboard/account/profile', ['name' => 'A', 'email' => 'taken@example.test', 'current_password' => self::CURRENT])
+        $this->as($admin)->put('/dashboard/account/profile', ['name' => 'A', 'email' => 'taken@example.test', 'current_password' => self::$current])
             ->assertSessionHasErrors('email');
     }
 
@@ -136,17 +145,17 @@ final class AdminAccountTest extends TestCase
 
         foreach (['short1A!', 'alllowercase-passw0rd!', 'NoDigits-Password!!', 'NoSymbolsPassw0rd99'] as $weak) {
             $this->as($admin)->put('/dashboard/account/password', [
-                'current_password' => self::CURRENT, 'password' => $weak, 'password_confirmation' => $weak,
+                'current_password' => self::$current, 'password' => $weak, 'password_confirmation' => $weak,
             ])->assertSessionHasErrors('password');
         }
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => self::CURRENT, 'password' => self::STRONG, 'password_confirmation' => 'different',
+            'current_password' => self::$current, 'password' => self::$strong, 'password_confirmation' => 'different',
         ])->assertSessionHasErrors('password');
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => self::CURRENT, 'password' => self::CURRENT, 'password_confirmation' => self::CURRENT,
+            'current_password' => self::$current, 'password' => self::$current, 'password_confirmation' => self::$current,
         ])->assertSessionHasErrors('password');
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => 'wrong-password', 'password' => self::STRONG, 'password_confirmation' => self::STRONG,
+            'current_password' => 'wrong-password', 'password' => self::$strong, 'password_confirmation' => self::$strong,
         ])->assertSessionHasErrors('current_password');
 
         $this->assertSame($hash, $admin->fresh()->password);
@@ -155,7 +164,7 @@ final class AdminAccountTest extends TestCase
     public function test_the_policy_is_the_one_used_by_the_provisioning_command(): void
     {
         $this->assertSame(12, AdministratorPassword::MIN_LENGTH);
-        $this->assertTrue(validator(['p' => self::STRONG], ['p' => [AdministratorPassword::rule()]])->passes());
+        $this->assertTrue(validator(['p' => self::$strong], ['p' => [AdministratorPassword::rule()]])->passes());
         $this->assertFalse(validator(['p' => 'Short1!a'], ['p' => [AdministratorPassword::rule()]])->passes());
     }
 
@@ -164,11 +173,11 @@ final class AdminAccountTest extends TestCase
         $admin = $this->admin();
 
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => self::CURRENT, 'password' => self::STRONG, 'password_confirmation' => self::STRONG,
+            'current_password' => self::$current, 'password' => self::$strong, 'password_confirmation' => self::$strong,
         ])->assertSessionHasNoErrors()->assertSessionHas('success');
 
         $fresh = $admin->fresh();
-        $this->assertTrue(Hash::check(self::STRONG, $fresh->password));
+        $this->assertTrue(Hash::check(self::$strong, $fresh->password));
         $this->assertSame(2, $fresh->auth_version);
         $this->assertSame(2, session('auth_version'));
 
@@ -185,7 +194,7 @@ final class AdminAccountTest extends TestCase
         DB::table('sessions')->insert(['id' => 'someone-else', 'user_id' => null, 'payload' => '', 'last_activity' => time()]);
 
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => self::CURRENT, 'password' => self::STRONG, 'password_confirmation' => self::STRONG,
+            'current_password' => self::$current, 'password' => self::$strong, 'password_confirmation' => self::$strong,
         ])->assertSessionHasNoErrors();
 
         $this->assertDatabaseMissing('sessions', ['id' => 'other-device']);
@@ -199,15 +208,15 @@ final class AdminAccountTest extends TestCase
 
         for ($i = 0; $i < 5; $i++) {
             $this->as($admin)->put('/dashboard/account/password', [
-                'current_password' => 'wrong-'.$i, 'password' => self::STRONG, 'password_confirmation' => self::STRONG,
+                'current_password' => 'wrong-'.$i, 'password' => self::$strong, 'password_confirmation' => self::$strong,
             ])->assertSessionHasErrors('current_password');
         }
 
         // Même le bon mot de passe est refusé tant que la limite est atteinte, avec un message qui ne dit pas pourquoi.
         $this->as($admin)->put('/dashboard/account/password', [
-            'current_password' => self::CURRENT, 'password' => self::STRONG, 'password_confirmation' => self::STRONG,
+            'current_password' => self::$current, 'password' => self::$strong, 'password_confirmation' => self::$strong,
         ])->assertSessionHasErrors('current_password');
-        $this->assertTrue(Hash::check(self::CURRENT, $admin->fresh()->password));
+        $this->assertTrue(Hash::check(self::$current, $admin->fresh()->password));
     }
 
     public function test_an_administrator_can_sign_out_one_other_session_but_never_the_current_one(): void
@@ -263,7 +272,7 @@ final class AdminAccountTest extends TestCase
 
         $this->post('/login', ['email' => 'admin@example.test', 'password' => 'wrong'], ['REMOTE_ADDR' => '198.51.100.7'])
             ->assertSessionHasErrors('email');
-        $this->post('/login', ['email' => 'admin@example.test', 'password' => self::CURRENT], ['REMOTE_ADDR' => '198.51.100.7']);
+        $this->post('/login', ['email' => 'admin@example.test', 'password' => self::$current], ['REMOTE_ADDR' => '198.51.100.7']);
 
         $events = AdminLoginEvent::query()->orderBy('id')->get();
         $this->assertCount(2, $events);
@@ -290,15 +299,15 @@ final class AdminAccountTest extends TestCase
         $admin = $this->admin();
 
         $this->as($admin)->withHeaders(['Accept-Language' => 'en'])
-            ->put('/dashboard/account/password', ['current_password' => 'wrong-password', 'password' => self::STRONG, 'password_confirmation' => self::STRONG])
+            ->put('/dashboard/account/password', ['current_password' => 'wrong-password', 'password' => self::$strong, 'password_confirmation' => self::$strong])
             ->assertSessionHasErrors(['current_password' => 'The current password is incorrect.']);
 
         $this->as($admin)->withHeaders(['Accept-Language' => 'fr-FR'])
-            ->put('/dashboard/account/password', ['current_password' => 'wrong-password', 'password' => self::STRONG, 'password_confirmation' => self::STRONG])
+            ->put('/dashboard/account/password', ['current_password' => 'wrong-password', 'password' => self::$strong, 'password_confirmation' => self::$strong])
             ->assertSessionHasErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
 
         $this->as($admin)->withHeaders(['Accept-Language' => 'fr'])
-            ->put('/dashboard/account/password', ['current_password' => self::CURRENT, 'password' => 'alllowercase-passw0rd!', 'password_confirmation' => 'alllowercase-passw0rd!'])
+            ->put('/dashboard/account/password', ['current_password' => self::$current, 'password' => 'alllowercase-passw0rd!', 'password_confirmation' => 'alllowercase-passw0rd!'])
             ->assertSessionHasErrors(['password' => 'Le mot de passe doit contenir au moins une majuscule et une minuscule.']);
     }
 

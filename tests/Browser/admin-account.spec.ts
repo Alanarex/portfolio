@@ -8,6 +8,8 @@ const password = process.env.E2E_ADMIN_PASSWORD;
 
 test.skip(!email || !password, 'E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD requis (base locale jetable).');
 
+// Valeur factice générée à l'exécution (jamais enregistrée : le mot de passe actuel est volontairement faux).
+const fake = `Zx${Date.now()}#aB`;
 const wcag = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const viewports = { desktop: { width: 1440, height: 1000 }, mobile: { width: 390, height: 844 } } as const;
 
@@ -105,8 +107,8 @@ test('mauvais mot de passe actuel : erreur sans fuite, section ouverte, aucun ch
     await page.getByRole('button', { name: /^Mot de passe/ }).click();
 
     await page.getByLabel('Mot de passe actuel').fill('not-the-password');
-    await page.getByLabel('Nouveau mot de passe', { exact: true }).fill('Brand-New#Passw0rd9');
-    await page.getByLabel('Confirmer le nouveau mot de passe').fill('Brand-New#Passw0rd9');
+    await page.getByLabel('Nouveau mot de passe', { exact: true }).fill(fake);
+    await page.getByLabel('Confirmer le nouveau mot de passe').fill(fake);
     await page.getByRole('button', { name: 'Changer le mot de passe' }).click();
 
     await expect(page.getByText('Le mot de passe actuel est incorrect.')).toBeVisible();
