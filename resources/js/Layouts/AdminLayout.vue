@@ -22,6 +22,7 @@ const icons: Record<string, string> = {
   menu: 'M4 6.5h16M4 12h16M4 17.5h16',
   close: 'm6 6 12 12M18 6 6 18',
   sun: 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM12 2.5v2m0 15v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2.5 12h2m15 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  shield: 'M12 3 5 6v5.5c0 4.4 2.9 7.9 7 9.5 4.1-1.6 7-5.1 7-9.5V6Zm-3 8.8 2.2 2.2L15.5 9.5',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z',
 };
 
@@ -44,6 +45,7 @@ const groups: NavGroup[] = [
       { href: '/dashboard/scene', label: 'Scène 3D', icon: 'cube' },
     ],
   },
+  { label: 'Compte', items: [{ href: '/dashboard/account', label: 'Administrateur', icon: 'shield' }] },
 ];
 
 const path = computed(() => page.url.split('?')[0] ?? '');
