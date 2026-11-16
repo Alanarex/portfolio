@@ -143,12 +143,6 @@
                     <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="currentColor"/></svg>
                 </button>
             </div>
-            @if (($page ?? 'home') === 'home')
-                <label class="menu-sheet__row switch" data-menu-lamp-row>
-                    <span>{{ __('portfolio.hero.lamp') }}</span>
-                    <input class="switch__input" type="checkbox" role="switch" checked data-menu-lamp aria-label="{{ __('portfolio.hero.lamp_label') }}"><span class="switch__track"></span>
-                </label>
-            @endif
             <a class="button" href="{{ $homeUrl }}#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
         </div>
     </div>

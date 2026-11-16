@@ -45,8 +45,6 @@ return [
         'contact_cta' => 'Contact me',
         'cv_cta' => 'Download my CV',
         'portrait_alt' => 'Professional portrait of Alaa Khalil',
-        'lamp' => 'Headlights',
-        'lamp_label' => 'Headlights: lit area that follows the cursor',
         'scroll' => 'Scroll',
         'terminal_role' => 'role',
         'terminal_stack' => 'stack',

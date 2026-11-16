@@ -87,9 +87,11 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
         });
         expect(index).toBeGreaterThanOrEqual(0);
 
-        const box = await page.locator('[data-map-toggle]').nth(index).boundingBox();
+        // locator.tap() attend que le bouton soit stable et visible avant de toucher : plus fiable qu'un tap par coordonnées calculées avant.
+        const toggle = page.locator('[data-map-toggle]').nth(index);
+        const box = await toggle.boundingBox();
         expect(box).not.toBeNull();
-        await page.touchscreen.tap((box?.x ?? 0) + 24, (box?.y ?? 0) + (box?.height ?? 0) / 2);
+        await toggle.tap({ position: { x: 24, y: Math.round((box?.height ?? 0) / 2) } });
         await page.waitForTimeout(1000);
 
         const recorded = await opens(page);

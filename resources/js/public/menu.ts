@@ -90,18 +90,4 @@ if (toggle && sheet && header) {
         }
     });
 
-    // Interrupteur « Phares » : même réglage que celui du hero (l'un est caché sur mobile).
-    const heroLamp = document.querySelector<HTMLInputElement>('[data-hero-lamp]');
-    const menuLamp = sheet.querySelector<HTMLInputElement>('[data-menu-lamp]');
-    if (heroLamp && menuLamp) {
-        menuLamp.addEventListener('change', () => {
-            heroLamp.checked = menuLamp.checked;
-            heroLamp.dispatchEvent(new Event('change'));
-        });
-        heroLamp.addEventListener('change', () => {
-            menuLamp.checked = heroLamp.checked;
-        });
-    } else if (menuLamp) {
-        menuLamp.closest('[data-menu-lamp-row]')?.remove();
-    }
 }

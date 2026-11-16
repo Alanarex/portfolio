@@ -32,27 +32,6 @@ if (header && 'ResizeObserver' in window) {
     new ResizeObserver(() => root.style.setProperty('--header-h', `${header.offsetHeight}px`)).observe(header);
 }
 
-// Phares du hero : la zone éclairée suit le curseur.
-const hero = document.querySelector<HTMLElement>('[data-hero]');
-const lamp = document.querySelector<HTMLInputElement>('[data-hero-lamp]');
-
-if (hero && lamp) {
-    // Écoute la fenêtre entière : la navigation flotte au-dessus du hero et ne doit pas interrompre le faisceau.
-    window.addEventListener(
-        'pointermove',
-        (event) => {
-            const rect = hero.getBoundingClientRect();
-            if (rect.bottom < 0 || rect.top > window.innerHeight) {
-                return;
-            }
-            hero.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-            hero.style.setProperty('--my', `${event.clientY - rect.top}px`);
-        },
-        { passive: true },
-    );
-    lamp.addEventListener('change', () => hero.classList.toggle('is-lit', !lamp.checked));
-}
-
 // Sommaire des études de cas : met en avant la section visible.
 const toc = document.querySelector<HTMLElement>('[data-case-toc]');
 
