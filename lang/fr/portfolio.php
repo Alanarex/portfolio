@@ -315,7 +315,7 @@ return [
         'ip' => 'Propriété intellectuelle et crédits',
         'ip_text' => 'Le contenu éditorial et le code du site sont la propriété de leur auteur, sauf mention contraire. Toute reproduction sans autorisation est interdite.',
         'credit_model' => 'Modèle 3D : « :title » par :author, licence :license, modifié (allégé, couleurs changées).',
-        'credit_fonts' => 'Polices Inter, Space Grotesk et JetBrains Mono : licence SIL Open Font License 1.1.',
+        'credit_fonts' => 'Polices Inter, Jost et JetBrains Mono : licence SIL Open Font License 1.1.',
         'credit_libs' => 'Three.js et Lenis : licence MIT.',
         'trademarks' => 'Les marques citées appartiennent à leurs propriétaires respectifs ; leur présence n’indique aucun lien avec eux.',
         'back' => 'Retour à l’accueil',
