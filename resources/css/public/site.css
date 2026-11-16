@@ -94,7 +94,13 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
     align-items: center;
 }
 
-.hero h1 { max-width: 10ch; margin-block: var(--space-4) var(--space-5); font-size: clamp(2.8rem, 8vw, 7.4rem); }
+.hero h1 { max-width: none; margin-block: var(--space-4) var(--space-5); font-size: clamp(2.4rem, 5.6vw, 7rem); }
+.hero h1 .stroke { font-size: 0.74em; }
+
+@media (min-width: 64rem) {
+    .hero__grid { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+    .site-header .site-header__inner { width: min(var(--content-width), 100%); justify-content: space-between; }
+}
 .hero__terminal { position: relative; z-index: 8; }
 
 .scroll-cue { display: inline-flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }

@@ -37,7 +37,7 @@
     --space-7: 3rem;
     --space-8: 5rem;
     --space-9: 7.5rem;
-    --content-width: 75rem;
+    --content-width: 100rem;
 
     /* Mouvement : une seule courbe pour tout le site */
     --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
