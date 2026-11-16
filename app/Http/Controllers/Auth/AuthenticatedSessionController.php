@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Core\Security\LoginJournal;
 use App\Core\Security\SecurityAudit;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +30,8 @@ final class AuthenticatedSessionController extends Controller
         $credentials['is_administrator'] = true;
 
         if (! Auth::attempt($credentials, false)) {
+            $known = User::query()->where('email', $credentials['email'])->where('is_administrator', true)->value('id');
+            LoginJournal::record($request, false, is_numeric($known) ? (int) $known : null);
             SecurityAudit::record('admin.login.failed', [
                 'request_id' => $request->attributes->get('request_id'),
             ]);
@@ -36,6 +40,7 @@ final class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
         $request->session()->put('auth_version', $request->user()?->auth_version);
+        LoginJournal::record($request, true, $request->user()?->getKey());
         SecurityAudit::record('admin.login.succeeded', [
             'request_id' => $request->attributes->get('request_id'),
             'user_id' => $request->user()?->getKey(),

@@ -56,6 +56,7 @@ for (const [viewportName, viewport] of Object.entries(viewports)) {
                 '/dashboard/posts',
                 '/dashboard/settings',
                 '/dashboard/scene',
+                '/dashboard/account',
             ];
 
             for (const path of paths) {
