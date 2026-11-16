@@ -514,8 +514,21 @@ html.menu-open { overflow: hidden; }
 
     [data-accordion] .skillmap__panel.is-open .skillmap__toggle::before { top: 1.75rem; transform: rotate(225deg); }
 
-    [data-accordion] .skillmap__body { position: relative; z-index: 1; order: 3; padding-bottom: 1.1rem; }
-    [data-accordion] .skillmap__panel:not(.is-open) .skillmap__body { display: none; }
+    /* Ouverture animée en hauteur (0fr → 1fr) ; skillmap.ts compense le défilement pour que le haut de l'étape courante ne bouge pas. */
+    [data-accordion] .skillmap__panels,
+    [data-accordion] .skillmap__panel { overflow-anchor: none; }
+
+    [data-accordion] .skillmap__body { position: relative; z-index: 1; order: 3; display: grid; grid-template-rows: 0fr; }
+    [data-accordion] .skillmap__panel.is-open .skillmap__body { grid-template-rows: 1fr; }
+    [data-accordion] .skillmap__body-inner { min-height: 0; overflow: hidden; visibility: hidden; }
+    [data-accordion] .skillmap__panel.is-open .skillmap__body-inner { padding-bottom: 1.1rem; visibility: visible; }
+
+    @media (prefers-reduced-motion: no-preference) {
+        [data-accordion] .skillmap__body { transition: grid-template-rows 350ms var(--ease, ease); }
+        [data-accordion] .skillmap__body-inner { transition: visibility 0s 350ms, padding-bottom 350ms var(--ease, ease); }
+        [data-accordion] .skillmap__panel.is-open .skillmap__body-inner { transition-delay: 0s; }
+    }
+
     [data-accordion] .skillmap__panel .tag-row { margin-top: var(--space-2); }
     .skillmap__related a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 }

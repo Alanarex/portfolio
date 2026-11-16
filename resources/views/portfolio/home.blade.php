@@ -389,6 +389,7 @@
                             <p class="mono skillmap__meta">0{{ $loop->iteration }} · {{ __('portfolio.map.count', ['count' => count($category['skills'] ?? [])]) }}</p>
                             <h3><button class="skillmap__toggle" type="button" data-map-toggle aria-expanded="true" aria-controls="skillmap-body-{{ $loop->index }}" disabled>{{ $category['name'] }}</button></h3>
                             <div class="skillmap__body" id="skillmap-body-{{ $loop->index }}">
+                            <div class="skillmap__body-inner">
                             <ul class="tag-row">
                                 @foreach ($category['skills'] ?? [] as $skill)<li class="chip" style="--i: {{ $loop->index }}">{{ $skill['name'] }}</li>@endforeach
                             </ul>
@@ -401,6 +402,7 @@
                                     @foreach ($relatedProjects as $related)<a href="{{ route('portfolio.projects.show', ['locale' => $locale, 'slug' => $related->slug]) }}">{{ $related->title }}</a>@endforeach
                                 </p>
                             @endif
+                            </div>
                             </div>
                         </li>
                     @endforeach

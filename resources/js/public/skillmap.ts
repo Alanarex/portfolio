@@ -81,7 +81,8 @@ if (skillmap && mapPath) {
     // toucher une étape l'ouvre. Avec « réduire les animations », le tracé s'arrête à l'étape ouverte.
     let opened = 0;
     let lastDone = -1;
-    let syncing = false;
+    let settling = false;
+    let settleToken = 0;
 
     const fillRoute = (): void => {
         const last = panels[panels.length - 1];
@@ -97,22 +98,50 @@ if (skillmap && mapPath) {
         panels.forEach((panel) => panel.classList.toggle('is-done', panel.offsetTop + node <= reach + 1));
 
         // Quand un point s'allume (ou s'éteint en remontant), sa carte s'ouvre et les autres se referment.
+        // Pendant l'animation on ne relance rien : la géométrie bouge, ce qui ne doit pas déclencher une nouvelle ouverture.
         const doneIndex = panels.reduce((best, panel, index) => (panel.classList.contains('is-done') ? index : best), -1);
-        if (doneIndex !== lastDone) {
-            lastDone = doneIndex;
-            if (!reduced && !syncing && doneIndex >= 0 && doneIndex !== opened) {
-                syncing = true;
-                const anchor = panels[doneIndex];
-                const before = anchor?.getBoundingClientRect().top ?? 0;
-                setOpened(doneIndex);
-                // Les cartes qui se referment au-dessus décaleraient la page : on compense pour que la carte reste en place.
-                const shift = (anchor?.getBoundingClientRect().top ?? 0) - before;
-                if (Math.abs(shift) > 1) {
-                    window.scrollBy({ top: shift, behavior: 'instant' });
-                }
-                syncing = false;
-            }
+        if (doneIndex === lastDone) {
+            return;
         }
+        lastDone = doneIndex;
+        if (!settling && !reduced && doneIndex >= 0 && doneIndex !== opened) {
+            openPanel(doneIndex);
+        }
+    };
+
+    // Ouvre une carte sans que la page saute : le bord haut de la carte courante reste fixe à l'écran pendant toute
+    // l'animation (les cartes au-dessus se replient, la carte courante se déploie vers le bas), image après image.
+    // Même avec « réduire les animations », la mise en page se met à jour une image plus tard : on garde la main quelques images.
+    const SETTLE_MS = 450;
+    const SETTLE_REDUCED_MS = 120;
+    const openPanel = (index: number): void => {
+        const anchor = panels[index >= 0 ? index : opened];
+        const reference = anchor?.getBoundingClientRect().top ?? 0;
+        const hold = (): void => {
+            const shift = (anchor?.getBoundingClientRect().top ?? 0) - reference;
+            if (Math.abs(shift) > 0.25) {
+                window.scrollBy({ top: shift, behavior: 'instant' });
+            }
+        };
+        settling = true;
+        setOpened(index);
+        hold();
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const started = performance.now();
+        const token = ++settleToken;
+        const step = (now: number): void => {
+            if (token !== settleToken) {
+                return;
+            }
+            hold();
+            if (now - started < (reduced ? SETTLE_REDUCED_MS : SETTLE_MS) && mobile.matches) {
+                requestAnimationFrame(step);
+                return;
+            }
+            settling = false;
+            fillRoute();
+        };
+        requestAnimationFrame(step);
     };
 
     let routeFrame = false;
@@ -162,12 +191,7 @@ if (skillmap && mapPath) {
         if (!mobile.matches || index < 0) {
             return;
         }
-        setOpened(index === opened ? -1 : index);
-        if (index !== opened) {
-            return;
-        }
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        panels[index]?.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+        openPanel(index === opened ? -1 : index);
     });
 
     if (list && 'ResizeObserver' in window) {
