@@ -44,7 +44,7 @@ final class LoginThrottle
     public static function lockedFor(Request $request, string $email): int
     {
         $until = (int) Cache::get(self::key($email, $request->ip()).':until', 0);
-        $remaining = max(0, $until - time());
+        $remaining = max(0, $until - now()->getTimestamp());
         if ($remaining === 0 && RateLimiter::tooManyAttempts(self::ipKey($request->ip()), self::IP_MAX_ATTEMPTS)) {
             return RateLimiter::availableIn(self::ipKey($request->ip()));
         }
@@ -64,7 +64,7 @@ final class LoginThrottle
 
         $strikes = (int) Cache::get($key.':strikes', 0);
         $delay = self::LOCK_STEPS[min($strikes, count(self::LOCK_STEPS) - 1)];
-        Cache::put($key.':until', time() + $delay, $delay);
+        Cache::put($key.':until', now()->getTimestamp() + $delay, $delay);
         Cache::put($key.':strikes', $strikes + 1, 86_400);
         RateLimiter::clear($key);
 

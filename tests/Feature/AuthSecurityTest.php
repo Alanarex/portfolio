@@ -8,6 +8,7 @@ use App\Models\AdminLoginEvent;
 use App\Models\User;
 use App\Notifications\AdminPasswordResetNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -69,7 +70,7 @@ final class AuthSecurityTest extends TestCase
         $this->attempt('admin@example.test', self::$secret)->assertRedirect('/dashboard');
         $this->post('/logout');
 
-        // Deuxième verrouillage : délai plus long (5 min), toujours verrouillé après 61 s.
+        // Deuxième verrouillage : 5 min de délai, il reste ~4 min après 61 s.
         $this->travel(1)->second();
         $other = 'ghost@example.test';
         for ($i = 0; $i < 3; $i++) {
@@ -80,7 +81,7 @@ final class AuthSecurityTest extends TestCase
             $this->attempt($other, 'wrong');
         }
         $this->travel(61)->seconds();
-        $this->attempt($other, 'wrong')->assertSessionHasErrors(['email' => __('auth.throttle', ['minutes' => 5])]);
+        $this->attempt($other, 'wrong')->assertSessionHasErrors(['email' => __('auth.throttle', ['minutes' => 4])]);
     }
 
     public function test_failure_message_is_identical_for_unknown_and_known_accounts(): void
@@ -182,6 +183,7 @@ final class AuthSecurityTest extends TestCase
         $this->get($signed)->assertForbidden();
         $this->travel(-31)->minutes();
 
+        Cache::flush(); // le limiteur de réinitialisation a déjà compté les GET ci-dessus
         $weak = ['token' => $token, 'email' => $user->email, 'password' => 'short1A!', 'password_confirmation' => 'short1A!'];
         $this->post('/reset-password', $weak)->assertSessionHasErrors('password');
         $this->assertFalse(Hash::check('short1A!', $user->fresh()->password));
