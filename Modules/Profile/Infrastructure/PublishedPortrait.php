@@ -29,6 +29,6 @@ final class PublishedPortrait
                 : '';
         });
 
-        return is_string($version) && $version !== '' ? $version : null;
+        return $version !== '' ? $version : null;
     }
 }

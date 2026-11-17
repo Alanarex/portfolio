@@ -82,6 +82,6 @@ final class PortraitStorage
         $written = imagewebp($source, null, 84);
         $output = ob_get_clean();
 
-        return $written && is_string($output) && $output !== '' ? $output : null;
+        return $written && $output !== false && $output !== '' ? $output : null;
     }
 }
