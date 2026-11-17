@@ -11,7 +11,7 @@ Internet ──443──► caddy (HTTPS Let's Encrypt)
                           └─► app (PHP-FPM 8.5, Laravel)
                                 ├─► postgres (PostgreSQL 17, réseau privé)
                                 └─► redis (cache, sessions, file d'attente, mot de passe)
-queue      : php artisan queue:work   (envoi des messages de contact…)
+queue      : php artisan queue:work --queue=mail,default   (envoi des messages de contact ; la file « mail » doit être écoutée)
 scheduler  : php artisan schedule:work (tâches planifiées)
 ```
 
