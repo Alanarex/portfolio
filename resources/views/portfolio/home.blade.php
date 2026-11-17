@@ -7,7 +7,6 @@
     $title = $profile?->professionalTitles[0] ?? __('portfolio.hero.title_fallback');
     // Mise en valeur (contour) de la partie technologique du titre : « PHP / Laravel ».
     $techPosition = mb_stripos($title, 'PHP');
-    $initials = collect(preg_split('/\s+/u', trim((string) ($profile?->displayName ?? __('portfolio.brand_fallback')))) ?: [])->filter()->take(2)->map(fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)))->implode('');
     $titleLead = $techPosition !== false && $techPosition > 0 ? trim(mb_substr($title, 0, $techPosition)) : $title;
     $titleTech = $techPosition !== false && $techPosition > 0 ? trim(mb_substr($title, $techPosition)) : null;
 
@@ -126,7 +125,6 @@
         @endphp
         <figure class="hero__portrait" data-reveal style="--i: 3">
             <span class="hero__ring" aria-hidden="true"></span>
-            <span class="hero__initials" aria-hidden="true">{{ $initials }}</span>
             <picture class="hero__photo">
                 <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 24rem">
                 <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">

@@ -25,8 +25,8 @@ const NIGHT = '#0b090a';
 
 // Deux ciels : nuit (fond onyx, étoiles claires) et jour (fond blanc, étoiles noires), selon le thème du site.
 const PALETTES = {
-    dark: { sky: NIGHT, ground: '#0a0809', shoulder: '#120f11', mountain: '#150f12', tree: '#0e1b14', trunk: '#1a1210', rock: '#1b1618', star: '#f5f3f4', starOpacity: 0.85, moon: '#e5383b', moonAdditive: true, moonOpacity: 0.7, hemiSky: '#7a86a0', hemiGround: '#1a0b0c', hemiIntensity: 0.4, fogNear: 30, fogFar: 150 },
-    light: { sky: '#f5f3f4', ground: '#cdc8c7', shoulder: '#bcb6b6', mountain: '#aba4a6', tree: '#6a7a70', trunk: '#5b4f4a', rock: '#9c9596', star: '#0b090a', starOpacity: 0.8, moon: '#0b090a', moonAdditive: false, moonOpacity: 0.1, hemiSky: '#ffffff', hemiGround: '#b8b1b2', hemiIntensity: 1.15, fogNear: 45, fogFar: 190 },
+    dark: { sky: NIGHT, ground: '#0a0809', shoulder: '#120f11', mountain: '#150f12', tree: '#0e1b14', trunk: '#1a1210', rock: '#1b1618', star: '#f5f3f4', starOpacity: 1, moon: '#e5383b', moonAdditive: true, moonOpacity: 0.7, hemiSky: '#7a86a0', hemiGround: '#1a0b0c', hemiIntensity: 0.4, fogNear: 30, fogFar: 150 },
+    light: { sky: '#f5f3f4', ground: '#cdc8c7', shoulder: '#bcb6b6', mountain: '#aba4a6', tree: '#6a7a70', trunk: '#5b4f4a', rock: '#9c9596', star: '#0b090a', starOpacity: 0.95, moon: '#0b090a', moonAdditive: false, moonOpacity: 0.1, hemiSky: '#ffffff', hemiGround: '#b8b1b2', hemiIntensity: 1.15, fogNear: 45, fogFar: 190 },
 } as const;
 
 const isLightTheme = (): boolean => {
@@ -900,7 +900,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     scene.add(trunks, foliage, rocks);
 
     // Ciel : étoiles et lune rouge qui suivent la caméra
-    const starCount = compact ? 600 : 1600;
+    const starCount = compact ? 900 : 2400;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i++) {
         const theta = Math.random() * Math.PI * 2;
@@ -912,7 +912,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const starGeometry = new THREE.BufferGeometry();
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     const sky = new THREE.Group();
-    const starMaterial = new THREE.PointsMaterial({ color: '#f5f3f4', size: 1.1, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.85 });
+    const starMaterial = new THREE.PointsMaterial({ color: '#f5f3f4', size: compact ? 2.2 : 2.6, sizeAttenuation: false, fog: false, transparent: true, opacity: 1 });
     sky.add(new THREE.Points(starGeometry, starMaterial));
     const moonRed = makeGlowTexture('#e5383b');
     const moonInk = makeGlowTexture('#0b090a');
@@ -921,6 +921,51 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     moon.position.set(-60, 90, -260);
     moon.scale.setScalar(110);
     sky.add(moon);
+
+    // Étoiles filantes : un trait qui traverse le ciel de temps en temps (désactivées si l'animation est réduite).
+    type Shooter = { geometry: THREE.BufferGeometry; material: THREE.LineBasicMaterial; life: number; duration: number; head: THREE.Vector3; dir: THREE.Vector3 };
+    const shooters: Shooter[] = reducedMotion
+        ? []
+        : [0, 1].map(() => {
+              const geometry = new THREE.BufferGeometry();
+              geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+              const material = new THREE.LineBasicMaterial({ color: '#f5f3f4', transparent: true, opacity: 0, fog: false, depthWrite: false });
+              const line = new THREE.Line(geometry, material);
+              line.frustumCulled = false;
+              sky.add(line);
+
+              return { geometry, material, life: 0, duration: 1, head: new THREE.Vector3(), dir: new THREE.Vector3() };
+          });
+    let nextShooter = 2;
+    const updateShooters = (delta: number): void => {
+        nextShooter -= delta;
+        if (nextShooter <= 0) {
+            const free = shooters.find((shooter) => shooter.life <= 0);
+            if (free) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = (0.14 + Math.random() * 0.26) * Math.PI;
+                free.head.set(270 * Math.sin(phi) * Math.cos(theta), 12 + 270 * Math.cos(phi), 270 * Math.sin(phi) * Math.sin(theta));
+                free.dir.set(Math.random() - 0.5, -0.35 - Math.random() * 0.3, Math.random() - 0.5).normalize();
+                free.duration = 0.8 + Math.random() * 0.5;
+                free.life = free.duration;
+            }
+            nextShooter = 3 + Math.random() * 5;
+        }
+        for (const shooter of shooters) {
+            if (shooter.life <= 0) {
+                continue;
+            }
+            shooter.life -= delta;
+            const t = clamp(1 - shooter.life / shooter.duration, 0, 1);
+            shooter.head.addScaledVector(shooter.dir, 130 * delta);
+            const tail = shooter.head.clone().addScaledVector(shooter.dir, -34);
+            const attribute = shooter.geometry.getAttribute('position') as THREE.BufferAttribute;
+            attribute.setXYZ(0, shooter.head.x, shooter.head.y, shooter.head.z);
+            attribute.setXYZ(1, tail.x, tail.y, tail.z);
+            attribute.needsUpdate = true;
+            shooter.material.opacity = Math.sin(t * Math.PI);
+        }
+    };
     scene.add(sky);
 
     // Panneaux : un par étape décrite dans le HTML (data-sign-card), posés au bord de la route.
@@ -1299,6 +1344,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         placeCamera(delta);
         updateLights();
         updateSteps();
+        updateShooters(delta);
     };
 
     const render = (): void => {
@@ -1340,6 +1386,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         rockMaterial.color.set(palette.rock);
         starMaterial.color.set(palette.star);
         starMaterial.opacity = palette.starOpacity;
+        shooters.forEach((shooter) => shooter.material.color.set(palette.star));
         moonMaterial.map = palette.moonAdditive ? moonRed : moonInk;
         moonMaterial.blending = palette.moonAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
         moonMaterial.opacity = palette.moonOpacity;

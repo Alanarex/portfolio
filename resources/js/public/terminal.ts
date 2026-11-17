@@ -64,7 +64,7 @@ function init(terminal: HTMLElement): void {
         .map((element) => ({ id: element.id, title: clean(document.getElementById(element.getAttribute('aria-labelledby') ?? '')?.textContent), element }));
     let cwd: Section | null = null;
     const path = (): string => (cwd ? `${HOME}/${cwd.id}` : HOME);
-    const barTitle = terminal.querySelector<HTMLElement>('.terminal__bar span');
+    const barTitle = terminal.querySelector<HTMLElement>('.terminal__bar .mono');
 
     // Résout un argument de chemin : `null` = racine, `undefined` = introuvable.
     function resolve(arg: string): Section | null | undefined {
@@ -450,9 +450,11 @@ function init(terminal: HTMLElement): void {
     });
 
     if (bar) {
-        bar.setAttribute('role', 'button');
-        bar.setAttribute('tabindex', '0');
-        bar.setAttribute('aria-label', t.move ?? '');
+        // Le bouton réduire est dans la barre : le rôle « bouton » et le focus clavier vont sur le titre pour éviter l'imbrication.
+        const grip = barTitle ?? bar;
+        grip.setAttribute('role', 'button');
+        grip.setAttribute('tabindex', '0');
+        grip.setAttribute('aria-label', t.move ?? '');
         let start: { px: number; py: number; from: Box } | null = null;
 
         bar.addEventListener('pointerdown', (event) => {
@@ -479,10 +481,7 @@ function init(terminal: HTMLElement): void {
                 placeInitial();
             }
         });
-        bar.addEventListener('keydown', (event) => {
-            if ((event.target as HTMLElement).closest('[data-terminal-minimize]')) {
-                return;
-            }
+        grip.addEventListener('keydown', (event) => {
             const step = event.shiftKey ? 48 : 16;
             const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
             const move = moves[event.key];

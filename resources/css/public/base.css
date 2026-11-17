@@ -103,10 +103,16 @@ p { max-width: 68ch; margin-block: 0; }
     -webkit-text-stroke: 2px var(--color-accent-light);
 }
 
-/* Glitch automatique, sans survol : le mot reste calme puis saute quelques instants à intervalle régulier.
+/* Glitch automatique, sans survol : une rafale au chargement (après le loader), puis toutes les 2,8 s environ.
    Deux calques décalés (rouge et clair) copient le texte via data-text et sont découpés en bandes. */
 @media (prefers-reduced-motion: no-preference) {
-    .stroke { animation: glitch-body 5.5s steps(1, end) infinite; }
+    .stroke {
+        --glitch-delay: 0.4s;
+
+        animation: glitch-body 2.8s steps(1, end) var(--glitch-delay) infinite;
+    }
+
+    .js:not(.no-loader) .stroke { --glitch-delay: 3.8s; }
 
     .stroke[data-text]::before,
     .stroke[data-text]::after {
@@ -118,7 +124,7 @@ p { max-width: 68ch; margin-block: 0; }
         opacity: 0;
         pointer-events: none;
         -webkit-text-stroke: 2px var(--color-accent-light);
-        animation: glitch-slice-a 5.5s steps(1, end) infinite;
+        animation: glitch-slice-a 2.8s steps(1, end) var(--glitch-delay) infinite;
     }
 
     .stroke[data-text]::after {
@@ -128,31 +134,30 @@ p { max-width: 68ch; margin-block: 0; }
 }
 
 @keyframes glitch-body {
-    0%, 88%, 100% { color: transparent; transform: none; }
-    89% { color: var(--color-accent-light); transform: skewX(-8deg); }
-    91% { color: transparent; transform: translateX(4px); }
-    93% { color: var(--color-accent-light); transform: skewX(6deg) translateX(-3px); }
-    95% { color: transparent; transform: translateX(-2px); }
-    97% { color: var(--color-accent-light); transform: none; }
-    98% { color: transparent; transform: none; }
+    0% { color: var(--color-accent-light); transform: skewX(-8deg); }
+    3% { color: transparent; transform: translateX(4px); }
+    6% { color: var(--color-accent-light); transform: skewX(6deg) translateX(-3px); }
+    9% { color: transparent; transform: translateX(-2px); }
+    12% { color: var(--color-accent-light); transform: none; }
+    14%, 100% { color: transparent; transform: none; }
 }
 
 @keyframes glitch-slice-a {
-    0%, 88%, 99%, 100% { opacity: 0; }
-    89% { opacity: 1; clip-path: inset(8% 0 62% 0); transform: translate(-7px, 0); }
-    91% { opacity: 1; clip-path: inset(52% 0 14% 0); transform: translate(6px, -1px); }
-    93% { opacity: 1; clip-path: inset(30% 0 40% 0); transform: translate(-4px, 1px); }
-    95% { opacity: 1; clip-path: inset(72% 0 4% 0); transform: translate(7px, 0); }
-    97% { opacity: 1; clip-path: inset(2% 0 80% 0); transform: translate(-5px, 0); }
+    0% { opacity: 1; clip-path: inset(8% 0 62% 0); transform: translate(-7px, 0); }
+    3% { opacity: 1; clip-path: inset(52% 0 14% 0); transform: translate(6px, -1px); }
+    6% { opacity: 1; clip-path: inset(30% 0 40% 0); transform: translate(-4px, 1px); }
+    9% { opacity: 1; clip-path: inset(72% 0 4% 0); transform: translate(7px, 0); }
+    12% { opacity: 1; clip-path: inset(2% 0 80% 0); transform: translate(-5px, 0); }
+    14%, 100% { opacity: 0; }
 }
 
 @keyframes glitch-slice-b {
-    0%, 89%, 99%, 100% { opacity: 0; }
-    90% { opacity: 0.9; clip-path: inset(60% 0 10% 0); transform: translate(6px, 1px); }
-    92% { opacity: 0.9; clip-path: inset(15% 0 55% 0); transform: translate(-6px, 0); }
-    94% { opacity: 0.9; clip-path: inset(44% 0 30% 0); transform: translate(5px, -1px); }
-    96% { opacity: 0.9; clip-path: inset(80% 0 2% 0); transform: translate(-7px, 0); }
-    98% { opacity: 0.9; clip-path: inset(22% 0 50% 0); transform: translate(3px, 0); }
+    0% { opacity: 0.9; clip-path: inset(60% 0 10% 0); transform: translate(6px, 1px); }
+    3% { opacity: 0.9; clip-path: inset(15% 0 55% 0); transform: translate(-6px, 0); }
+    6% { opacity: 0.9; clip-path: inset(44% 0 30% 0); transform: translate(5px, -1px); }
+    9% { opacity: 0.9; clip-path: inset(80% 0 2% 0); transform: translate(-7px, 0); }
+    12% { opacity: 0.9; clip-path: inset(22% 0 50% 0); transform: translate(3px, 0); }
+    14%, 100% { opacity: 0; }
 }
 
 .mono { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-muted); }

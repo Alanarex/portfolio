@@ -62,7 +62,7 @@
 
 .terminal .mono { letter-spacing: 0; text-transform: none; }
 .terminal__bar { display: flex; align-items: center; gap: 0.4rem; padding: 0.75rem 1rem; background: #1a1517; }
-.terminal__bar span { margin-left: auto; color: #b1a7a6; font-size: 0.75rem; }
+.terminal__bar .mono { margin-left: auto; color: #b1a7a6; font-size: 0.75rem; }
 .terminal__body { display: grid; gap: 0.35rem; min-height: 15rem; padding: 1.25rem 1.25rem 1.5rem; font-size: clamp(0.78rem, 2.4vw, 0.9rem); line-height: 1.6; }
 .terminal__line { margin: 0; overflow-wrap: anywhere; animation: term-show 0.01s var(--d, 0s) both; opacity: 0; }
 .terminal__out { padding-left: 1.4ch; color: #d9d4d4; }
@@ -154,7 +154,7 @@
 }
 .terminal--live .terminal__bar { flex: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0; cursor: grab; touch-action: none; user-select: none; }
 .terminal--dragging .terminal__bar { cursor: grabbing; }
-.terminal--live .terminal__bar:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: -4px; }
+.terminal--live .terminal__bar .mono:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
 .terminal.terminal--live { overflow: visible; transition-property: color, background-color, box-shadow; }
 .terminal__log { display: grid; gap: 0.35rem; }
 

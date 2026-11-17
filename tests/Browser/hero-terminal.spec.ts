@@ -6,6 +6,7 @@ test.describe('hero terminal', () => {
 
     test('typing commands: help, about, clear, unknown command, history', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         const terminal = page.locator('[data-terminal]');
         const input = terminal.getByRole('textbox', { name: 'Commande du terminal' });
         const log = terminal.getByRole('log');
@@ -49,6 +50,7 @@ test.describe('hero terminal', () => {
 
     test('theme and lang commands act on the page', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         const input = page.getByRole('textbox', { name: 'Commande du terminal' });
 
         await input.click();
@@ -66,6 +68,7 @@ test.describe('hero terminal', () => {
         await page.keyboard.type('lang en');
         await page.keyboard.press('Enter');
         await expect(page).toHaveURL(/\/en$/);
+        await page.click('[data-terminal-launch]');
         await expect(page.getByRole('log')).toContainText('Type help to see the available commands.');
 
         await page.getByRole('textbox', { name: 'Terminal command' }).click();
@@ -76,9 +79,11 @@ test.describe('hero terminal', () => {
 
     test('the window can be dragged, moved with the keyboard and resized', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         const terminal = page.locator('[data-terminal]');
         const bar = terminal.locator('.terminal__bar');
-        await expect(bar).toHaveAttribute('role', 'button');
+        const grip = bar.locator('.mono');
+        await expect(grip).toHaveAttribute('role', 'button');
         await terminal.scrollIntoViewIfNeeded();
         await expect(page.locator('.loader')).toBeHidden();
 
@@ -92,7 +97,7 @@ test.describe('hero terminal', () => {
         expect(Math.round(before.x - dragged.x)).toBe(120);
         expect(Math.round(dragged.y - before.y)).toBe(60);
 
-        await bar.focus();
+        await grip.focus();
         await page.keyboard.press('ArrowRight');
         expect(Math.round((await terminal.boundingBox())!.x - dragged.x)).toBe(16);
         await page.keyboard.press('Home');
@@ -101,6 +106,7 @@ test.describe('hero terminal', () => {
 
     test('behaves like a real terminal: empty lines, Ctrl+C, fixed line spacing', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         await expect(page.locator('.loader')).toBeHidden();
         const input = page.getByRole('textbox', { name: 'Commande du terminal' });
         const log = page.getByRole('log');
@@ -125,12 +131,14 @@ test.describe('hero terminal', () => {
     });
 
     test('can be resized from every corner and border', async ({ page }) => {
-        // Page pleine largeur : la colonne du terminal est étroite, la fenêtre doit pouvoir grandir sans sortir de l'écran.
-        await page.setViewportSize({ width: 1920, height: 1000 });
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         await expect(page.locator('.loader')).toBeHidden();
         const terminal = page.locator('[data-terminal]');
-        await terminal.scrollIntoViewIfNeeded();
+        await terminal.evaluate((node) => {
+            node.style.left = '120px';
+            node.style.top = '80px';
+        });
         const drag = async (dir: string, dx: number, dy: number): Promise<void> => {
             const handle = (await terminal.locator(`.terminal__handle--${dir}`).boundingBox())!;
             const cx = handle.x + handle.width / 2;
@@ -166,6 +174,7 @@ test.describe('hero terminal', () => {
 
     test('shell commands: ls lists the page sections, cd, pwd, cat, echo, tab completion, clear wipes everything', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         await expect(page.locator('.loader')).toBeHidden();
         const terminal = page.locator('[data-terminal]');
         const input = terminal.getByRole('textbox', { name: 'Commande du terminal' });
@@ -186,9 +195,9 @@ test.describe('hero terminal', () => {
         await run('cd projets');
         await run('pwd');
         await expect(log).toContainText('~/portfolio/projets');
-        await expect(terminal.locator('.terminal__bar span')).toHaveText('~/portfolio/projets');
+        await expect(terminal.locator('.terminal__bar .mono')).toHaveText('~/portfolio/projets');
         await run('cd ..');
-        await expect(terminal.locator('.terminal__bar span')).toHaveText('~/portfolio');
+        await expect(terminal.locator('.terminal__bar .mono')).toHaveText('~/portfolio');
 
         await run('cd nulle-part');
         await expect(log).toContainText('cd: nulle-part: aucun fichier ou dossier de ce type');
@@ -216,9 +225,13 @@ test.describe('hero terminal', () => {
 
     test('resizing keeps the opposite border fixed and the text pinned to the top', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         await expect(page.locator('.loader')).toBeHidden();
         const terminal = page.locator('[data-terminal]');
-        await terminal.scrollIntoViewIfNeeded();
+        await terminal.evaluate((node) => {
+            node.style.left = '120px';
+            node.style.top = '80px';
+        });
         await terminal.getByRole('textbox').click();
         await page.keyboard.type('clear');
         await page.keyboard.press('Enter');
@@ -268,8 +281,35 @@ test.describe('hero terminal', () => {
         expect(offset).toBeLessThan(40);
     });
 
+    test('floating window: launcher opens it, minimize hides it, it stays fixed while scrolling', async ({ page }) => {
+        await page.goto('/fr');
+        const terminal = page.locator('[data-terminal]');
+        const launcher = page.locator('[data-terminal-launch]');
+        await expect(terminal).toBeHidden();
+        await expect(launcher).toHaveAttribute('aria-expanded', 'false');
+
+        await launcher.click();
+        await expect(terminal).toBeVisible();
+        await expect(launcher).toHaveAttribute('aria-expanded', 'true');
+        const before = (await terminal.boundingBox())!;
+
+        await page.evaluate(() => window.scrollTo(0, 900));
+        const scrolled = (await terminal.boundingBox())!;
+        expect(Math.round(scrolled.y)).toBe(Math.round(before.y));
+
+        await terminal.locator('[data-terminal-minimize]').click();
+        await expect(terminal).toBeHidden();
+        await expect(launcher).toHaveAttribute('aria-expanded', 'false');
+
+        await launcher.click();
+        await expect(terminal).toBeVisible();
+        await launcher.click();
+        await expect(terminal).toBeHidden();
+    });
+
     test('responses never expose the private contact details', async ({ page }) => {
         await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
         await page.getByRole('textbox', { name: 'Commande du terminal' }).click();
         await page.keyboard.type('contact');
         await page.keyboard.press('Enter');
@@ -281,6 +321,7 @@ test.describe('hero terminal', () => {
         test(`has no axe violation on the terminal (${theme})`, async ({ page }) => {
             await page.addInitScript((value) => localStorage.setItem('portfolio-theme', value), theme);
             await page.goto('/fr');
+        await page.click('[data-terminal-launch]');
             await page.getByRole('textbox', { name: 'Commande du terminal' }).click();
             await page.keyboard.type('skills');
             await page.keyboard.press('Enter');
@@ -296,6 +337,7 @@ test.describe('hero terminal', () => {
         await page.goto('/fr');
 
         await expect(page.locator('[data-terminal]')).toContainText('php artisan about');
+        await expect(page.locator('[data-terminal-launch]')).toBeHidden();
         await expect(page.locator('[data-terminal-form]')).toBeHidden();
         await expect(page.locator('[data-terminal-log]')).toBeHidden();
         await context.close();
@@ -306,8 +348,8 @@ test.describe('hero terminal', () => {
         const page = await context.newPage();
         await page.goto('/fr');
 
+        await page.locator('[data-terminal-launch]').tap();
         const input = page.getByRole('textbox', { name: 'Commande du terminal' });
-        await input.scrollIntoViewIfNeeded();
         await input.tap();
         await page.keyboard.type('experience');
         await page.keyboard.press('Enter');
