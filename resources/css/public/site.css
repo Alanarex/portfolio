@@ -125,7 +125,7 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 }
 
 /* Portrait du hero : photo découpée, anneau de graduations et initiales en contour derrière */
-.hero__portrait { position: relative; display: grid; place-items: center; margin: 0; max-width: 26rem; margin-inline: auto; isolation: isolate; container-type: inline-size; }
+.hero__portrait { position: relative; display: grid; place-items: center; margin: 0; width: min(100%, 26rem); margin-inline: auto; isolation: isolate; container-type: inline-size; }
 
 .hero__ring,
 .hero__initials,
