@@ -7,6 +7,7 @@ namespace Modules\Profile\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -45,7 +46,7 @@ final class PortraitController extends Controller
         Gate::authorize('update', $profile);
 
         $file = $request->file('portrait');
-        abort_unless($file instanceof \Illuminate\Http\UploadedFile, 422);
+        abort_unless($file instanceof UploadedFile, 422);
 
         $previous = $profile->portrait_path;
         $stored = $storage->store($file);
