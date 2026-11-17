@@ -50,6 +50,8 @@ return [
         'terminal_stack' => 'stack',
     ],
     'terminal' => [
+        'open' => 'Open the terminal',
+        'minimize' => 'Minimize the terminal',
         'label' => 'Interactive terminal',
         'input_label' => 'Terminal command',
         'move' => 'Move the terminal: drag the bar or use the arrow keys (Alt + arrows to resize); double-click or Home to put it back.',

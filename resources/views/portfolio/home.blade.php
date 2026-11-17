@@ -7,6 +7,7 @@
     $title = $profile?->professionalTitles[0] ?? __('portfolio.hero.title_fallback');
     // Mise en valeur (contour) de la partie technologique du titre : « PHP / Laravel ».
     $techPosition = mb_stripos($title, 'PHP');
+    $initials = collect(preg_split('/\s+/u', trim((string) ($profile?->displayName ?? __('portfolio.brand_fallback')))) ?: [])->filter()->take(2)->map(fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)))->implode('');
     $titleLead = $techPosition !== false && $techPosition > 0 ? trim(mb_substr($title, 0, $techPosition)) : $title;
     $titleTech = $techPosition !== false && $techPosition > 0 ? trim(mb_substr($title, $techPosition)) : null;
 
@@ -123,9 +124,20 @@
                 'text' => __('portfolio.terminal'),
             ];
         @endphp
-        <div class="hero__terminal terminal theme-dark" data-reveal style="--i: 3" aria-hidden="true" data-terminal>
+        <figure class="hero__portrait" data-reveal style="--i: 3">
+            <span class="hero__ring" aria-hidden="true"></span>
+            <span class="hero__initials" aria-hidden="true">{{ $initials }}</span>
+            <picture class="hero__photo">
+                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 24rem">
+                <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+            </picture>
+        </figure>
+    </div>
+</section>
+
+        <div id="terminal-window" class="terminal terminal--window theme-dark" aria-hidden="true" hidden data-terminal>
             <script type="application/json" data-terminal-data>{!! json_encode($terminalData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
-            <div class="terminal__bar"><i></i><i></i><i></i><span class="mono">~/portfolio</span></div>
+            <div class="terminal__bar"><button type="button" class="terminal__min" data-terminal-minimize aria-label="{{ __('portfolio.terminal.minimize') }}"><span aria-hidden="true"></span></button><span class="mono">~/portfolio</span></div>
             <div class="terminal__body mono">
                 <p class="terminal__line" style="--d: 0.5s"><span class="terminal__prompt">$</span> <span class="terminal__cmd" style="--n: {{ strlen($terminalCommands[0]) }}">{{ $terminalCommands[0] }}</span></p>
                 <p class="terminal__line terminal__out" style="--d: 1.7s"><span>{{ __('portfolio.hero.terminal_role') }}</span> {{ $terminalRole }}</p>
@@ -147,33 +159,11 @@
                 </form>
             </div>
         </div>
-    </div>
-</section>
 
-<section class="section" id="positionnement" aria-labelledby="positioning-title">
-    <div class="container">
-        <h2 id="positioning-title" class="statement" data-scroll-reveal>{{ __('portfolio.sections.positioning') }}</h2>
-        <div class="stage" data-scroll-reveal>
-            <span class="stage__ring" aria-hidden="true"></span>
-            <p class="stage__name" aria-hidden="true">{{ $profile?->displayName ?? __('portfolio.brand_fallback') }}</p>
-            <picture class="stage__photo">
-                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 40vw, 320px">
-                <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" loading="lazy" decoding="async">
-            </picture>
-        </div>
-        <div class="about">
-            @if ($profile)
-                <p class="lede about__text">{{ $profile->biography }}</p>
-                <dl class="facts">
-                    @if ($profile->location)<div><dt class="mono">{{ __('portfolio.profile.location') }}</dt><dd>{{ $profile->location }}</dd></div>@endif
-                    @if ($profile->availability)<div><dt class="mono">{{ __('portfolio.profile.availability') }}</dt><dd>{{ $profile->availability }}</dd></div>@endif
-                </dl>
-            @else
-                <p class="state">{{ __('portfolio.profile.unavailable') }}</p>
-            @endif
-        </div>
-    </div>
-</section>
+<button type="button" class="terminal-launch" hidden data-terminal-launch aria-controls="terminal-window" aria-expanded="false" aria-label="{{ __('portfolio.terminal.open') }}">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="m7 9.5 3 2.5-3 2.5M12.5 15h4.5"/></svg>
+</button>
+
 
 @if (($posts ?? []) !== [])
     <section id="actualites" class="section" aria-labelledby="posts-title" style="padding-top: 0">

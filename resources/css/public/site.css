@@ -123,7 +123,54 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
         backdrop-filter: none;
     }
 }
-.hero__terminal { position: relative; z-index: 8; }
+
+/* Portrait du hero : photo découpée, anneau de graduations et initiales en contour derrière */
+.hero__portrait { position: relative; display: grid; place-items: center; margin: 0; max-width: 26rem; margin-inline: auto; isolation: isolate; container-type: inline-size; }
+
+.hero__ring,
+.hero__initials,
+.hero__photo { grid-area: 1 / 1; }
+
+.hero__ring {
+    width: 112%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-conic-gradient(rgb(var(--ink-rgb) / 34%) 0 0.22deg, transparent 0.22deg 2.4deg);
+    mask: radial-gradient(circle, transparent 0 calc(50% - 0.7rem), #000 calc(50% - 0.7rem) 100%);
+    z-index: -2;
+}
+
+.hero__initials {
+    place-self: end start;
+    margin: 0 0 -6cqi -8cqi;
+    font-family: var(--font-outline);
+    font-size: 58cqi;
+    font-weight: 700;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-accent-text);
+    z-index: -1;
+}
+
+.hero__photo { position: relative; width: 78%; }
+
+.hero__photo::before {
+    position: absolute;
+    inset: 4% -6% -4% 6%;
+    z-index: -1;
+    content: "";
+    background: repeating-linear-gradient(118deg, var(--color-accent-light) 0 2px, transparent 2px 9px);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 12% 100%, 0 88%);
+    opacity: 0.8;
+}
+
+.hero__photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--color-surface);
+    clip-path: polygon(0 7%, 14% 0, 100% 0, 100% 86%, 86% 100%, 0 100%);
+}
 
 .scroll-cue { display: inline-flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
 

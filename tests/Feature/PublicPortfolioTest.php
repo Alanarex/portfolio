@@ -47,7 +47,6 @@ final class PublicPortfolioTest extends TestCase
             ->assertDontSee('CV bientôt disponible')
             ->assertSee('Manager de Projet Web et Digital')
             ->assertSeeInOrder([
-                'Positionnement',
                 'Projets à la une',
                 'Résultats vérifiés',
                 'Mon parcours, étape par étape',
