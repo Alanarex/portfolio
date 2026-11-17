@@ -192,7 +192,10 @@ html.menu-open { overflow: hidden; }
 
     /* 4. Parcours (voiture 3D) en portrait. Sans 3D (WebGL absent ou refusé) ou en mode liste : cartes empilées. */
     .journey__stick { padding-block: var(--space-7); }
-    .journey__steps { grid-template-columns: 1fr; }
+
+    .journey__steps,
+    .journey:not([data-three-preview]) .journey__steps,
+    .journey[data-state="unavailable"] .journey__steps { grid-template-columns: 1fr; }
     .journey__step { padding: var(--space-4); }
     .journey__copy .button { width: 100%; margin-top: var(--space-4); }
 
