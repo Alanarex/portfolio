@@ -8,6 +8,7 @@ use App\Models\AdminLoginEvent;
 use App\Models\User;
 use App\Notifications\AdminPasswordResetNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -62,6 +63,8 @@ final class AuthSecurityTest extends TestCase
 
     public function test_lockout_expires_and_grows(): void
     {
+        // On isole le verrouillage : le limiteur par minute (admin-login) dépend de l'horloge simulée.
+        $this->withoutMiddleware(ThrottleRequests::class);
         $this->admin();
         for ($i = 0; $i < 3; $i++) {
             $this->attempt('admin@example.test', 'wrong');
