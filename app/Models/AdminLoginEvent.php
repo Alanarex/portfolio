@@ -12,11 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int|null $user_id
  * @property bool $succeeded
+ * @property string|null $reason
  * @property string|null $ip_masked
  * @property string|null $user_agent
  * @property CarbonImmutable $created_at
  */
-#[Fillable(['user_id', 'succeeded', 'ip_masked', 'user_agent'])]
+#[Fillable(['user_id', 'succeeded', 'reason', 'ip_masked', 'user_agent'])]
 final class AdminLoginEvent extends Model
 {
     public const UPDATED_AT = null;

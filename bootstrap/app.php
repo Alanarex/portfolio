@@ -4,6 +4,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureAdministrator;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAdminLocale;
 use App\Support\PreferredLocale;
 use Illuminate\Foundation\Application;
@@ -29,9 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // and Caddy replaces any client-supplied X-Forwarded-* headers.
         $middleware->trustProxies(at: '*');
         $middleware->append(AssignRequestId::class);
+        $middleware->append(SecurityHeaders::class);
         // Cookie de langue lu et écrit par le sélecteur FR/EN (JavaScript) : valeur fr|en, sans donnée personnelle.
         $middleware->encryptCookies(except: [PreferredLocale::COOKIE]);
-        $middleware->web(append: [HandleInertiaRequests::class]);
+        $middleware->web(append: [HandleInertiaRequests::class, 'throttle:web-global']);
         $middleware->alias([
             'admin' => EnsureAdministrator::class,
             'admin.locale' => SetAdminLocale::class,

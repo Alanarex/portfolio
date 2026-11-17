@@ -169,7 +169,8 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Secure par défaut en production (HTTPS imposé par Caddy) ; en local HTTP, laissé à null.
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production' ? true : null),
 
     /*
     |--------------------------------------------------------------------------

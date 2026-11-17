@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/light/favicon-32x32.png') }}" media="(prefers-color-scheme: light)">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/dark/favicon-32x32.png') }}" media="(prefers-color-scheme: dark)">
     <title inertia>Administration — Portfolio</title>
-    <script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         (function () {
             try {
                 var theme = localStorage.getItem('portfolio-theme');
