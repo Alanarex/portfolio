@@ -169,7 +169,7 @@ html.menu-open { overflow: hidden; }
     }
 
     .js .filters[hidden] { display: none; }
-    .stack { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-5); }
+    .stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-5); }
 
     .stack__card,
     .stack__card:nth-child(n) {
@@ -182,7 +182,7 @@ html.menu-open { overflow: hidden; }
 
     .stack__visual,
     .stack__card:nth-child(1) .stack__visual { height: 9.5rem; }
-    .stack__body { padding: 1.25rem; gap: var(--space-4); }
+    .stack__body { min-width: 0; padding: 1.25rem; gap: var(--space-4); }
     .stack__body h3 { font-size: 1.4rem; }
     .stack__link { display: inline-flex; align-items: center; min-height: 2.75rem; }
     .stack__cta { display: inline-flex; align-items: center; min-height: 3rem; }
