@@ -298,6 +298,15 @@
                             @foreach ($milestones as $milestone)<li @class(['is-active' => $loop->first]) data-journey-dot></li>@endforeach
                         </ol>
                     </div>
+                    <div class="journey__speedo" aria-hidden="true" data-journey-speedo>
+                        <svg class="journey__speedo-dial" viewBox="0 0 120 68" focusable="false">
+                            <path class="journey__speedo-track" d="M12 60 A48 48 0 0 1 108 60" pathLength="100" />
+                            <path class="journey__speedo-fill" d="M12 60 A48 48 0 0 1 108 60" pathLength="100" />
+                            <line class="journey__speedo-needle" x1="60" y1="60" x2="60" y2="22" />
+                            <circle class="journey__speedo-hub" cx="60" cy="60" r="3.5" />
+                        </svg>
+                        <span class="journey__speedo-value mono"><span data-speedo-value>0</span> <span class="journey__speedo-unit">km/h</span></span>
+                    </div>
                     <div class="journey__sheet" role="group" aria-label="{{ __('portfolio.three_d.sheet') }}" data-journey-sheet data-label-next="{{ __('portfolio.three_d.next') }}" data-label-end="{{ __('portfolio.three_d.to_skills') }}">
                         <div class="journey__sheet-text">
                             <p class="journey__sheet-period mono" data-sheet-period aria-live="polite"></p>

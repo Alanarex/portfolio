@@ -231,6 +231,10 @@ html.menu-open { overflow: hidden; }
     .journey[data-state="ready"] .journey__hud { display: none; }
     .journey[data-state="ready"] .journey__lede { display: none; }
 
+    /* Compteur compact, en haut à droite (la feuille d'étape occupe le bas) */
+    .journey[data-state="ready"] .journey__speedo { top: 5.2rem; right: 0; bottom: auto; width: 6rem; }
+    .journey[data-state="ready"] .journey__speedo-value { margin-top: -0.55rem; font-size: 0.95rem; }
+
     /* Feuille d'étape compacte : texte à gauche, une flèche pour avancer à droite */
     .journey[data-state="ready"]:not([data-view="list"]) .journey__sheet {
         display: flex;

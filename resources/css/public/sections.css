@@ -105,6 +105,34 @@ html:not(.js) [data-three-preview-load] { display: none; }
 .journey__dots li.is-done { background: var(--color-accent-light); }
 .journey__dots li.is-active { width: 2rem; background: var(--color-accent-light); box-shadow: 0 0 0.8rem var(--color-accent-light); }
 
+/* Compteur de vitesse : reflète la vitesse réelle de la voiture (0 à 180 km/h). */
+.journey__speedo { display: none; }
+
+.journey[data-state="ready"] .journey__speedo {
+    --speed: 0;
+
+    position: absolute;
+    right: 0;
+    bottom: 2.5rem;
+    display: grid;
+    justify-items: center;
+    width: 9.5rem;
+    pointer-events: none;
+    transition: opacity 400ms var(--ease);
+}
+
+.journey[data-state="ready"][data-focus="true"] .journey__speedo { opacity: 0; }
+.journey__speedo-dial { width: 100%; overflow: visible; }
+
+.journey__speedo-track,
+.journey__speedo-fill { fill: none; stroke-width: 5; stroke-linecap: round; }
+.journey__speedo-track { stroke: rgb(var(--ink-rgb) / 18%); }
+.journey__speedo-fill { stroke: var(--color-accent-light); stroke-dasharray: calc(var(--speed) * 100) 100; filter: drop-shadow(0 0 3px var(--color-accent-light)); }
+.journey__speedo-needle { stroke: var(--color-text); stroke-width: 2; stroke-linecap: round; transform-origin: 60px 60px; transform: rotate(calc(var(--speed) * 180deg - 90deg)); }
+.journey__speedo-hub { fill: var(--color-accent-light); }
+.journey__speedo-value { margin-top: -0.9rem; color: var(--color-text); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.journey__speedo-unit { color: var(--color-text-soft); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+
 .journey[data-state="ready"] .journey__copy { transition: opacity 400ms var(--ease); }
 .journey[data-state="ready"][data-focus="true"] .journey__copy { opacity: 0; }
 .journey[data-state="ready"] .journey__copy h2 { font-size: clamp(1.5rem, 2.8vw, 2.5rem); }
