@@ -23,6 +23,18 @@
 .journey__summary { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; }
 .journey__step .checklist { gap: var(--space-1); margin-top: var(--space-3); font-size: 0.9rem; }
 
+/* Repli sans 3D : 4 cartes par ligne (2 en tablette, 1 en mobile via mobile.css) ; les titres Orbitron, larges, ne débordent pas */
+.journey:not([data-three-preview]) .journey__steps,
+.journey[data-state="unavailable"] .journey__steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.journey__step { min-width: 0; }
+.journey__step h3 { overflow-wrap: anywhere; hyphens: auto; }
+.journey:not([data-three-preview]) .journey__step h3,
+.journey[data-state="unavailable"] .journey__step h3 { font-size: clamp(1.05rem, 1.45vw, 1.45rem); }
+@media (width <= 80rem) {
+    .journey:not([data-three-preview]) .journey__steps,
+    .journey[data-state="unavailable"] .journey__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 html:not(.js) [data-three-preview-load] { display: none; }
 
 /* Mode « scène » : la 3D est disponible, une carte d'étape à la fois */
