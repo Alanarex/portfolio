@@ -3,7 +3,6 @@
 @section('content')
 <article class="legal container" aria-labelledby="legal-title">
     <header>
-        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.footer.privacy') }}</p>
         <h1 id="legal-title" data-reveal style="--i: 1">{{ __('portfolio.privacy.title') }}</h1>
         <p class="lede" data-reveal style="--i: 2">{{ __('portfolio.privacy.intro') }}</p>
     </header>

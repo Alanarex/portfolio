@@ -56,7 +56,6 @@
     </header>
 
     <main id="main-content" class="container error-page" tabindex="-1">
-        <p class="eyebrow">{{ __('portfolio.http_errors.error_label') }} {{ $errorCode }}</p>
         <p class="error-page__code" aria-hidden="true">{{ $errorCode }}</p>
         <h1>{{ __('portfolio.http_errors.'.$errorCode.'.title') }}</h1>
         <p>{{ __('portfolio.http_errors.'.$errorCode.'.message') }}</p>

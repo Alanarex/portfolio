@@ -12,16 +12,16 @@
 .gauge__needle {
     transform-origin: 200px 200px;
     transform: rotate(calc(-135deg + 270deg * var(--p)));
-    filter: drop-shadow(0 0 6px rgb(229 56 59 / 80%));
 }
 
-.gauge__idle { transform-origin: 200px 200px; animation: idle 220ms linear infinite; }
+/* Arc de progression : pathLength="100", donc 100px = toute l'échelle (270° sur 320 km/h) */
+.gauge__arc { stroke-dasharray: calc(var(--p) * 100px) 200px; }
 
 .gauge__readout {
     position: absolute;
-    top: 66%;
+    top: 52%;
     left: 50%;
-    color: #fff;
+    color: var(--color-text);
     font-family: var(--font-display);
     line-height: 1;
     text-align: center;
@@ -30,80 +30,12 @@
 
 .gauge__speed {
     display: block;
-    font-size: clamp(1.6rem, 6vw, 2.9rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    text-shadow: 0 0 1rem rgb(229 56 59 / 55%);
+    font-size: clamp(2rem, 8vw, 3.6rem);
+    font-weight: 500;
     counter-reset: kmh var(--k);
 }
 
 .gauge__speed::before { content: counter(kmh); }
-
-/* Rapport engagé : se déduit de la vitesse affichée */
-.gauge__gear {
-    position: absolute;
-    top: 80%;
-    left: 50%;
-    display: flex;
-    gap: 0.15em;
-    color: #3ddc84;
-    font-family: var(--font-mono);
-    font-size: clamp(0.5rem, 1.7vw, 0.8rem);
-    font-weight: 700;
-    line-height: 1;
-    opacity: 0.9;
-    transform: translateX(-50%);
-}
-
-.gauge__gear b { counter-reset: gear calc(var(--k) / 55 + 0.5); font-weight: 700; }
-.gauge__gear b::before { content: counter(gear); }
-
-/* Compte-tours à segments : suit l'aiguille */
-
-/* Longueurs avec unité : Firefox ignore un calc() sans unité dans stroke-dasharray */
-.gauge__rpm { stroke-dasharray: calc(var(--p) * 100px) 200px; }
-.gauge__redglow { opacity: clamp(0, calc((var(--p) - 0.72) * 4), 1); }
-
-/* Petits cadrans : l'aiguille oscille lentement */
-.gauge__mini { animation: mini-sway 7s ease-in-out infinite; rotate: var(--a, 0deg); }
-
-@keyframes mini-sway {
-    0%,
-    100% { rotate: var(--a, 0deg); }
-
-    50% { rotate: calc(var(--a, 0deg) + 14deg); }
-}
-
-/* Reflet qui balaie le verre de temps en temps */
-.gauge__sheen { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; pointer-events: none; }
-
-.gauge__sheen::after {
-    position: absolute;
-    top: -10%;
-    bottom: -10%;
-    left: -45%;
-    width: 28%;
-    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 14%), transparent);
-    content: "";
-    transform: skewX(-18deg);
-    animation: glint 7s 1.2s ease-in-out infinite;
-}
-
-@keyframes glint {
-    0%,
-    62% { left: -45%; }
-
-    100% { left: 130%; }
-}
-
-@keyframes idle {
-    0%,
-    100% { transform: rotate(0); }
-
-    25% { transform: rotate(0.9deg); }
-    50% { transform: rotate(-0.6deg); }
-    75% { transform: rotate(0.7deg); }
-}
 
 /* Loader : montée à fond puis retour au ralenti */
 @keyframes boot {

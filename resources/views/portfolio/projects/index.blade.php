@@ -3,7 +3,6 @@
 @section('content')
 <section class="section page-head">
     <div class="container">
-        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.nav.projects') }}</p>
         <h1 data-reveal style="--i: 1">{{ __('portfolio.projects.title') }}</h1>
         <p class="lede" data-reveal style="--i: 2">{{ __('portfolio.projects.intro', ['count' => count($projects)]) }}</p>
 
