@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Settings\Application\SaveSettings;
+use Modules\Settings\Data\HomeSections;
 use Modules\Settings\Http\Requests\UpdateSettingsRequest;
 use Modules\Settings\Models\Locale;
 use Modules\Settings\Models\SiteSetting;
@@ -39,6 +40,10 @@ final class SettingsController extends Controller
             return [$key => (bool) ($settings->featureFlags->firstWhere('key', $key)->enabled ?? false)];
         });
 
+        $sections = collect(HomeSections::ids())->mapWithKeys(fn (string $id): array => [
+            $id => (bool) ($settings?->featureFlags->firstWhere('key', HomeSections::flagKey($id))->enabled ?? true),
+        ]);
+
         return Inertia::render('Admin/Settings/Edit', [
             'settings' => [
                 'site_name' => $settings->site_name ?? config('app.name'),
@@ -49,7 +54,9 @@ final class SettingsController extends Controller
                 'show_phone' => $settings->show_phone ?? false,
                 'social_links' => $links,
                 'feature_flags' => $flags,
+                'sections' => $sections,
             ],
+            'sectionLabels' => HomeSections::LABELS,
             'locales' => Locale::query()->orderBy('code')->get()->map(fn (Locale $locale): array => [
                 'code' => $locale->code,
                 'label' => $locale->label,
