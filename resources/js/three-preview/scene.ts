@@ -912,7 +912,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const starGeometry = new THREE.BufferGeometry();
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     const sky = new THREE.Group();
-    const starMaterial = new THREE.PointsMaterial({ color: '#f5f3f4', size: compact ? 2.2 : 2.6, sizeAttenuation: false, fog: false, transparent: true, opacity: 1 });
+    const starMaterial = new THREE.PointsMaterial({ color: '#f5f3f4', size: compact ? 2.8 : 3.4, sizeAttenuation: false, fog: false, transparent: true, opacity: 1 });
     sky.add(new THREE.Points(starGeometry, starMaterial));
     const moonRed = makeGlowTexture('#e5383b');
     const moonInk = makeGlowTexture('#0b090a');

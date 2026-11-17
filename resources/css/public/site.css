@@ -278,7 +278,7 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 
 .journey__drag {
     position: absolute;
-    right: 0;
+    right: 4.5rem;
     bottom: var(--space-6);
     display: none;
     align-items: center;
