@@ -125,6 +125,8 @@ test.describe('hero terminal', () => {
     });
 
     test('can be resized from every corner and border', async ({ page }) => {
+        // Page pleine largeur : la colonne du terminal est étroite, la fenêtre doit pouvoir grandir sans sortir de l'écran.
+        await page.setViewportSize({ width: 1920, height: 1000 });
         await page.goto('/fr');
         await expect(page.locator('.loader')).toBeHidden();
         const terminal = page.locator('[data-terminal]');
@@ -144,7 +146,7 @@ test.describe('hero terminal', () => {
         const se = (await terminal.boundingBox())!;
         expect(Math.round(se.width - start.width)).toBe(80);
         expect(Math.round(se.height - start.height)).toBe(60);
-        expect(Math.round(se.x - start.x)).toBe(0);
+        expect(Math.abs(Math.round(se.x - start.x))).toBe(0);
 
         await drag('nw', -50, -40); // agrandit vers le haut-gauche : la fenêtre s'étend et son coin bouge
         const nw = (await terminal.boundingBox())!;

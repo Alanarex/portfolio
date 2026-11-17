@@ -151,29 +151,27 @@
 </section>
 
 <section class="section" id="positionnement" aria-labelledby="positioning-title">
-    <div class="container about">
-        <div>
-            <h2 id="positioning-title" class="statement" data-scroll-reveal>{{ __('portfolio.sections.positioning') }}</h2>
-            @if ($profile)
-                <p class="lede about__text" data-scroll-reveal>{{ $profile->biography }}</p>
-            @else
-                <p class="state">{{ __('portfolio.profile.unavailable') }}</p>
-            @endif
-        </div>
-        <aside class="about__card" data-scroll-reveal aria-label="{{ __('portfolio.hero.portrait_alt') }}">
-            <div class="portrait">
-            <picture>
-                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 320px">
+    <div class="container">
+        <h2 id="positioning-title" class="statement" data-scroll-reveal>{{ __('portfolio.sections.positioning') }}</h2>
+        <div class="stage" data-scroll-reveal>
+            <span class="stage__ring" aria-hidden="true"></span>
+            <p class="stage__name" aria-hidden="true">{{ $profile?->displayName ?? __('portfolio.brand_fallback') }}</p>
+            <picture class="stage__photo">
+                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 40vw, 320px">
                 <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" loading="lazy" decoding="async">
             </picture>
-            </div>
+        </div>
+        <div class="about">
             @if ($profile)
+                <p class="lede about__text">{{ $profile->biography }}</p>
                 <dl class="facts">
                     @if ($profile->location)<div><dt class="mono">{{ __('portfolio.profile.location') }}</dt><dd>{{ $profile->location }}</dd></div>@endif
                     @if ($profile->availability)<div><dt class="mono">{{ __('portfolio.profile.availability') }}</dt><dd>{{ $profile->availability }}</dd></div>@endif
                 </dl>
+            @else
+                <p class="state">{{ __('portfolio.profile.unavailable') }}</p>
             @endif
-        </aside>
+        </div>
     </div>
 </section>
 
