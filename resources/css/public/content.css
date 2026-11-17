@@ -147,7 +147,7 @@
 
 @container (width < 30rem) {
     .stage__name { font-size: 8.4cqi; }
-    .stage__photo { width: 36cqi; }
+    .stage__photo { width: 27cqi; }
 }
 .facts { display: grid; gap: var(--space-3); margin: 0; }
 .facts div { display: grid; gap: 0.15rem; }
