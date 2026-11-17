@@ -70,7 +70,7 @@ final class HomeSectionsToggleTest extends TestCase
             'contact_phone' => '',
             'show_email' => false,
             'show_phone' => false,
-            'social_links' => [],
+            'social_links' => [['platform' => 'github', 'url' => 'https://github.com/example', 'is_enabled' => false, 'is_public' => false, 'sort_order' => 0]],
             'feature_flags' => ['projects' => true, 'contact' => false, 'cv' => false, 'activity' => false, 'three_d' => false],
         ];
     }
