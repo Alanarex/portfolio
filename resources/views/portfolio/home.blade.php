@@ -69,14 +69,18 @@
 @endphp
 
 @section('content')
+@php
+    // Sections masquables depuis Paramètres > Sections de l'accueil (affichées par défaut).
+    $sectionOn = fn (string $id): bool => $settings?->sectionVisible($id) ?? true;
+@endphp
 <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
     <div class="container hero__grid">
         <div class="hero__content">
             <h1 id="hero-title" data-reveal style="--i: 2">{{ $titleLead }}@if ($titleTech) <span class="stroke" data-text="{{ $titleTech }}">{{ $titleTech }}</span>@endif</h1>
             <p class="lede" data-reveal style="--i: 3">{{ $profile?->summary ?? __('portfolio.hero.summary_fallback') }}</p>
             <div class="actions" data-reveal style="--i: 4">
-                <a class="button" href="#projets"><span>{{ __('portfolio.hero.projects_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
-                <a class="button button--ghost" href="#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span></a>
+                @if ($sectionOn('projets'))<a class="button" href="#projets"><span>{{ __('portfolio.hero.projects_cta') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>@endif
+                @if ($sectionOn('contact'))<a class="button button--ghost" href="#contact"><span>{{ __('portfolio.hero.contact_cta') }}</span></a>@endif
                 @if ($cvAvailable)
                     <a class="button button--ghost" href="{{ route('portfolio.cv.download', ['locale' => $locale]) }}"><span>{{ __('portfolio.hero.cv_cta') }}</span></a>
                 @endif
@@ -171,7 +175,7 @@
 </button>
 
 
-@if (($posts ?? []) !== [])
+@if ($sectionOn('actualites') && ($posts ?? []) !== [])
     <section id="actualites" class="section" aria-labelledby="posts-title" style="padding-top: 0">
         <div class="container">
             <h2 id="posts-title" data-scroll-reveal>{{ __('portfolio.sections.posts') }}</h2>
@@ -193,6 +197,7 @@
     </section>
 @endif
 
+@if ($sectionOn('projets'))
 <section class="section" id="projets" aria-labelledby="projects-title" style="padding-bottom: 0">
     <div class="container">
         <div class="section-heading">
@@ -224,8 +229,9 @@
         @endif
     </div>
 </section>
+@endif
 
-@if ($proofItems !== [])
+@if ($sectionOn('preuves') && $proofItems !== [])
     <section class="section proof" id="preuves" aria-labelledby="proof-title">
         <div class="container">
             <h2 id="proof-title" data-scroll-reveal>{{ __('portfolio.sections.metrics') }}</h2>
@@ -247,7 +253,7 @@
     </section>
 @endif
 
-@if ($milestones->isNotEmpty())
+@if ($sectionOn('experience') && $milestones->isNotEmpty())
     <section class="journey" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" data-model-bytes="{{ (int) @filesize(public_path('models/amg-gt-roadster.glb')) }}" @endif>
         <div class="journey__stick">
             <div class="journey__stage" data-three-preview-canvas>
@@ -321,7 +327,7 @@
     </section>
 @endif
 
-@if ($categories !== [])
+@if ($sectionOn('competences') && $categories !== [])
     <section class="skillmap" id="competences" aria-labelledby="skills-title" data-skillmap style="--n: {{ $mapCount }}">
         <div class="skillmap__stick">
             <div class="container skillmap__inner">
@@ -385,7 +391,7 @@
     </section>
 @endif
 
-@if ($activityEnabled && (($githubActivity ?? null) || ($contributionGrid ?? null)))
+@if ($sectionOn('activite') && $activityEnabled && (($githubActivity ?? null) || ($contributionGrid ?? null)))
     <section class="section" id="activite" aria-labelledby="activity-title" style="padding-top: 0">
         <div class="container">
             <h2 id="activity-title" data-scroll-reveal>{{ __('portfolio.sections.activity') }}</h2>
@@ -447,7 +453,7 @@
     </section>
 @endif
 
-@if ($certifications !== [] || $languages !== [])
+@if ($sectionOn('formation') && ($certifications !== [] || $languages !== []))
     <section class="section" id="formation" aria-labelledby="education-title" style="padding-top: 0">
         <div class="container">
             <h2 id="education-title" data-scroll-reveal>{{ __('portfolio.sections.education') }}</h2>
@@ -512,7 +518,7 @@
     </section>
 @endif
 
-@if ($scene !== null)
+@if ($sectionOn('atelier') && $scene !== null)
     @php
         $roomManifest = $scene->toArray();
         $roomManifest['strings'] = [
@@ -565,6 +571,7 @@
     </section>
 @endif
 
+@if ($sectionOn('interets'))
 <section class="section" id="interets" aria-labelledby="interests-title" style="padding-top: 0">
     <div class="container">
         <h2 id="interests-title" data-scroll-reveal>{{ __('portfolio.sections.interests') }}</h2>
@@ -580,7 +587,9 @@
         </ul>
     </div>
 </section>
+@endif
 
+@if ($sectionOn('contact'))
 <section class="section" id="contact" aria-labelledby="contact-title" style="padding-top: 0">
     <div class="container contact">
         <div>
@@ -641,4 +650,5 @@
         </div>
     </div>
 </section>
+@endif
 @endsection

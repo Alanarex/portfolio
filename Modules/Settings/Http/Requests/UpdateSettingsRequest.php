@@ -6,6 +6,7 @@ namespace Modules\Settings\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Settings\Data\HomeSections;
 
 final class UpdateSettingsRequest extends FormRequest
 {
@@ -37,6 +38,9 @@ final class UpdateSettingsRequest extends FormRequest
             'feature_flags.cv' => ['required', 'boolean'],
             'feature_flags.activity' => ['required', 'boolean'],
             'feature_flags.three_d' => ['required', 'boolean'],
+            // Sections de l'accueil : facultatif pour rester compatible avec un ancien formulaire, chaque valeur est un booléen.
+            'sections' => ['sometimes', 'array:'.implode(',', HomeSections::ids())],
+            'sections.*' => ['boolean'],
         ];
     }
 }
