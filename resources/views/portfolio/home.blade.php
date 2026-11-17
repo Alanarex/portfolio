@@ -125,9 +125,17 @@
         @endphp
         <figure class="hero__portrait" data-reveal style="--i: 3">
             <span class="hero__ring" aria-hidden="true"></span>
+            @inject('publishedPortrait', \Modules\Profile\Infrastructure\PublishedPortrait::class)
+            @php
+                $customPortrait = $publishedPortrait->url();
+            @endphp
             <picture class="hero__photo">
-                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 24rem">
-                <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+                @if ($customPortrait)
+                    <img src="{{ $customPortrait }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+                @else
+                    <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 24rem">
+                    <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+                @endif
             </picture>
         </figure>
     </div>
@@ -324,10 +332,10 @@
                 <div class="map">
                     <svg viewBox="0 0 1000 520" role="group" aria-label="{{ __('portfolio.map.label', ['count' => $mapCount]) }}">
                         <defs>
-                            <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1b1718"/></pattern>
+                            <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="currentColor" stroke-opacity="0.09"/></pattern>
                             <radialGradient id="map-beam" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
                         </defs>
-                        <rect width="1000" height="520" fill="url(#map-grid)"/>
+                        <rect x="-2000" width="5000" height="520" fill="url(#map-grid)"/>
                         <g class="map__relief" fill="none"><ellipse cx="180" cy="140" rx="150" ry="90"/><ellipse cx="180" cy="140" rx="100" ry="58"/><ellipse cx="820" cy="400" rx="170" ry="100"/><ellipse cx="820" cy="400" rx="110" ry="62"/><ellipse cx="560" cy="120" rx="90" ry="50"/></g>
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path class="map__kerb" d="{{ $mapPath }}"/>
