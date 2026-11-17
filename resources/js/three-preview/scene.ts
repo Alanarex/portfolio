@@ -15,8 +15,18 @@ const SIGN_WIDTH = 6.4;
 const SIGN_HEIGHT = 4;
 const SIGN_CENTER_Y = 4.7;
 const SIGN_LATERAL = 9.2;
-/** Vitesse maximale de la progression (part du parcours par seconde) : évite de semer la voiture si l'on défile trop vite. */
+/** Vitesse maximale de la progression (part du parcours par seconde) ; elle est en plus freinée quand la voiture est en retard. */
 const MAX_PROGRESS_SPEED = 0.2;
+/** Vitesse maximale de la voiture (m/s ≈ 108 km/h), accélération et freinage (m/s²) : la voiture ne s'emballe jamais. */
+const MAX_SPEED = 30;
+const ACCELERATION = 12;
+const BRAKING = 20;
+/** Empattement (m) pour le braquage, et plage du compteur (km/h). */
+const WHEEL_BASE = 2.7;
+const GAUGE_MAX_KMH = 180;
+/** Orbite de la caméra au repos : vitesse (rad/s) et délai avant qu'elle démarre (s). */
+const ORBIT_SPEED = 0.13;
+const ORBIT_DELAY = 1.4;
 /** Portion de la courbe parcourue pendant le défilement. */
 const U_START = 0.03;
 const U_SPAN = 0.93;
@@ -425,6 +435,7 @@ const restyleCar = (car: THREE.Object3D): { rear: THREE.Vector3; front: THREE.Ve
 interface Wheel {
     pivot: THREE.Group;
     radius: number;
+    front: boolean;
 }
 
 interface CarRig {
@@ -482,6 +493,8 @@ const splitWheels = (holder: THREE.Group): Wheel[] => {
     const wheels = [...boxes.values()].map((box) => {
         const center = box.getCenter(new THREE.Vector3());
         const pivot = new THREE.Group();
+        // Braquage (Y) appliqué après la rotation de la roue (X).
+        pivot.rotation.order = 'YXZ';
         pivot.position.copy(center);
         return { box, center, pivot, radius: (box.max.y - box.min.y) / 2, buckets: new Map<THREE.Material, TriangleBucket>() };
     });
@@ -569,7 +582,7 @@ const splitWheels = (holder: THREE.Group): Wheel[] => {
             wheel.pivot.add(new THREE.Mesh(geometry, material));
         }
         holder.add(wheel.pivot);
-        return { pivot: wheel.pivot, radius: wheel.radius };
+        return { pivot: wheel.pivot, radius: wheel.radius, front: wheel.center.z < 0 };
     });
 };
 
@@ -1056,8 +1069,11 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
 
     // Voiture
     const rig = await loadCar(model);
-    const car = rig.holder;
-    car.traverse((object) => {
+    // `car` suit la route ; `body` (caisse + roues) tangue, roule et dérape à l'intérieur.
+    const body = rig.holder;
+    const car = new THREE.Group();
+    car.add(body);
+    body.traverse((object) => {
         if ((object as THREE.Mesh).isMesh) {
             object.castShadow = true;
         }
@@ -1091,7 +1107,6 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const state = {
         target: 0,
         progress: 0,
-        velocity: 0,
         yaw: 0,
         pitch: 0,
         dragging: false,
@@ -1101,6 +1116,17 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         focus: 0,
         focusIndex: -1,
         activeStep: -1,
+        speed: 0,
+        accel: 0,
+        curvature: 0,
+        steer: 0,
+        slip: 0,
+        roll: 0,
+        pitch2: 0,
+        orbit: 0,
+        orbitRate: 0,
+        idle: 0,
+        kmh: 0,
     };
     let animationFrame: number | undefined;
     const clock = new THREE.Clock();
@@ -1118,11 +1144,25 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         return clamp(-rect.top / runway, 0, 1);
     };
 
-    let lastU: number | undefined;
     const hudCount = container.querySelector<HTMLElement>('[data-journey-count]');
     const hudDots = [...container.querySelectorAll<HTMLElement>('[data-journey-dot]')];
+    const speedo = container.querySelector<HTMLElement>('[data-journey-speedo]');
+    const speedoValue = container.querySelector<HTMLElement>('[data-speedo-value]');
+    let shownKmh = -1;
+    const alongToMeters = U_SPAN * curve.getLength();
+    const tangentAhead = new THREE.Vector3();
+    const headingOf = (vector: THREE.Vector3): number => Math.atan2(-vector.x, -vector.z);
+    const wrapAngle = (angle: number): number => angle - Math.PI * 2 * Math.round(angle / (Math.PI * 2));
 
-    const placeCar = (): void => {
+    /** Courbure signée de la route (rad/m, > 0 = virage à gauche) à l'abscisse `u`. */
+    const curvatureAt = (u: number): number => {
+        const step = 0.002;
+        curve.getTangentAt(clamp(u, 0, 1 - step), tangent);
+        curve.getTangentAt(clamp(u, 0, 1 - step) + step, tangentAhead);
+        return wrapAngle(headingOf(tangentAhead) - headingOf(tangent)) / (step * curve.getLength());
+    };
+
+    const placeCar = (delta: number): void => {
         const u = U_START + state.along * U_SPAN;
         curve.getPointAt(u, position);
         curve.getTangentAt(u, tangent);
@@ -1131,14 +1171,29 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         car.position.y = 0.02;
         car.lookAt(car.position.clone().sub(tangent));
 
-        // Les roues tournent selon la distance réellement parcourue (dans les deux sens du défilement).
-        if (lastU !== undefined) {
-            const travelled = (u - lastU) * curve.getLength();
-            for (const wheel of rig.wheels) {
-                wheel.pivot.rotation.x -= travelled / wheel.radius;
+        // Les roues tournent selon la distance réellement parcourue (dans les deux sens).
+        const travelled = state.speed * delta;
+        for (const wheel of rig.wheels) {
+            wheel.pivot.rotation.x -= travelled / wheel.radius;
+        }
+
+        // Dynamique de la caisse : le braquage suit la courbure, la caisse roule vers l'extérieur du virage,
+        // plonge au freinage, se cabre à l'accélération et part en dérapage quand l'accélération latérale devient forte.
+        const lateral = state.curvature * state.speed * state.speed;
+        const slipTarget = reducedMotion ? 0 : Math.sign(lateral) * clamp((Math.abs(lateral) - 6) * 0.016, 0, 0.2);
+        const steerTarget = clamp(Math.atan(WHEEL_BASE * state.curvature) * (Math.abs(state.speed) > 0.3 ? 1 : 0) - slipTarget * 0.8, -0.55, 0.55);
+        const rollTarget = clamp(-lateral * 0.0034, -0.055, 0.055);
+        const pitchTarget = clamp(state.accel * 0.0017, -0.04, 0.03);
+        state.steer = lerp(state.steer, steerTarget, damp(9, delta));
+        state.slip = lerp(state.slip, slipTarget, damp(5, delta));
+        state.roll = lerp(state.roll, rollTarget, damp(6, delta));
+        state.pitch2 = lerp(state.pitch2, pitchTarget, damp(6, delta));
+        body.rotation.set(state.pitch2, state.slip, state.roll);
+        for (const wheel of rig.wheels) {
+            if (wheel.front) {
+                wheel.pivot.rotation.y = state.steer;
             }
         }
-        lastU = u;
     };
 
     const signLook = new THREE.Vector3();
@@ -1185,14 +1240,15 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         const outro = smooth(1 - lead, 1, p);
         const free = 1 - state.focus;
         // Azimut autour de la voiture (0 = derrière) : 3/4 avant → chasse → profil
-        const azimuth = lerp(2.3, 0.3, intro) + lerp(0, 1.25, outro) + state.yaw * free;
+        const azimuth = lerp(2.3, 0.3, intro) + lerp(0, 1.25, outro) + (state.yaw + state.orbit) * free;
         let distance = lerp(9.2, 8.4, intro) - 1.2 * outro;
         if (isPortrait()) {
             // Écran étroit : on recule jusqu'à ce que la voiture (≈ 4,7 u de long) tienne en entier dans la largeur.
             const fit = CAR_FRAME_WIDTH / (Math.tan((PORTRAIT_FOV * Math.PI) / 360) * Math.max(camera.aspect, 0.3));
             distance = Math.max(distance, fit);
         }
-        const height = clamp(lerp(1.7, 2.5, intro) + state.pitch * free, 0.5, 6);
+        const bob = Math.sin(state.elapsed * 0.35) * 0.35 * clamp(state.orbitRate / ORBIT_SPEED, 0, 1);
+        const height = clamp(lerp(1.7, 2.5, intro) + state.pitch * free + bob * free, 0.5, 6);
 
         const rear = tangent.clone().multiplyScalar(-1);
         rear.applyAxisAngle(up, azimuth);
@@ -1221,8 +1277,8 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         }
         camera.lookAt(smoothedLook);
 
-        const kick = clamp(Math.abs(state.velocity) * 60, 0, 1);
-        camera.fov = lerp(camera.fov, fov + kick * 7 * free, damp(5, delta));
+        const kick = clamp(Math.abs(state.speed) / MAX_SPEED, 0, 1);
+        camera.fov = lerp(camera.fov, fov + kick * 5 * free, damp(5, delta));
         camera.updateProjectionMatrix();
         frameView();
     };
@@ -1318,33 +1374,159 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         });
     };
 
+    // Fumée : un petit lot de sprites réutilisés (budget réduit sur mobile), émis par les roues arrière.
+    const SMOKE_COUNT = compact ? 24 : 64;
+    const smokeTexture = canvasTexture(64, 64, (ctx) => {
+        const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(255,255,255,0.9)');
+        gradient.addColorStop(0.5, 'rgba(255,255,255,0.35)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 64, 64);
+    });
+    interface Puff {
+        sprite: THREE.Sprite;
+        life: number;
+        duration: number;
+        velocity: THREE.Vector3;
+        from: number;
+        to: number;
+        alpha: number;
+    }
+    const puffs: Puff[] = Array.from({ length: SMOKE_COUNT }, () => {
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTexture, color: '#c9c2c4', transparent: true, depthWrite: false, opacity: 0 }));
+        sprite.visible = false;
+        scene.add(sprite);
+        return { sprite, life: 0, duration: 1, velocity: new THREE.Vector3(), from: 0.4, to: 2, alpha: 0.3 };
+    });
+    let puffCursor = 0;
+    let emitBudget = 0;
+    const rearWheels = rig.wheels.filter((wheel) => !wheel.front);
+    const wheelWorld = new THREE.Vector3();
+    const backward = new THREE.Vector3();
+
+    const emitSmoke = (delta: number, intensity: number): void => {
+        emitBudget += intensity * (compact ? 22 : 40) * delta;
+        backward.copy(tangent).negate();
+        while (emitBudget >= 1 && rearWheels.length > 0) {
+            emitBudget -= 1;
+            const wheel = rearWheels[puffCursor % rearWheels.length];
+            const puff = puffs[puffCursor % puffs.length];
+            puffCursor++;
+            if (!wheel || !puff) {
+                break;
+            }
+            wheelWorld.copy(wheel.pivot.position).setY(0.12);
+            body.localToWorld(wheelWorld);
+            puff.sprite.position.copy(wheelWorld);
+            puff.velocity.set((Math.random() - 0.5) * 1.2, 0.5 + Math.random() * 0.8, (Math.random() - 0.5) * 1.2).addScaledVector(backward, state.speed * 0.12);
+            puff.duration = puff.life = 0.9 + Math.random() * 0.8;
+            puff.from = 0.35 + Math.random() * 0.25;
+            puff.to = 1.6 + intensity * 1.4 + Math.random() * 0.8;
+            puff.alpha = 0.18 + 0.3 * Math.min(intensity, 1);
+            puff.sprite.visible = true;
+        }
+    };
+    const updateSmoke = (delta: number): void => {
+        for (const puff of puffs) {
+            if (puff.life <= 0) {
+                continue;
+            }
+            puff.life -= delta;
+            if (puff.life <= 0) {
+                puff.sprite.visible = false;
+                continue;
+            }
+            const t = 1 - puff.life / puff.duration;
+            puff.sprite.position.addScaledVector(puff.velocity, delta);
+            puff.velocity.multiplyScalar(Math.exp(-1.6 * delta));
+            puff.sprite.scale.setScalar(lerp(puff.from, puff.to, t));
+            puff.sprite.material.opacity = puff.alpha * (1 - t) * smooth(0, 0.12, t);
+        }
+    };
+
+    const updateSpeedo = (): void => {
+        if (!speedo) {
+            return;
+        }
+        const kmh = Math.round(Math.abs(state.speed) * 3.6);
+        if (kmh !== shownKmh) {
+            shownKmh = kmh;
+            if (speedoValue) {
+                speedoValue.textContent = String(kmh);
+            }
+        }
+        state.kmh = lerp(state.kmh, Math.abs(state.speed) * 3.6, 0.3);
+        speedo.style.setProperty('--speed', clamp(state.kmh / GAUGE_MAX_KMH, 0, 1).toFixed(3));
+    };
+
+    let previousTarget = 0;
     const update = (delta: number): void => {
         state.elapsed += delta;
         state.target = scrollProgress();
-        const previous = state.progress;
+        const scrolled = Math.abs(state.target - previousTarget) > 0.00002;
+        previousTarget = state.target;
+
         if (reducedMotion) {
             state.progress = state.target;
+            state.along = paceAt(state.progress).along;
+            state.speed = 0;
+            state.accel = 0;
         } else {
-            // La progression rattrape le défilement avec une vitesse plafonnée : la voiture ne s'échappe jamais de l'écran.
-            const limit = MAX_PROGRESS_SPEED * delta;
+            // La progression suit le défilement (plafonnée) et ralentit tant que la voiture est en retard sur sa cible.
+            const lag = Math.abs(paceAt(state.progress).along - state.along);
+            const limit = MAX_PROGRESS_SPEED * delta * (1 - smooth(0.06, 0.25, lag));
             state.progress += clamp((state.target - state.progress) * damp(5, delta), -limit, limit);
+
+            // La voiture rejoint sa cible avec une vitesse, une accélération et un freinage bornés : elle s'arrête à l'arrivée
+            // et ne continue jamais seule.
+            const distance = (paceAt(state.progress).along - state.along) * alongToMeters;
+            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.6 * Math.abs(distance));
+            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 2.5, brakingSpeed);
+            const previousSpeed = state.speed;
+            state.speed += clamp(wanted - state.speed, -BRAKING * delta, ACCELERATION * delta);
+            if (Math.abs(distance) < 0.02 && Math.abs(state.speed) < 0.1) {
+                state.speed = 0;
+            }
+            state.accel = lerp(state.accel, (state.speed - previousSpeed) / Math.max(delta, 0.001), damp(8, delta));
+            state.along += (state.speed * delta) / alongToMeters;
         }
-        state.velocity = lerp(state.velocity, (state.progress - previous) / Math.max(delta, 0.001), damp(6, delta)) / 60;
         if (!state.dragging) {
             state.yaw *= 1 - damp(0.9, delta);
             state.pitch *= 1 - damp(1.2, delta);
         }
 
+        // Caméra au repos : orbite lente après un court délai sans défilement ni interaction, reprise douce dès que l'on bouge.
         const pace = paceAt(state.progress);
-        state.along = pace.along;
         state.focus = pace.focus;
         state.focusIndex = pace.index;
+        if (scrolled || state.dragging || Math.abs(state.speed) > 0.5) {
+            state.idle = 0;
+        } else {
+            state.idle += delta;
+        }
+        const orbiting = !reducedMotion && state.idle > ORBIT_DELAY && state.focus < 0.05;
+        state.orbitRate = lerp(state.orbitRate, orbiting ? ORBIT_SPEED : 0, damp(orbiting ? 0.8 : 3, delta));
+        state.orbit = wrapAngle(state.orbit + state.orbitRate * delta);
+        if (!orbiting) {
+            state.orbit *= 1 - damp(1.6, delta);
+        }
 
-        placeCar();
+        state.curvature = lerp(state.curvature, curvatureAt(U_START + state.along * U_SPAN), damp(10, delta));
+
+        placeCar(delta);
         placeCamera(delta);
         updateLights();
         updateSteps();
+        updateSpeedo();
         updateShooters(delta);
+
+        // Fumée : dérapage marqué, forte accélération, freinage appuyé.
+        const slide = clamp((Math.abs(state.slip) - 0.02) / 0.12, 0, 1);
+        const launch = clamp((state.accel - 5) / 9, 0, 1) * clamp(1 - Math.abs(state.speed) / 18, 0, 1);
+        const brake = clamp((-state.accel - 12) / 8, 0, 1) * clamp(Math.abs(state.speed) / 14, 0, 1);
+        emitSmoke(delta, Math.max(slide, launch * 0.8, brake * 0.6));
+        updateSmoke(delta);
     };
 
     const render = (): void => {
@@ -1391,6 +1573,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         moonMaterial.blending = palette.moonAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
         moonMaterial.opacity = palette.moonOpacity;
         moonMaterial.needsUpdate = true;
+        puffs.forEach((puff) => puff.sprite.material.color.set(isLightTheme() ? '#6f686a' : '#c9c2c4'));
         hemi.color.set(palette.hemiSky);
         hemi.groundColor.set(palette.hemiGround);
         hemi.intensity = palette.hemiIntensity;
