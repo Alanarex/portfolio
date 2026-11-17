@@ -222,6 +222,10 @@ docker compose -f compose.prod.yaml up -d --force-recreate caddy
 **Pour durcir encore** : si ton IP est fixe, ajoute dans le bloc `db.{$APP_DOMAIN}` du Caddyfile
 `@interdit not remote_ip TON.IP.ICI` suivi de `respond @interdit 403`, avant `basic_auth`.
 
+## Sécurité
+
+Protections applicatives, réglages Caddy/Nginx, ce qui relève de Cloudflare / du pare-feu et variables d'environnement : voir [security.md](security.md).
+
 ## Commandes utiles
 
 ```bash

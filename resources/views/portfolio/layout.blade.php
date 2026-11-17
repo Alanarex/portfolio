@@ -40,7 +40,7 @@
     <link rel="alternate" hreflang="en" href="{{ $enUrl }}">
     <link rel="alternate" hreflang="x-default" href="{{ $frUrl }}">
     <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
-    <script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         (function () {
             var root = document.documentElement;
             root.classList.remove('no-js');
@@ -78,7 +78,7 @@
 <body class="public-portfolio" data-analytics-driver="null">
     <a href="#main-content" class="skip-link">{{ __('portfolio.skip') }}</a>
     <div class="lang-wipe" aria-hidden="true"><span></span></div>
-    <script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         (function () {
             var label = document.documentElement.getAttribute('data-wipe');
             if (label) {

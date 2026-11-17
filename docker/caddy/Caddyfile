@@ -1,6 +1,16 @@
 # HTTPS is obtained and renewed automatically from Let's Encrypt for APP_DOMAIN.
 {
     email {$ACME_EMAIL}
+
+    # Délais serveur contre les connexions lentes (Slowloris) : en-têtes et corps doivent arriver vite.
+    servers {
+        timeouts {
+            read_header 10s
+            read_body 30s
+            write 90s
+            idle 2m
+        }
+    }
 }
 
 {$APP_DOMAIN} {
@@ -19,11 +29,25 @@
             header Content-Type model/gltf-binary
         }
     }
+    # Taille maximale d'une requête (le téléversement le plus lourd du CMS reste sous 16 Mo, Nginx coupe aussi à 16 Mo).
+    request_body {
+        max_size 20MB
+    }
+    # La CSP et les autres en-têtes applicatifs sont émis par Laravel (nonce par requête) ; ici, le socle commun,
+    # appliqué aussi aux erreurs 502/503 générées par Caddy. `header` remplace la valeur de l'amont : pas de doublon.
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
         -Server
     }
-    reverse_proxy web:80
+    reverse_proxy web:80 {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 60s
+        }
+    }
 }
 
 www.{$APP_DOMAIN} {
