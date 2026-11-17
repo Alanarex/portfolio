@@ -96,7 +96,7 @@ body:has(.hero) .site-header { margin-bottom: calc(var(--header-h) * -1); }
 
 .hero__content { container-type: inline-size; }
 .hero h1 { max-width: none; margin-block: var(--space-4) var(--space-5); font-size: clamp(1.4rem, 9.2cqi, 7rem); overflow-wrap: normal; }
-.hero h1 .stroke { font-size: 0.74em; }
+.hero h1 .stroke { max-width: 100%; font-size: 0.72em; }
 
 @media (width >= 64rem) {
     .hero__grid { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
