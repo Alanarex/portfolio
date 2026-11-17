@@ -93,12 +93,62 @@
 .alert { padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--color-border); }
 .alert--success { color: var(--color-success); background: var(--color-success-surface); box-shadow: none; }
 
-/* Positionnement */
-.about { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-7); align-items: center; }
-.about__text { margin-top: var(--space-5); }
-.about .tag-row { margin-top: var(--space-5); }
-.about__card { display: grid; gap: var(--space-4); max-width: 22rem; padding: var(--space-4); }
-.about__card img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); }
+/* Positionnement : nom géant derrière la photo, anneau de graduations autour (statique) */
+.about { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-7); align-items: start; margin-top: var(--space-7); }
+.about__text { max-width: 40rem; }
+
+.stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin-top: var(--space-6);
+    container-type: inline-size;
+    isolation: isolate;
+}
+
+.stage__name {
+    grid-area: 1 / 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 9.6cqi;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-text);
+}
+
+.stage__photo {
+    grid-area: 1 / 1;
+    display: block;
+    width: clamp(7.5rem, 24cqi, 20rem);
+    margin-block: 6cqi;
+    z-index: 1;
+}
+
+.stage__photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--color-surface);
+    clip-path: polygon(0 6%, 10% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Anneau : traits répartis en cercle, vus seulement sur une fine couronne */
+.stage__ring {
+    grid-area: 1 / 1;
+    width: min(100%, 48cqi);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-conic-gradient(rgb(var(--ink-rgb) / 34%) 0 0.22deg, transparent 0.22deg 2.4deg);
+    mask: radial-gradient(circle, transparent 0 calc(50% - 0.7rem), #000 calc(50% - 0.7rem) 100%);
+    z-index: -1;
+}
+
+@container (width < 30rem) {
+    .stage__name { font-size: 8.4cqi; }
+    .stage__photo { width: 27cqi; }
+}
 .facts { display: grid; gap: var(--space-3); margin: 0; }
 .facts div { display: grid; gap: 0.15rem; }
 .facts dd { margin: 0; font-weight: 600; }

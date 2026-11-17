@@ -20,5 +20,6 @@ final class ProfileCache
         foreach (self::LOCALES as $locale) {
             Cache::forget(self::key($locale));
         }
+        Cache::forget(PublishedPortrait::CACHE_KEY);
     }
 }

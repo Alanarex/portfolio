@@ -64,7 +64,7 @@ function init(terminal: HTMLElement): void {
         .map((element) => ({ id: element.id, title: clean(document.getElementById(element.getAttribute('aria-labelledby') ?? '')?.textContent), element }));
     let cwd: Section | null = null;
     const path = (): string => (cwd ? `${HOME}/${cwd.id}` : HOME);
-    const barTitle = terminal.querySelector<HTMLElement>('.terminal__bar span');
+    const barTitle = terminal.querySelector<HTMLElement>('.terminal__bar .mono');
 
     // Résout un argument de chemin : `null` = racine, `undefined` = introuvable.
     function resolve(arg: string): Section | null | undefined {
@@ -383,40 +383,91 @@ function init(terminal: HTMLElement): void {
     input.classList.add('terminal__input--block');
     syncCursor();
 
-    // Fenêtre déplaçable (barre de titre : souris, tactile, flèches) et redimensionnable (poignée native en bas à droite).
-    // La propriété `translate` évite tout conflit avec l'animation d'apparition (`transform`).
+    // Fenêtre flottante façon application : position fixe dans l'écran (indépendante du défilement),
+    // déplaçable par la barre de titre, redimensionnable par les bords et coins, réductible par le bouton
+    // de la barre ou par le bouton d'ancrage en bas à droite.
+    const MIN_W = 272;
+    const MIN_H = 168;
+    const MARGIN = 8;
     const bar = terminal.querySelector<HTMLElement>('.terminal__bar');
-    let x = 0;
-    let y = 0;
-    const place = (nx: number, ny: number): void => {
+    const launcher = document.querySelector<HTMLButtonElement>('[data-terminal-launch]');
+    const minimize = terminal.querySelector<HTMLButtonElement>('[data-terminal-minimize]');
+    type Box = { left: number; top: number; w: number; h: number };
+    let placed = false;
+    if (launcher) {
+        launcher.hidden = false;
+    }
+
+    const apply = (next: Box): void => {
+        const w = Math.min(Math.max(MIN_W, next.w), window.innerWidth - MARGIN * 2);
+        const h = Math.min(Math.max(MIN_H, next.h), window.innerHeight - MARGIN * 2);
+        const left = Math.min(Math.max(MARGIN, next.left), window.innerWidth - w - MARGIN);
+        const top = Math.min(Math.max(MARGIN, next.top), window.innerHeight - h - MARGIN);
+        terminal.style.width = `${Math.round(w)}px`;
+        terminal.style.height = `${Math.round(h)}px`;
+        terminal.style.left = `${Math.round(left)}px`;
+        terminal.style.top = `${Math.round(top)}px`;
+    };
+    const box = (): Box => {
         const rect = terminal.getBoundingClientRect();
-        const docTop = rect.top + window.scrollY - y;
-        const docLeft = rect.left - x;
-        const minX = 64 - (docLeft + rect.width);
-        const maxX = window.innerWidth - 64 - docLeft;
-        x = Math.min(maxX, Math.max(minX, nx));
-        y = Math.min(document.documentElement.scrollHeight - 48 - docTop, Math.max(-docTop, ny));
-        terminal.style.translate = x === 0 && y === 0 ? '' : `${Math.round(x)}px ${Math.round(y)}px`;
-        terminal.classList.toggle('terminal--moved', x !== 0 || y !== 0);
+
+        return { left: rect.left, top: rect.top, w: rect.width, h: rect.height };
+    };
+    // Première ouverture : la fenêtre apparaît au-dessus du bouton d'ancrage.
+    const placeInitial = (): void => {
+        const w = Math.min(560, window.innerWidth - MARGIN * 2);
+        const h = Math.min(400, window.innerHeight - 96);
+        apply({ left: window.innerWidth - w - 24, top: window.innerHeight - h - 84, w, h });
+        placed = true;
     };
 
+    const setOpen = (open: boolean, focus = false): void => {
+        terminal.hidden = !open;
+        launcher?.setAttribute('aria-expanded', String(open));
+        launcher?.classList.toggle('terminal-launch--active', open);
+        if (open) {
+            if (!placed) {
+                placeInitial();
+            }
+            if (focus) {
+                input.focus({ preventScroll: true });
+            }
+        } else if (terminal.contains(document.activeElement)) {
+            launcher?.focus({ preventScroll: true });
+        }
+    };
+    launcher?.addEventListener('click', () => setOpen(terminal.hidden, true));
+    minimize?.addEventListener('click', () => setOpen(false));
+    terminal.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !terminal.hidden) {
+            setOpen(false);
+        }
+    });
+    window.addEventListener('resize', () => {
+        if (placed && !terminal.hidden) {
+            apply(box());
+        }
+    });
+
     if (bar) {
-        bar.setAttribute('role', 'button');
-        bar.setAttribute('tabindex', '0');
-        bar.setAttribute('aria-label', t.move ?? '');
-        let start: { px: number; py: number; x: number; y: number } | null = null;
+        // Le bouton réduire est dans la barre : le rôle « bouton » et le focus clavier vont sur le titre pour éviter l'imbrication.
+        const grip = barTitle ?? bar;
+        grip.setAttribute('role', 'button');
+        grip.setAttribute('tabindex', '0');
+        grip.setAttribute('aria-label', t.move ?? '');
+        let start: { px: number; py: number; from: Box } | null = null;
 
         bar.addEventListener('pointerdown', (event) => {
-            if (event.button !== 0) {
+            if (event.button !== 0 || (event.target as HTMLElement).closest('[data-terminal-minimize]')) {
                 return;
             }
-            start = { px: event.clientX, py: event.clientY, x, y };
+            start = { px: event.clientX, py: event.clientY, from: box() };
             bar.setPointerCapture(event.pointerId);
             terminal.classList.add('terminal--dragging');
         });
         bar.addEventListener('pointermove', (event) => {
             if (start) {
-                place(start.x + event.clientX - start.px, start.y + event.clientY - start.py);
+                apply({ ...start.from, left: start.from.left + event.clientX - start.px, top: start.from.top + event.clientY - start.py });
             }
         });
         const stop = (): void => {
@@ -425,45 +476,27 @@ function init(terminal: HTMLElement): void {
         };
         bar.addEventListener('pointerup', stop);
         bar.addEventListener('pointercancel', stop);
-        bar.addEventListener('dblclick', () => place(0, 0));
-        bar.addEventListener('keydown', (event) => {
+        bar.addEventListener('dblclick', (event) => {
+            if (!(event.target as HTMLElement).closest('[data-terminal-minimize]')) {
+                placeInitial();
+            }
+        });
+        grip.addEventListener('keydown', (event) => {
             const step = event.shiftKey ? 48 : 16;
             const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
-            if (event.altKey && moves[event.key]) {
+            const move = moves[event.key];
+            if (move) {
                 event.preventDefault();
-                pin();
-                const [mx, my] = moves[event.key]!;
-                resize('se', box(), mx, my);
+                const now = box();
+                apply(event.altKey ? { ...now, w: now.w + move[0], h: now.h + move[1] } : { ...now, left: now.left + move[0], top: now.top + move[1] });
             } else if (event.key === 'Home') {
                 event.preventDefault();
-                place(0, 0);
-            } else if (moves[event.key]) {
-                event.preventDefault();
-                place(x + moves[event.key]![0], y + moves[event.key]![1]);
+                placeInitial();
             }
         });
     }
 
     // Redimensionnement par les 4 bords et les 4 coins (poignées invisibles, souris et tactile).
-    const MIN_W = 272;
-    const MIN_H = 168;
-    // Au premier redimensionnement, la fenêtre cesse d'être centrée dans sa colonne : son coin haut-gauche reste en place.
-    const pin = (): void => {
-        if (terminal.classList.contains('terminal--sized')) {
-            return;
-        }
-        const before = terminal.getBoundingClientRect();
-        terminal.classList.add('terminal--sized');
-        const after = terminal.getBoundingClientRect();
-        place(x + before.left - after.left, y + before.top - after.top);
-    };
-    // Position et taille de la fenêtre en coordonnées de document.
-    type Box = { left: number; top: number; w: number; h: number };
-    const box = (): Box => {
-        const rect = terminal.getBoundingClientRect();
-
-        return { left: rect.left + window.scrollX, top: rect.top + window.scrollY, w: rect.width, h: rect.height };
-    };
     const resize = (dir: string, from: Box, dx: number, dy: number): void => {
         let { left, top, w, h } = from;
         if (dir.includes('e')) {
@@ -480,13 +513,7 @@ function init(terminal: HTMLElement): void {
             h = Math.max(MIN_H, from.h - dy);
             top = from.top + from.h - h;
         }
-        terminal.style.width = `${Math.round(w)}px`;
-        terminal.style.height = `${Math.round(h)}px`;
-        terminal.classList.add('terminal--sized');
-        // La mise en page (colonne centrée) déplace la fenêtre quand sa taille change : on la recale pour que
-        // seuls les bords saisis bougent, le bord opposé reste exactement en place.
-        const now = box();
-        place(x + left - now.left, y + top - now.top);
+        apply({ left, top, w, h });
     };
 
     ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach((dir) => {
@@ -498,7 +525,6 @@ function init(terminal: HTMLElement): void {
                 return;
             }
             event.preventDefault();
-            pin();
             const start = { px: event.clientX, py: event.clientY, from: box() };
             handle.setPointerCapture(event.pointerId);
             terminal.classList.add('terminal--dragging');

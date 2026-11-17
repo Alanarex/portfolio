@@ -86,7 +86,6 @@
             }
         })();
     </script>
-    @include('portfolio.partials.gauge-defs')
     <div class="scroll-progress" aria-hidden="true"></div>
 
     @if (($page ?? 'home') === 'home')

@@ -1,5 +1,8 @@
 @import url("@fontsource-variable/inter");
-@import url("@fontsource-variable/space-grotesk");
+@import url("@fontsource/orbitron/400.css");
+@import url("@fontsource/orbitron/500.css");
+@import url("@fontsource/orbitron/600.css");
+@import url("@fontsource/orbitron/700.css");
 @import url("@fontsource-variable/jetbrains-mono");
 @import url("./public/tokens.css");
 @import url("./public/base.css");

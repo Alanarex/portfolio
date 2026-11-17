@@ -13,8 +13,9 @@
     --white-smoke: #f5f3f4;
 
     /* Typographie (polices auto-hébergées) */
-    --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-display: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Orbitron", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Orbitron", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-outline: var(--font-display);
     --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", consolas, monospace;
 
     /* Ombres et rayons */
@@ -36,7 +37,7 @@
     --space-7: 3rem;
     --space-8: 5rem;
     --space-9: 7.5rem;
-    --content-width: 75rem;
+    --content-width: 100rem;
 
     /* Mouvement : une seule courbe pour tout le site */
     --ease: cubic-bezier(0.2, 0.7, 0.2, 1);

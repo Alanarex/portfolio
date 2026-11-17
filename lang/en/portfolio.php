@@ -50,6 +50,8 @@ return [
         'terminal_stack' => 'stack',
     ],
     'terminal' => [
+        'open' => 'Open the terminal',
+        'minimize' => 'Minimize the terminal',
         'label' => 'Interactive terminal',
         'input_label' => 'Terminal command',
         'move' => 'Move the terminal: drag the bar or use the arrow keys (Alt + arrows to resize); double-click or Home to put it back.',
@@ -315,7 +317,7 @@ return [
         'ip' => 'Intellectual property and credits',
         'ip_text' => 'Editorial content and site code belong to their author unless stated otherwise. Reproduction without permission is prohibited.',
         'credit_model' => '3D model: “:title” by :author, licensed :license, modified (simplified, colours changed).',
-        'credit_fonts' => 'Inter, Space Grotesk and JetBrains Mono fonts: SIL Open Font License 1.1.',
+        'credit_fonts' => 'Inter, Orbitron and JetBrains Mono fonts: SIL Open Font License 1.1.',
         'credit_libs' => 'Three.js and Lenis: MIT license.',
         'trademarks' => 'Trademarks mentioned belong to their respective owners; their presence implies no affiliation.',
         'back' => 'Back to home',

@@ -23,6 +23,17 @@ const U_SPAN = 0.93;
 const PAINT = new THREE.Color('#9b1217');
 const NIGHT = '#0b090a';
 
+// Deux ciels : nuit (fond onyx, étoiles claires) et jour (fond blanc, étoiles noires), selon le thème du site.
+const PALETTES = {
+    dark: { sky: NIGHT, ground: '#0a0809', shoulder: '#120f11', mountain: '#150f12', tree: '#0e1b14', trunk: '#1a1210', rock: '#1b1618', star: '#f5f3f4', starOpacity: 1, moon: '#e5383b', moonAdditive: true, moonOpacity: 0.7, hemiSky: '#7a86a0', hemiGround: '#1a0b0c', hemiIntensity: 0.4, fogNear: 30, fogFar: 150 },
+    light: { sky: '#f5f3f4', ground: '#cdc8c7', shoulder: '#bcb6b6', mountain: '#aba4a6', tree: '#6a7a70', trunk: '#5b4f4a', rock: '#9c9596', star: '#0b090a', starOpacity: 0.95, moon: '#0b090a', moonAdditive: false, moonOpacity: 0.1, hemiSky: '#ffffff', hemiGround: '#b8b1b2', hemiIntensity: 1.15, fogNear: 45, fogFar: 190 },
+} as const;
+
+const isLightTheme = (): boolean => {
+    const set = document.documentElement.dataset.theme;
+    return set === 'light' || (set !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+};
+
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const smooth = (edge0: number, edge1: number, value: number): number => {
     const t = clamp((value - edge0) / (edge1 - edge0), 0, 1);
@@ -707,8 +718,9 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     canvasHost.append(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(NIGHT);
-    scene.fog = new THREE.Fog(NIGHT, 30, 150);
+    const initialPalette = isLightTheme() ? PALETTES.light : PALETTES.dark;
+    scene.background = new THREE.Color(initialPalette.sky);
+    scene.fog = new THREE.Fog(initialPalette.sky, initialPalette.fogNear, initialPalette.fogFar);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -716,7 +728,9 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
 
-    scene.add(new THREE.HemisphereLight('#7a86a0', '#1a0b0c', 0.4));
+    const hemi = new THREE.HemisphereLight('#7a86a0', '#1a0b0c', 0.4);
+    scene.add(hemi);
+    const themedShoulders: THREE.MeshStandardMaterial[] = [];
     const rim = new THREE.DirectionalLight('#e5383b', 1.2);
     scene.add(rim, rim.target);
     const key = new THREE.DirectionalLight('#f5f3f4', 1.1);
@@ -766,10 +780,12 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
             1,
             { color: '#120f11', roughness: 1, metalness: 0 },
         );
+        themedShoulders.push(shoulder.material as THREE.MeshStandardMaterial);
         scene.add(shoulder);
     }
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshStandardMaterial({ color: '#0a0809', roughness: 1 }));
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: '#0a0809', roughness: 1 });
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.3;
     scene.add(ground);
@@ -838,8 +854,53 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         scene.add(mountain);
     }
 
+    // Sapins et rochers le long de la route : volumes instanciés (un appel de rendu par type)
+    const treeCount = compact ? 70 : 170;
+    const treeMaterial = new THREE.MeshStandardMaterial({ color: '#0e1b14', roughness: 1, flatShading: true });
+    const trunkMaterial = new THREE.MeshStandardMaterial({ color: '#1a1210', roughness: 1 });
+    const rockMaterial = new THREE.MeshStandardMaterial({ color: '#1b1618', roughness: 1, flatShading: true });
+    const foliage = new THREE.InstancedMesh(new THREE.ConeGeometry(1.3, 4.4, 7), treeMaterial, treeCount * 2);
+    const trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.12, 0.17, 1.4, 6), trunkMaterial, treeCount);
+    const rockCount = compact ? 30 : 80;
+    const rocks = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(0.7, 0), rockMaterial, rockCount);
+    const dummy = new THREE.Object3D();
+    const placeAside = (distance: number): { point: THREE.Vector3; side: number } => {
+        const t = Math.random();
+        const point = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        const side = Math.random() < 0.5 ? -1 : 1;
+        return { point: point.addScaledVector(right, side * distance), side };
+    };
+    for (let i = 0; i < treeCount; i++) {
+        const { point } = placeAside(sideOffset + 3 + Math.random() * 38);
+        const scale = 0.7 + Math.random() * 1.1;
+        dummy.rotation.set(0, Math.random() * Math.PI, 0);
+        dummy.scale.setScalar(scale);
+        dummy.position.set(point.x, 0.6 * scale - 0.3, point.z);
+        dummy.updateMatrix();
+        trunks.setMatrixAt(i, dummy.matrix);
+        dummy.position.y = 2.7 * scale - 0.3;
+        dummy.updateMatrix();
+        foliage.setMatrixAt(i * 2, dummy.matrix);
+        dummy.scale.setScalar(scale * 0.72);
+        dummy.position.y = 4.1 * scale - 0.3;
+        dummy.updateMatrix();
+        foliage.setMatrixAt(i * 2 + 1, dummy.matrix);
+    }
+    for (let i = 0; i < rockCount; i++) {
+        const { point } = placeAside(sideOffset + 1.5 + Math.random() * 14);
+        const scale = 0.4 + Math.random() * 1.1;
+        dummy.position.set(point.x, scale * 0.25 - 0.3, point.z);
+        dummy.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+        dummy.scale.set(scale * 1.4, scale * 0.8, scale);
+        dummy.updateMatrix();
+        rocks.setMatrixAt(i, dummy.matrix);
+    }
+    scene.add(trunks, foliage, rocks);
+
     // Ciel : étoiles et lune rouge qui suivent la caméra
-    const starCount = compact ? 600 : 1600;
+    const starCount = compact ? 900 : 2400;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i++) {
         const theta = Math.random() * Math.PI * 2;
@@ -851,18 +912,60 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const starGeometry = new THREE.BufferGeometry();
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     const sky = new THREE.Group();
-    sky.add(
-        new THREE.Points(
-            starGeometry,
-            new THREE.PointsMaterial({ color: '#f5f3f4', size: 1.1, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.85 }),
-        ),
-    );
-    const moon = new THREE.Sprite(
-        new THREE.SpriteMaterial({ map: makeGlowTexture('#e5383b'), blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0.7 }),
-    );
+    const starMaterial = new THREE.PointsMaterial({ color: '#f5f3f4', size: compact ? 2.8 : 3.4, sizeAttenuation: false, fog: false, transparent: true, opacity: 1 });
+    sky.add(new THREE.Points(starGeometry, starMaterial));
+    const moonRed = makeGlowTexture('#e5383b');
+    const moonInk = makeGlowTexture('#0b090a');
+    const moonMaterial = new THREE.SpriteMaterial({ map: moonRed, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0.7 });
+    const moon = new THREE.Sprite(moonMaterial);
     moon.position.set(-60, 90, -260);
     moon.scale.setScalar(110);
     sky.add(moon);
+
+    // Étoiles filantes : un trait qui traverse le ciel de temps en temps (désactivées si l'animation est réduite).
+    type Shooter = { geometry: THREE.BufferGeometry; material: THREE.LineBasicMaterial; life: number; duration: number; head: THREE.Vector3; dir: THREE.Vector3 };
+    const shooters: Shooter[] = reducedMotion
+        ? []
+        : [0, 1].map(() => {
+              const geometry = new THREE.BufferGeometry();
+              geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+              const material = new THREE.LineBasicMaterial({ color: '#f5f3f4', transparent: true, opacity: 0, fog: false, depthWrite: false });
+              const line = new THREE.Line(geometry, material);
+              line.frustumCulled = false;
+              sky.add(line);
+
+              return { geometry, material, life: 0, duration: 1, head: new THREE.Vector3(), dir: new THREE.Vector3() };
+          });
+    let nextShooter = 2;
+    const updateShooters = (delta: number): void => {
+        nextShooter -= delta;
+        if (nextShooter <= 0) {
+            const free = shooters.find((shooter) => shooter.life <= 0);
+            if (free) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = (0.14 + Math.random() * 0.26) * Math.PI;
+                free.head.set(270 * Math.sin(phi) * Math.cos(theta), 12 + 270 * Math.cos(phi), 270 * Math.sin(phi) * Math.sin(theta));
+                free.dir.set(Math.random() - 0.5, -0.35 - Math.random() * 0.3, Math.random() - 0.5).normalize();
+                free.duration = 0.8 + Math.random() * 0.5;
+                free.life = free.duration;
+            }
+            nextShooter = 3 + Math.random() * 5;
+        }
+        for (const shooter of shooters) {
+            if (shooter.life <= 0) {
+                continue;
+            }
+            shooter.life -= delta;
+            const t = clamp(1 - shooter.life / shooter.duration, 0, 1);
+            shooter.head.addScaledVector(shooter.dir, 130 * delta);
+            const tail = shooter.head.clone().addScaledVector(shooter.dir, -34);
+            const attribute = shooter.geometry.getAttribute('position') as THREE.BufferAttribute;
+            attribute.setXYZ(0, shooter.head.x, shooter.head.y, shooter.head.z);
+            attribute.setXYZ(1, tail.x, tail.y, tail.z);
+            attribute.needsUpdate = true;
+            shooter.material.opacity = Math.sin(t * Math.PI);
+        }
+    };
     scene.add(sky);
 
     // Panneaux : un par étape décrite dans le HTML (data-sign-card), posés au bord de la route.
@@ -1241,6 +1344,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         placeCamera(delta);
         updateLights();
         updateSteps();
+        updateShooters(delta);
     };
 
     const render = (): void => {
@@ -1263,6 +1367,40 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
             render();
         }
     };
+
+    // Thème clair ou sombre : ciel, brouillard, sol, relief et étoiles suivent le choix du visiteur.
+    const applyTheme = (): void => {
+        const palette = isLightTheme() ? PALETTES.light : PALETTES.dark;
+        (scene.background as THREE.Color).set(palette.sky);
+        const fog = scene.fog as THREE.Fog;
+        fog.color.set(palette.sky);
+        fog.near = palette.fogNear;
+        fog.far = palette.fogFar;
+        groundMaterial.color.set(palette.ground);
+        for (const material of themedShoulders) {
+            material.color.set(palette.shoulder);
+        }
+        mountainMaterial.color.set(palette.mountain);
+        treeMaterial.color.set(palette.tree);
+        trunkMaterial.color.set(palette.trunk);
+        rockMaterial.color.set(palette.rock);
+        starMaterial.color.set(palette.star);
+        starMaterial.opacity = palette.starOpacity;
+        shooters.forEach((shooter) => shooter.material.color.set(palette.star));
+        moonMaterial.map = palette.moonAdditive ? moonRed : moonInk;
+        moonMaterial.blending = palette.moonAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
+        moonMaterial.opacity = palette.moonOpacity;
+        moonMaterial.needsUpdate = true;
+        hemi.color.set(palette.hemiSky);
+        hemi.groundColor.set(palette.hemiGround);
+        hemi.intensity = palette.hemiIntensity;
+        wake();
+    };
+    applyTheme();
+    const themeObserver = new MutationObserver(applyTheme);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const schemeQuery = window.matchMedia('(prefers-color-scheme: light)');
+    schemeQuery.addEventListener('change', applyTheme);
 
     const resize = (): void => {
         const width = Math.max(canvasHost.clientWidth, 1);

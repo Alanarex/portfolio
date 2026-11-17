@@ -72,7 +72,6 @@
 <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
     <div class="container hero__grid">
         <div class="hero__content">
-            <p class="eyebrow" data-reveal style="--i: 1">{{ __('portfolio.hero.eyebrow') }}</p>
             <h1 id="hero-title" data-reveal style="--i: 2">{{ $titleLead }}@if ($titleTech) <span class="stroke" data-text="{{ $titleTech }}">{{ $titleTech }}</span>@endif</h1>
             <p class="lede" data-reveal style="--i: 3">{{ $profile?->summary ?? __('portfolio.hero.summary_fallback') }}</p>
             <div class="actions" data-reveal style="--i: 4">
@@ -124,9 +123,27 @@
                 'text' => __('portfolio.terminal'),
             ];
         @endphp
-        <div class="hero__terminal terminal theme-dark" data-reveal style="--i: 3" aria-hidden="true" data-terminal>
+        <figure class="hero__portrait" data-reveal style="--i: 3">
+            <span class="hero__ring" aria-hidden="true"></span>
+            @inject('publishedPortrait', \Modules\Profile\Infrastructure\PublishedPortrait::class)
+            @php
+                $customPortrait = $publishedPortrait->url();
+            @endphp
+            <picture class="hero__photo">
+                @if ($customPortrait)
+                    <img src="{{ $customPortrait }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+                @else
+                    <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 24rem">
+                    <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" decoding="async" fetchpriority="high">
+                @endif
+            </picture>
+        </figure>
+    </div>
+</section>
+
+        <div id="terminal-window" class="terminal terminal--window theme-dark" aria-hidden="true" hidden data-terminal>
             <script type="application/json" data-terminal-data>{!! json_encode($terminalData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
-            <div class="terminal__bar"><i></i><i></i><i></i><span class="mono">~/portfolio</span></div>
+            <div class="terminal__bar"><button type="button" class="terminal__min" data-terminal-minimize aria-label="{{ __('portfolio.terminal.minimize') }}"><span aria-hidden="true"></span></button><span class="mono">~/portfolio</span></div>
             <div class="terminal__body mono">
                 <p class="terminal__line" style="--d: 0.5s"><span class="terminal__prompt">$</span> <span class="terminal__cmd" style="--n: {{ strlen($terminalCommands[0]) }}">{{ $terminalCommands[0] }}</span></p>
                 <p class="terminal__line terminal__out" style="--d: 1.7s"><span>{{ __('portfolio.hero.terminal_role') }}</span> {{ $terminalRole }}</p>
@@ -148,47 +165,15 @@
                 </form>
             </div>
         </div>
-    </div>
-</section>
 
-<section class="section" id="positionnement" aria-labelledby="positioning-title">
-    <div class="container about">
-        <div>
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.positioning_kicker') }}</p>
-            <h2 id="positioning-title" class="statement" data-scroll-reveal>{{ __('portfolio.sections.positioning') }}</h2>
-            @if ($profile)
-                <p class="lede about__text" data-scroll-reveal>{{ $profile->biography }}</p>
-                @if ($profile->professionalTitles !== [])
-                    <ul class="tag-row" aria-label="{{ __('portfolio.sections.positioning') }}" data-scroll-reveal>
-                        @foreach ($profile->professionalTitles as $professionalTitle)
-                            <li class="chip">{{ $professionalTitle }}</li>
-                        @endforeach
-                    </ul>
-                @endif
-            @else
-                <p class="state">{{ __('portfolio.profile.unavailable') }}</p>
-            @endif
-        </div>
-        <aside class="about__card card" data-scroll-reveal aria-label="{{ __('portfolio.hero.portrait_alt') }}">
-            <picture>
-                <source type="image/webp" srcset="{{ asset('assets/brand/portrait-hero-320.webp') }} 320w, {{ asset('assets/brand/portrait-hero-640.webp') }} 640w" sizes="(max-width: 760px) 70vw, 320px">
-                <img src="{{ asset('assets/brand/portrait-hero-640.webp') }}" width="640" height="800" alt="{{ __('portfolio.hero.portrait_alt') }}" loading="lazy" decoding="async">
-            </picture>
-            @if ($profile)
-                <dl class="facts">
-                    @if ($profile->location)<div><dt class="mono">{{ __('portfolio.profile.location') }}</dt><dd>{{ $profile->location }}</dd></div>@endif
-                    @if ($profile->availability)<div><dt class="mono">{{ __('portfolio.profile.availability') }}</dt><dd>{{ $profile->availability }}</dd></div>@endif
-                    <div><dt class="mono">{{ __('portfolio.profile.projects_count') }}</dt><dd>{{ $projectsCount }}</dd></div>
-                </dl>
-            @endif
-        </aside>
-    </div>
-</section>
+<button type="button" class="terminal-launch" hidden data-terminal-launch aria-controls="terminal-window" aria-expanded="false" aria-label="{{ __('portfolio.terminal.open') }}">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="m7 9.5 3 2.5-3 2.5M12.5 15h4.5"/></svg>
+</button>
+
 
 @if (($posts ?? []) !== [])
     <section id="actualites" class="section" aria-labelledby="posts-title" style="padding-top: 0">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.posts_kicker') }}</p>
             <h2 id="posts-title" data-scroll-reveal>{{ __('portfolio.sections.posts') }}</h2>
             <ol class="posts">
                 @foreach ($posts as $post)
@@ -212,7 +197,6 @@
     <div class="container">
         <div class="section-heading">
             <div>
-                <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.projects_intro') }}</p>
                 <h2 id="projects-title" data-scroll-reveal>{{ __('portfolio.sections.projects') }}</h2>
             </div>
             <a class="button button--ghost" href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}"><span>{{ __('portfolio.sections.all_projects') }}</span><span class="button__arrow" aria-hidden="true">→</span></a>
@@ -244,23 +228,27 @@
 @if ($proofItems !== [])
     <section class="section proof" id="preuves" aria-labelledby="proof-title">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.metrics_intro') }}</p>
             <h2 id="proof-title" data-scroll-reveal>{{ __('portfolio.sections.metrics') }}</h2>
-            <ol class="strips strips--proof">
+            <div class="figures">
                 @foreach ($proofItems as $metric)
-                    <li class="strip" data-scroll-reveal data-pr>
-                        <span class="strip__code mono" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                    @php
+                        $numberPattern = '/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u';
+                        preg_match_all($numberPattern, $metric, $numberMatches);
+                        $figure = $numberMatches[0] === [] ? null : end($numberMatches[0]);
+                    @endphp
+                    <figure class="figure" data-scroll-reveal>
+                        @if ($figure)<p class="figure__value" aria-hidden="true">{{ $figure }}</p>@endif
                         {{-- Chiffres mis en valeur : le texte est échappé avant l'ajout des balises. --}}
-                        <div class="strip__body"><p class="proof__text">{!! preg_replace('/\d+(?:[.,]\d+)?(?:\s?(?:ms|%|secondes?|seconds?))?/u', '<b>$0</b>', e($metric)) !!}</p></div>
-                    </li>
+                        <figcaption class="figure__text">{!! preg_replace($numberPattern, '<b>$0</b>', e($metric)) !!}</figcaption>
+                    </figure>
                 @endforeach
-            </ol>
+            </div>
         </div>
     </section>
 @endif
 
 @if ($milestones->isNotEmpty())
-    <section class="journey theme-dark" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" data-model-bytes="{{ (int) @filesize(public_path('models/amg-gt-roadster.glb')) }}" @endif>
+    <section class="journey" id="experience" aria-labelledby="journey-title" style="--n: {{ $milestones->count() }}" @if ($threeDEnabled) data-three-preview data-state="poster" data-model-bytes="{{ (int) @filesize(public_path('models/amg-gt-roadster.glb')) }}" @endif>
         <div class="journey__stick">
             <div class="journey__stage" data-three-preview-canvas>
                 <div class="journey__poster" aria-hidden="true"><span class="three-preview__road"></span></div>
@@ -268,7 +256,6 @@
             <div class="journey__scrim" aria-hidden="true"></div>
             <div class="container journey__ui">
                 <div class="journey__copy">
-                    <p class="eyebrow">{{ __('portfolio.sections.experience_kicker') }}</p>
                     <h2 id="journey-title">{{ __('portfolio.sections.experience') }}</h2>
                     @if ($threeDEnabled)
                         <p class="lede journey__lede">{{ __('portfolio.three_d.intro') }}</p>
@@ -335,21 +322,20 @@
 @endif
 
 @if ($categories !== [])
-    <section class="skillmap theme-dark" id="competences" aria-labelledby="skills-title" data-skillmap style="--n: {{ $mapCount }}">
+    <section class="skillmap" id="competences" aria-labelledby="skills-title" data-skillmap style="--n: {{ $mapCount }}">
         <div class="skillmap__stick">
             <div class="container skillmap__inner">
                 <header class="skillmap__head">
-                    <p class="eyebrow">{{ __('portfolio.sections.strengths') }}</p>
                     <h2 id="skills-title">{{ __('portfolio.sections.skills') }}</h2>
                     <p class="lede"><span class="skillmap__lede-wide">{{ __('portfolio.sections.skills_intro') }}</span><span class="skillmap__lede-narrow">{{ __('portfolio.sections.skills_intro_touch') }}</span></p>
                 </header>
                 <div class="map">
                     <svg viewBox="0 0 1000 520" role="group" aria-label="{{ __('portfolio.map.label', ['count' => $mapCount]) }}">
                         <defs>
-                            <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1b1718"/></pattern>
+                            <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="currentColor" stroke-opacity="0.09"/></pattern>
                             <radialGradient id="map-beam" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
                         </defs>
-                        <rect width="1000" height="520" fill="url(#map-grid)"/>
+                        <rect x="-2000" width="5000" height="520" fill="url(#map-grid)"/>
                         <g class="map__relief" fill="none"><ellipse cx="180" cy="140" rx="150" ry="90"/><ellipse cx="180" cy="140" rx="100" ry="58"/><ellipse cx="820" cy="400" rx="170" ry="100"/><ellipse cx="820" cy="400" rx="110" ry="62"/><ellipse cx="560" cy="120" rx="90" ry="50"/></g>
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path class="map__kerb" d="{{ $mapPath }}"/>
@@ -402,7 +388,6 @@
 @if ($activityEnabled && (($githubActivity ?? null) || ($contributionGrid ?? null)))
     <section class="section" id="activite" aria-labelledby="activity-title" style="padding-top: 0">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.activity.kicker') }}</p>
             <h2 id="activity-title" data-scroll-reveal>{{ __('portfolio.sections.activity') }}</h2>
             @if ($contributionGrid ?? null)
                 @php
@@ -465,7 +450,6 @@
 @if ($certifications !== [] || $languages !== [])
     <section class="section" id="formation" aria-labelledby="education-title" style="padding-top: 0">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.education_kicker') }}</p>
             <h2 id="education-title" data-scroll-reveal>{{ __('portfolio.sections.education') }}</h2>
             <div class="credentials">
                 @if ($certifications !== [])
@@ -541,7 +525,6 @@
     @endphp
     <section class="section room theme-dark" id="atelier" aria-labelledby="room-title" data-room data-state="poster" data-room-label="{{ __('portfolio.room.canvas_label') }}" data-room-dialog-label="{{ __('portfolio.room.dialog_label') }}">
         <div class="container">
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.room.eyebrow') }}</p>
             <h2 id="room-title" data-scroll-reveal>{{ __('portfolio.room.title') }}</h2>
             <p class="lede" data-scroll-reveal>{{ __('portfolio.room.intro') }}</p>
             <div class="room__stage" data-room-stage>
@@ -584,26 +567,23 @@
 
 <section class="section" id="interets" aria-labelledby="interests-title" style="padding-top: 0">
     <div class="container">
-        <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.sections.interests_kicker') }}</p>
         <h2 id="interests-title" data-scroll-reveal>{{ __('portfolio.sections.interests') }}</h2>
         <p class="lede" data-scroll-reveal>{{ __('portfolio.sections.interests_intro') }}</p>
-        <ol class="strips">
+        <ul class="notes">
             @foreach (['aviation', 'cars', 'fishing'] as $interest)
-                <li class="strip" data-scroll-reveal data-live>
-                    <span class="strip__code mono">{{ __('portfolio.interests.'.$interest.'_code') }}</span>
-                    <div class="strip__body"><h3>{{ __('portfolio.interests.'.$interest) }}</h3><p>{{ __('portfolio.interests.'.$interest.'_text') }}</p></div>
-                    <span class="strip__ref mono" aria-hidden="true">LOG 0{{ $loop->iteration }}</span>
-                    <div class="strip__stage" aria-hidden="true">@include('portfolio.partials.interest-art', ['interest' => $interest])</div>
+                <li data-scroll-reveal>
+                    <span class="notes__code mono">{{ __('portfolio.interests.'.$interest.'_code') }}</span>
+                    <h3>{{ __('portfolio.interests.'.$interest) }}</h3>
+                    <p>{{ __('portfolio.interests.'.$interest.'_text') }}</p>
                 </li>
             @endforeach
-        </ol>
+        </ul>
     </div>
 </section>
 
 <section class="section" id="contact" aria-labelledby="contact-title" style="padding-top: 0">
     <div class="container contact">
         <div>
-            <p class="eyebrow" data-scroll-reveal>{{ __('portfolio.nav.contact') }}</p>
             <h2 id="contact-title" data-scroll-reveal>{{ __('portfolio.sections.contact') }}</h2>
             <p class="lede" data-scroll-reveal>{{ __('portfolio.sections.contact_intro') }}</p>
             @if ($settings?->email || $settings?->phone || ($settings?->socialLinks ?? []) !== [])

@@ -3,7 +3,6 @@
 @section('content')
 <article class="legal container" aria-labelledby="legal-title">
     <header>
-        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.legal.eyebrow') }}</p>
         <h1 id="legal-title" data-reveal style="--i: 1">{{ __('portfolio.legal.title') }}</h1>
         @if (! empty($legal['updated_at']))
             <p class="hint" data-reveal style="--i: 2">{{ __('portfolio.legal.updated', ['date' => $legal['updated_at']]) }}</p>

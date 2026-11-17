@@ -20,6 +20,8 @@ use Modules\Profile\Database\Factories\ProfileFactory;
  * @property bool $show_location
  * @property bool $show_availability
  * @property CarbonImmutable|null $published_at
+ * @property string|null $portrait_path
+ * @property string|null $portrait_checksum
  * @property-read Collection<int, ProfileTranslation> $translations
  * @property-read Collection<int, CvVersion> $cvVersions
  */

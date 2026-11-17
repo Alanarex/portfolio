@@ -1,7 +1,3 @@
-/* Résultats vérifiés : liste sobre (mêmes lignes que les centres d'intérêt), chiffres mis en valeur */
-.proof__text { margin: 0; color: var(--color-text); font-family: var(--font-display); font-size: clamp(1.1rem, 1.8vw, 1.35rem); line-height: 1.4; }
-.proof__text b { color: var(--color-accent-text); font-weight: 700; }
-
 /* Parcours : cartes d'étapes (liste complète par défaut, une carte à la fois avec la 3D) */
 .journey__stick { padding-block: var(--space-8); }
 
@@ -105,7 +101,7 @@ html:not(.js) [data-three-preview-load] { display: none; }
 
 .journey__hud-count { color: var(--color-text-soft); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
 .journey__dots { display: flex; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-.journey__dots li { width: 0.6rem; height: 0.6rem; border-radius: 1rem; background: rgb(255 255 255 / 25%); transition: width 500ms var(--ease), background 500ms var(--ease); }
+.journey__dots li { width: 0.6rem; height: 0.6rem; border-radius: 1rem; background: rgb(var(--ink-rgb) / 25%); transition: width 500ms var(--ease), background 500ms var(--ease); }
 .journey__dots li.is-done { background: var(--color-accent-light); }
 .journey__dots li.is-active { width: 2rem; background: var(--color-accent-light); box-shadow: 0 0 0.8rem var(--color-accent-light); }
 
@@ -125,15 +121,15 @@ html:not(.js) [data-three-preview-load] { display: none; }
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-lg);
-    background: #100d0e;
+    background: var(--color-bg-elevated);
     box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 .map svg { display: block; width: 100%; height: min(46svh, 34rem); }
-.map__relief { stroke: #1a1415; stroke-width: 1.5; }
-.map__kerb { stroke: #2a2527; stroke-width: 36; }
-.map__asphalt { stroke: #0f0c0d; stroke-width: 30; }
-.map__lane { stroke: #f5f3f4; stroke-dasharray: 12 12; stroke-opacity: 0.5; stroke-width: 2; }
+.map__relief { stroke: var(--color-line); stroke-width: 1.5; }
+.map__kerb { stroke: var(--color-border-strong); stroke-width: 36; }
+.map__asphalt { stroke: color-mix(in srgb, var(--color-text) 12%, var(--color-bg)); stroke-width: 30; }
+.map__lane { stroke: var(--color-text); stroke-dasharray: 12 12; stroke-opacity: 0.5; stroke-width: 2; }
 
 /* Tracé rouge révélé selon --p. Avec pathLength="1", 1px = tout le tracé ; Firefox rejette un calc() sans unité
    pour stroke-dashoffset (le tracé s'affichait alors en entier dès le départ). */
@@ -238,11 +234,11 @@ html:not(.js) [data-three-preview-load] { display: none; }
         right: 1.2rem;
         color: transparent;
         content: attr(data-num);
-        font-family: var(--font-display);
+        font-family: var(--font-outline);
         font-size: 8rem;
         font-weight: 700;
         line-height: 1;
-        -webkit-text-stroke: 1.5px rgb(255 255 255 / 12%);
+        -webkit-text-stroke: 1.5px rgb(var(--ink-rgb) / 12%);
         pointer-events: none;
     }
 
@@ -340,35 +336,30 @@ html:not(.js) [data-three-preview-load] { display: none; }
 .level__meter i { height: 0.65rem; border-radius: 2px; background: var(--color-surface-strong); transform: skewX(-20deg); }
 .level__meter i.is-on { background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent-light)); }
 
-/* Carnet de vol : une bande de contrôle par centre d'intérêt */
-.strips { display: grid; gap: var(--space-3); margin: var(--space-6) 0 0; padding: 0; list-style: none; }
+/* Résultats : grands chiffres décalés, sans liste */
+.figures { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-7) var(--space-5); margin-top: var(--space-7); }
+.figure { grid-column: span 6; margin: 0; }
+.figure:nth-child(1) { grid-column: 1 / span 7; }
+.figure:nth-child(2) { grid-column: 9 / span 4; margin-top: var(--space-8); }
+.figure:nth-child(3) { grid-column: 3 / span 6; }
+.figure::before { display: block; width: 3rem; height: 3px; margin-bottom: var(--space-4); background: var(--color-accent-light); content: ""; }
+.figure__value { margin: 0; color: var(--color-accent-text); font-family: var(--font-display); font-size: clamp(2.6rem, 7vw, 6rem); font-weight: 700; line-height: 1; overflow-wrap: anywhere; }
+.figure__text { max-width: 34rem; margin-top: var(--space-4); color: var(--color-text); font-size: 1.05rem; line-height: 1.6; }
+.figure__text b { font-weight: 700; }
 
-.strip {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: var(--space-5);
-    align-items: center;
-    padding: var(--space-4) var(--space-5) var(--space-4) var(--space-6);
-    overflow: hidden;
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
-    box-shadow: inset 0 0 0 1px var(--color-border);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.strip::before { position: absolute; inset: 0 auto 0 0; width: 0.35rem; background: var(--color-accent-light); content: ""; }
-.strip > :not(.strip__stage) { position: relative; z-index: 1; }
-.strip:hover { box-shadow: inset 0 0 0 1px var(--color-accent-light); transform: translateX(0.5rem); }
-.strip__code { color: var(--color-accent-light); font-size: 1.6rem; font-weight: 600; letter-spacing: 0.14em; }
-.strip__body h3 { margin: 0; font-size: 1.3rem; }
-.strip__body p { margin: 0.2rem 0 0; color: var(--color-text-muted); }
-.strips--proof .strip { grid-template-columns: auto 1fr; }
-.strips--proof .strip__body p { margin: 0; color: var(--color-text); }
+/* En dehors du code : lignes sobres, sans illustration ni animation */
+.notes { margin: var(--space-6) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--color-border-strong); }
+.notes li { display: grid; grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 1.4fr); gap: var(--space-5); align-items: baseline; padding-block: var(--space-5); border-bottom: 1px solid var(--color-border); }
+.notes__code { color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.14em; }
+.notes h3 { margin: 0; font-size: 1.25rem; }
+.notes p { margin: 0; color: var(--color-text-muted); }
 
 @media (width <= 44rem) {
-    .strip { grid-template-columns: auto 1fr; padding-left: var(--space-5); }
-    .strip__ref { display: none; }
+    .figures { grid-template-columns: 1fr; gap: var(--space-6); }
+    .figure:nth-child(n) { grid-column: auto; margin-top: 0; }
+    .figure:nth-child(even) { margin-left: var(--space-5); }
+    .notes li { grid-template-columns: 3.5rem minmax(0, 1fr); gap: var(--space-2) var(--space-4); }
+    .notes p { grid-column: 2; }
 }
 
 /* Changement de langue : rideau qui balaie l'écran */
@@ -404,9 +395,9 @@ html.theme-vt::view-transition-new(root) { animation: theme-reveal 700ms var(--e
     to { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0)); }
 }
 
-/* Petits textes rouges des sections toujours sombres : rouge plus clair pour respecter le contraste AA */
-.theme-dark .skillmap__meta,
-.theme-dark .journey__period { color: #ff7a7d; }
+/* Petits textes rouges : couleur d'accent lisible (contraste AA) dans les deux thèmes */
+.skillmap__meta,
+.journey__period { color: var(--color-accent-text); }
 
 /* Projets liés à un domaine de compétences */
 .skillmap__related { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: baseline; margin: var(--space-4) 0 0; }

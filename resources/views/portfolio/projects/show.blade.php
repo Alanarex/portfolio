@@ -22,7 +22,6 @@
     <a class="case__back" href="{{ route('portfolio.projects.index', ['locale' => $locale]) }}">← {{ __('portfolio.projects.back') }}</a>
 
     <header class="case__header">
-        <p class="eyebrow" data-reveal style="--i: 0">{{ __('portfolio.projects.case_study') }} · {{ __('portfolio.lifecycle.'.$project->lifecycleStatus) }}</p>
         <h1 id="case-title" data-reveal style="--i: 1">{{ $project->title }}</h1>
         <p class="lede" data-reveal style="--i: 2">{{ $project->summary }}</p>
     </header>

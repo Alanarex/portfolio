@@ -152,7 +152,7 @@ html.menu-open { overflow: hidden; }
 
     /* 2. Héros : une colonne, boutons pleins, pile technique en chips défilables */
     .hero { padding-block: calc(var(--header-h) + var(--space-5)) var(--space-7); }
-    .hero h1 { max-width: none; font-size: clamp(2.1rem, 11vw, 2.75rem); }
+    .hero h1 { max-width: none; }
     .hero__grid { gap: var(--space-6); }
     .hero .actions { flex-direction: column; align-items: stretch; margin-top: var(--space-5); }
     .scroll-cue { display: none; }
@@ -169,48 +169,26 @@ html.menu-open { overflow: hidden; }
     }
 
     .js .filters[hidden] { display: none; }
-    .stack { display: grid; gap: var(--space-4); margin-top: var(--space-5); }
+    .stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-5); }
 
-    .stack__card {
-        position: static;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 0;
-        min-height: 0;
-        margin-bottom: 0;
-        padding: 0;
-        overflow: hidden;
-        border-radius: 1.5rem;
+    .stack__card,
+    .stack__card:nth-child(n) {
+        grid-column: auto;
+        margin-top: 0;
     }
 
-    .stack__visual { min-height: 0; height: 9.5rem; border-radius: 0; }
-    .stack__body { padding: 1.25rem; gap: var(--space-4); }
+    .stack__card:nth-child(even) { margin-left: var(--space-5); }
+    .stack__card:nth-child(odd) { margin-right: var(--space-3); }
+
+    .stack__visual,
+    .stack__card:nth-child(1) .stack__visual { height: 9.5rem; }
+    .stack__body { min-width: 0; padding: 1.25rem; gap: var(--space-4); }
     .stack__body h3 { font-size: 1.4rem; }
     .stack__link { display: inline-flex; align-items: center; min-height: 2.75rem; }
     .stack__cta { display: inline-flex; align-items: center; min-height: 3rem; }
 
-    /* Preuves : grille de 2 colonnes */
-    .strips--proof { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-    .strips--proof .strip { grid-template-columns: 1fr; gap: var(--space-2); align-content: start; padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5); }
-    .strips--proof .strip:hover { transform: none; }
-    .strips--proof .strip:last-child:nth-child(odd) { grid-column: 1 / -1; }
-    .proof__text { font-size: 1rem; }
-
-    /* Effet au défilement : --pr (0 → 1) est posé par public/scroll-cards.ts ; sans JS, --pr vaut 1 (rendu complet) */
+    /* Aucun effet au défilement sur les cartes : --pr reste à 1 */
     [data-pr] { --pr: 1; }
-
-    @media (prefers-reduced-motion: no-preference) {
-        .strips--proof .strip[data-scroll-reveal] { animation: none; }
-
-        .stack__card[data-pr],
-        .strips--proof .strip[data-pr] {
-            opacity: calc(0.35 + 0.65 * var(--pr));
-            transform: translateY(calc((1 - var(--pr)) * 36px)) scale(calc(0.95 + 0.05 * var(--pr)));
-        }
-
-        .stack__visual img { object-position: 50% calc(var(--pr) * 100%); }
-        .stack__visual .logo--stack { transform: translateY(calc((1 - var(--pr)) * -14px)); }
-    }
 
     /* 4. Parcours (voiture 3D) en portrait. Sans 3D (WebGL absent ou refusé) ou en mode liste : cartes empilées. */
     .journey__stick { padding-block: var(--space-7); }
@@ -225,7 +203,7 @@ html.menu-open { overflow: hidden; }
     .journey[data-view="list"] .journey__view-scene { display: inline; }
 
     .three-preview__road { right: -35%; bottom: -4%; left: -35%; height: 62%; clip-path: polygon(47% 0, 53% 0, 100% 100%, 0 100%); }
-    .journey__stage { background: radial-gradient(circle at 50% 36%, rgb(229 56 59 / 32%), transparent 42%), linear-gradient(180deg, #0b090a, #1e1013 38%, #0b090a 39%); }
+    .journey__stage { background: radial-gradient(circle at 50% 36%, rgb(229 56 59 / 32%), transparent 42%), linear-gradient(180deg, var(--color-bg), var(--color-bg-elevated) 38%, var(--color-bg) 39%); }
 
     .js .journey[data-three-preview]:not([data-state="unavailable"]) .journey__stick { min-height: 0; }
 
@@ -268,7 +246,7 @@ html.menu-open { overflow: hidden; }
     }
 
     .journey__sheet-text { display: flex; flex: 1; flex-direction: column; gap: 0.15rem; min-width: 0; }
-    .journey__sheet-period { margin: 0; color: #ff7a7d; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .journey__sheet-period { margin: 0; color: var(--color-accent-text); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
     .journey__sheet-title { margin: 0; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; }
     .journey__sheet-org { display: none; }
     .journey__sheet-dots { display: flex; gap: 0.3rem; margin: 0.25rem 0 0; padding: 0; list-style: none; }

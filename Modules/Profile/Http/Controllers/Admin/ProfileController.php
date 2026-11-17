@@ -39,6 +39,9 @@ final class ProfileController extends Controller
                 'show_availability' => $profile->show_availability ?? false,
                 'translations' => $translations,
             ],
+            'portraitUrl' => $profile?->portrait_path !== null && $profile->portrait_checksum !== null
+                ? route('dashboard.profile.portrait.show', ['v' => substr($profile->portrait_checksum, 0, 16)])
+                : null,
             'cvVersions' => $profile?->cvVersions->map(fn ($version): array => [
                 'id' => $version->getKey(),
                 'locale' => $version->locale,

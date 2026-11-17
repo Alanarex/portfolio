@@ -44,6 +44,7 @@ const props = defineProps<{
     translations: Record<'fr' | 'en' | 'ar', Translation>;
   };
   cvVersions: CvVersion[];
+  portraitUrl: string | null;
 }>();
 
 const localeLabels = { fr: 'Français', en: 'English', ar: 'العربية (préparation)' } as const;
@@ -63,6 +64,24 @@ const cvForms = props.cvVersions.map((version) => useForm({ ...version, document
 
 function saveProfile(): void {
   form.put('/dashboard/profile', { preserveScroll: true });
+}
+
+const portraitForm = useForm({ portrait: null as File | null });
+
+function selectPortrait(event: Event): void {
+  portraitForm.portrait = (event.target as HTMLInputElement).files?.[0] ?? null;
+}
+
+function savePortrait(): void {
+  portraitForm.post('/dashboard/profile/portrait', {
+    forceFormData: true,
+    preserveScroll: true,
+    onSuccess: () => portraitForm.reset(),
+  });
+}
+
+function removePortrait(): void {
+  router.delete('/dashboard/profile/portrait', { preserveScroll: true });
 }
 
 function addCv(): void {
@@ -154,6 +173,24 @@ function deleteCv(id: number): void {
         <button type="submit" class="admin-button shadow-glow" :disabled="form.processing">{{ form.processing ? 'Enregistrement…' : 'Enregistrer le profil' }}</button>
       </div>
     </form>
+
+    <CollapsibleSection id="portrait" class="mt-8" title="Photo du site" description="Photo affichée en haut de la page d’accueil. Sans photo enregistrée, le site garde la photo par défaut. Format portrait conseillé (4:5), JPEG, PNG ou WebP, 5 Mo au plus." :summary="props.portraitUrl ? 'Photo personnalisée' : 'Photo par défaut'" :invalid="portraitForm.hasErrors">
+      <form class="grid gap-4 admin-card admin-panel md:grid-cols-[10rem_1fr]" :aria-busy="portraitForm.processing" @submit.prevent="savePortrait">
+        <img v-if="props.portraitUrl" :src="props.portraitUrl" alt="Photo actuelle" class="aspect-[4/5] w-40 rounded-md object-cover">
+        <div v-else class="admin-empty flex aspect-[4/5] w-40 items-center justify-center text-center text-xs">Photo par défaut</div>
+        <div class="grid content-start gap-3">
+          <div>
+            <label for="portrait-file" class="admin-label">Nouvelle photo</label>
+            <input id="portrait-file" class="admin-input" type="file" accept="image/jpeg,image/png,image/webp" :aria-invalid="Boolean(portraitForm.errors.portrait)" :aria-describedby="portraitForm.errors.portrait ? 'portrait-error' : undefined" @change="selectPortrait">
+            <p v-if="portraitForm.errors.portrait" id="portrait-error" class="admin-error" role="alert">{{ portraitForm.errors.portrait }}</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="submit" class="admin-button" :disabled="portraitForm.processing || portraitForm.portrait === null">{{ portraitForm.processing ? 'Envoi…' : 'Enregistrer la photo' }}</button>
+            <button v-if="props.portraitUrl" type="button" class="admin-button admin-button-danger admin-button-compact" @click="removePortrait">Revenir à la photo par défaut</button>
+          </div>
+        </div>
+      </form>
+    </CollapsibleSection>
 
     <CollapsibleSection id="cv" class="mt-8" title="Versions du CV" description="Les PDF restent privés. Seule une version vérifiée, publiée et activée dans les paramètres peut être téléchargée publiquement." :summary="cvForms.length === 1 ? '1 version' : `${cvForms.length} versions`" :invalid="cvHasErrors()">
       <div v-if="cvForms.length === 0" class="admin-empty">Aucune version enregistrée.</div>
