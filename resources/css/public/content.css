@@ -137,11 +137,11 @@
 /* Anneau : traits répartis en cercle, vus seulement sur une fine couronne */
 .stage__ring {
     grid-area: 1 / 1;
-    width: min(100%, 62cqi);
+    width: min(100%, 48cqi);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: repeating-conic-gradient(rgb(var(--ink-rgb) / 38%) 0 0.6deg, transparent 0.6deg 3deg);
-    mask: radial-gradient(circle, transparent 0 calc(50% - 0.9rem), #000 calc(50% - 0.9rem) 100%);
+    background: repeating-conic-gradient(rgb(var(--ink-rgb) / 34%) 0 0.22deg, transparent 0.22deg 2.4deg);
+    mask: radial-gradient(circle, transparent 0 calc(50% - 0.7rem), #000 calc(50% - 0.7rem) 100%);
     z-index: -1;
 }
 
