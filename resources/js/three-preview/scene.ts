@@ -440,6 +440,7 @@ interface CarRig {
     holder: THREE.Group;
     wheels: Wheel[];
     tailLights: THREE.Vector3[];
+    headLights: THREE.Vector3[];
 }
 
 interface TriangleBucket {
@@ -584,15 +585,15 @@ const splitWheels = (holder: THREE.Group): Wheel[] => {
     });
 };
 
-/** Positions des feux arrière : un à gauche, un à droite, légèrement relevés. */
-const findTailLights = (holder: THREE.Group): THREE.Vector3[] => {
+/** Positions des feux d'une matière donnée (arrière : `r_lights`, avant : `lights`) : un à gauche, un à droite, légèrement relevés. */
+const findLamps = (holder: THREE.Group, material: string, endZ: number, minOffsetX: number): THREE.Vector3[] => {
     holder.updateMatrixWorld(true);
     const inverse = new THREE.Matrix4().copy(holder.matrixWorld).invert();
     const point = new THREE.Vector3();
     const left = new THREE.Box3();
     const right = new THREE.Box3();
 
-    for (const mesh of meshesOf(holder).filter((item) => materialName(item) === 'r_lights')) {
+    for (const mesh of meshesOf(holder).filter((item) => materialName(item) === material)) {
         const positions = mesh.geometry.getAttribute('position');
         const matrix = new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld);
         for (let i = 0; i < positions.count; i++) {
@@ -607,14 +608,14 @@ const findTailLights = (holder: THREE.Group): THREE.Vector3[] => {
         }
         const center = box.getCenter(new THREE.Vector3());
         // Un bloc unique centré donne deux feux écartés de part et d'autre de l'axe.
-        center.x = (index === 0 ? -1 : 1) * Math.max(Math.abs(center.x), 0.55);
+        center.x = (index === 0 ? -1 : 1) * Math.max(Math.abs(center.x), minOffsetX);
         return center;
     });
 
-    const fallback = new THREE.Vector3(0.6, 0.75, CAR_LENGTH / 2);
+    const fallback = new THREE.Vector3(0.6, 0.75, endZ);
     const first = sides[0] ?? (sides[1] ? sides[1].clone().setX(-sides[1].x) : fallback.clone().setX(-0.6));
     const second = sides[1] ?? first.clone().setX(-first.x);
-    return [first, second].map((light) => light.clone().add(new THREE.Vector3(0, 0.07, 0.04)));
+    return [first, second].map((light) => light.clone().add(new THREE.Vector3(0, 0.07, Math.sign(endZ) * 0.04)));
 };
 
 /** Charge la voiture : longueur sur Z, avant vers -Z, roues posées à y = 0. */
@@ -650,7 +651,7 @@ const loadCar = async (preloaded?: ArrayBuffer): Promise<CarRig> => {
     const holder = new THREE.Group();
     holder.add(wrapper);
     const wheels = splitWheels(holder);
-    return { holder, wheels, tailLights: findTailLights(holder) };
+    return { holder, wheels, tailLights: findLamps(holder, 'r_lights', CAR_LENGTH / 2, 0.55), headLights: findLamps(holder, 'lights', -CAR_LENGTH / 2, 0.5) };
 };
 
 /** Ruban plat suivant la courbe (route, bas-côtés, vibreurs). */
@@ -1086,10 +1087,17 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     shadow.position.y = 0.03;
     car.add(shadow);
 
-    const headlight = new THREE.SpotLight('#fff1e0', 260, 60, 0.5, 0.6, 1.6);
-    headlight.position.set(0, 0.7, -1.9);
-    headlight.target.position.set(0, 0, -18);
-    car.add(headlight, headlight.target);
+    // Phares : une source par phare, à la position réelle du bloc optique (comme les feux arrière).
+    const headGlow = makeGlowTexture('#fff1e0');
+    for (const light of rig.headLights) {
+        const beam = new THREE.SpotLight('#fff1e0', 150, 60, 0.5, 0.6, 1.6);
+        beam.position.copy(light);
+        beam.target.position.set(light.x * 0.7, 0, -18);
+        const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: headGlow, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.7 }));
+        flare.position.copy(light).add(new THREE.Vector3(0, 0, -0.05));
+        flare.scale.setScalar(0.6);
+        car.add(beam, beam.target, flare);
+    }
     const tailGlow = makeGlowTexture('#ff2a2e');
     for (const light of rig.tailLights) {
         const lamp = new THREE.PointLight('#ff2a2e', 1.4, 4.5, 2);
