@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { lenis } from '../public/site';
 
 const MAX_DEVICE_PIXEL_RATIO = 2;
 /** Petit écran ou toucher : moins de pixels, pas d'ombres portées, décor allégé. */
@@ -16,12 +15,10 @@ const SIGN_WIDTH = 6.4;
 const SIGN_HEIGHT = 4;
 const SIGN_CENTER_Y = 4.7;
 const SIGN_LATERAL = 9.2;
-/** Vitesse maximale de la progression (part du parcours par seconde) ; elle est en plus freinée quand la voiture est en retard. */
-const MAX_PROGRESS_SPEED = 0.6;
-/** Vitesse maximale de la voiture (m/s ≈ 144 km/h), accélération et freinage (m/s²) : la voiture ne s'emballe jamais. */
+/** Vitesse maximale de la progression (part du parcours par seconde) : évite de semer la voiture si l'on défile trop vite. */
+const MAX_PROGRESS_SPEED = 0.2;
+/** Vitesse maximale prise en compte pour la dynamique de la caisse, la fumée et le compteur (m/s ≈ 144 km/h). */
 const MAX_SPEED = 40;
-const ACCELERATION = 70;
-const BRAKING = 90;
 /** Empattement (m) pour le braquage, et plage du compteur (km/h). */
 const WHEEL_BASE = 2.7;
 const GAUGE_MAX_KMH = 180;
@@ -1127,6 +1124,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         orbit: 0,
         orbitRate: 0,
         idle: 0,
+        travelled: 0,
         kmh: 0,
     };
     let animationFrame: number | undefined;
@@ -1173,9 +1171,8 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         car.lookAt(car.position.clone().sub(tangent));
 
         // Les roues tournent selon la distance réellement parcourue (dans les deux sens).
-        const travelled = state.speed * delta;
         for (const wheel of rig.wheels) {
-            wheel.pivot.rotation.x -= travelled / wheel.radius;
+            wheel.pivot.rotation.x -= state.travelled / wheel.radius;
         }
 
         // Dynamique de la caisse : le braquage suit la courbure, la caisse roule vers l'extérieur du virage,
@@ -1476,30 +1473,27 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
             state.along = paceAt(state.progress).along;
             state.speed = 0;
             state.accel = 0;
+            state.travelled = 0;
         }
         if (reducedMotion) {
             state.progress = state.target;
             state.along = paceAt(state.progress).along;
             state.speed = 0;
             state.accel = 0;
+            state.travelled = 0;
         } else {
-            // La progression suit le défilement (plafonnée) et ralentit tant que la voiture est en retard sur sa cible.
-            const lag = Math.abs(paceAt(state.progress).along - state.along);
-            const limit = MAX_PROGRESS_SPEED * delta * (1 - smooth(0.1, 0.25, lag));
-            state.progress += clamp((state.target - state.progress) * damp(11, delta), -limit, limit);
+            // La progression rattrape le défilement avec une vitesse plafonnée : la voiture ne s'échappe jamais de l'écran.
+            const limit = MAX_PROGRESS_SPEED * delta;
+            state.progress += clamp((state.target - state.progress) * damp(5, delta), -limit, limit);
 
-            // La voiture rejoint sa cible avec une vitesse, une accélération et un freinage bornés : elle s'arrête à l'arrivée
-            // et ne continue jamais seule.
-            const distance = (paceAt(state.progress).along - state.along) * alongToMeters;
-            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.5 * Math.abs(distance));
-            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 8, brakingSpeed);
+            // La voiture est liée à la progression ; sa vitesse (compteur, dynamique, fumée) est mesurée sur son déplacement réel.
+            const previousAlong = state.along;
+            state.along = paceAt(state.progress).along;
+            state.travelled = (state.along - previousAlong) * alongToMeters;
             const previousSpeed = state.speed;
-            state.speed += clamp(wanted - state.speed, -BRAKING * delta, ACCELERATION * delta);
-            if (Math.abs(distance) < 0.02 && Math.abs(state.speed) < 0.1) {
-                state.speed = 0;
-            }
+            const measured = clamp(state.travelled / Math.max(delta, 0.001), -MAX_SPEED, MAX_SPEED);
+            state.speed = lerp(state.speed, measured, damp(10, delta));
             state.accel = lerp(state.accel, (state.speed - previousSpeed) / Math.max(delta, 0.001), damp(8, delta));
-            state.along += (state.speed * delta) / alongToMeters;
         }
         if (!state.dragging) {
             state.yaw *= 1 - damp(0.9, delta);
@@ -1508,9 +1502,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
 
         // Caméra au repos : orbite lente après un court délai sans défilement ni interaction, reprise douce dès que l'on bouge.
         const pace = paceAt(state.progress);
-        // Le focus sur un panneau ne démarre que lorsque la voiture est réellement arrivée devant lui.
-        const stop = pace.index >= 0 ? (carStops[pace.index] ?? 0) : 0;
-        state.focus = pace.index >= 0 ? pace.focus * (1 - smooth(0.006, 0.03, Math.abs(state.along - stop))) : 0;
+        state.focus = pace.focus;
         state.focusIndex = pace.index;
         if (scrolled || state.dragging || Math.abs(state.speed) > 0.5) {
             state.idle = 0;
@@ -1641,43 +1633,6 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     };
     stage.addEventListener('pointerup', endDrag);
     stage.addEventListener('pointercancel', endDrag);
-
-    // Lien d'ancre qui dépasse le parcours (ex. « Contact » depuis le hero) : on saute la section au lieu de la traverser.
-    window.addEventListener(
-        'click',
-        (event) => {
-            const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href*="#"]');
-            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || link.target === '_blank') {
-                return;
-            }
-            const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || url.hash.length < 2) {
-                return;
-            }
-            const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
-            if (!target) {
-                return;
-            }
-            const rect = container.getBoundingClientRect();
-            const journeyTop = rect.top + window.scrollY;
-            const journeyBottom = journeyTop + rect.height;
-            const targetTop = target.getBoundingClientRect().top + window.scrollY - (Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
-            const here = window.scrollY;
-            const crosses = (here < journeyTop + 1 && targetTop >= journeyBottom - 1) || (here > journeyBottom - window.innerHeight - 1 && targetTop <= journeyTop + 1);
-            if (!crosses) {
-                return;
-            }
-            event.preventDefault();
-            event.stopPropagation();
-            history.pushState(null, '', url.hash);
-            if (lenis) {
-                lenis.scrollTo(targetTop, { immediate: true, force: true });
-            } else {
-                window.scrollTo({ top: targetTop, behavior: 'instant' });
-            }
-        },
-        true,
-    );
 
     // Visibilité : contrôle géométrique au défilement (fiable même quand l'IntersectionObserver est silencieux).
     const checkVisibility = (): void => {
