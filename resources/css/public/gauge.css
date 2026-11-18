@@ -37,6 +37,9 @@
 
 .gauge__speed::before { content: counter(kmh); }
 
+/* Quand le nombre est écrit en JavaScript (Safari), on masque le compteur CSS pour ne pas le doubler. */
+.gauge__speed[data-live]::before { content: none; }
+
 /* Loader : montée à fond puis retour au ralenti */
 @keyframes boot {
     0% { --p: 0; --k: 0; }
