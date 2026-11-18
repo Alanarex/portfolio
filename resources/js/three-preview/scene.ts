@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { lenis } from '../public/site';
 
 const MAX_DEVICE_PIXEL_RATIO = 2;
 /** Petit écran ou toucher : moins de pixels, pas d'ombres portées, décor allégé. */
@@ -16,11 +17,11 @@ const SIGN_HEIGHT = 4;
 const SIGN_CENTER_Y = 4.7;
 const SIGN_LATERAL = 9.2;
 /** Vitesse maximale de la progression (part du parcours par seconde) ; elle est en plus freinée quand la voiture est en retard. */
-const MAX_PROGRESS_SPEED = 0.2;
-/** Vitesse maximale de la voiture (m/s ≈ 108 km/h), accélération et freinage (m/s²) : la voiture ne s'emballe jamais. */
-const MAX_SPEED = 30;
-const ACCELERATION = 12;
-const BRAKING = 20;
+const MAX_PROGRESS_SPEED = 0.6;
+/** Vitesse maximale de la voiture (m/s ≈ 144 km/h), accélération et freinage (m/s²) : la voiture ne s'emballe jamais. */
+const MAX_SPEED = 40;
+const ACCELERATION = 70;
+const BRAKING = 90;
 /** Empattement (m) pour le braquage, et plage du compteur (km/h). */
 const WHEEL_BASE = 2.7;
 const GAUGE_MAX_KMH = 180;
@@ -939,7 +940,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     type Shooter = { geometry: THREE.BufferGeometry; material: THREE.LineBasicMaterial; life: number; duration: number; head: THREE.Vector3; dir: THREE.Vector3 };
     const shooters: Shooter[] = reducedMotion
         ? []
-        : [0, 1].map(() => {
+        : Array.from({ length: compact ? 3 : 5 }, () => {
               const geometry = new THREE.BufferGeometry();
               geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
               const material = new THREE.LineBasicMaterial({ color: '#f5f3f4', transparent: true, opacity: 0, fog: false, depthWrite: false });
@@ -949,7 +950,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
 
               return { geometry, material, life: 0, duration: 1, head: new THREE.Vector3(), dir: new THREE.Vector3() };
           });
-    let nextShooter = 2;
+    let nextShooter = 1;
     const updateShooters = (delta: number): void => {
         nextShooter -= delta;
         if (nextShooter <= 0) {
@@ -962,7 +963,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
                 free.duration = 0.8 + Math.random() * 0.5;
                 free.life = free.duration;
             }
-            nextShooter = 3 + Math.random() * 5;
+            nextShooter = 0.8 + Math.random() * 2.2;
         }
         for (const shooter of shooters) {
             if (shooter.life <= 0) {
@@ -1375,7 +1376,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     };
 
     // Fumée : un petit lot de sprites réutilisés (budget réduit sur mobile), émis par les roues arrière.
-    const SMOKE_COUNT = compact ? 24 : 64;
+    const SMOKE_COUNT = compact ? 36 : 96;
     const smokeTexture = canvasTexture(64, 64, (ctx) => {
         const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
         gradient.addColorStop(0, 'rgba(255,255,255,0.9)');
@@ -1406,7 +1407,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const backward = new THREE.Vector3();
 
     const emitSmoke = (delta: number, intensity: number): void => {
-        emitBudget += intensity * (compact ? 22 : 40) * delta;
+        emitBudget += intensity * (compact ? 34 : 62) * delta;
         backward.copy(tangent).negate();
         while (emitBudget >= 1 && rearWheels.length > 0) {
             emitBudget -= 1;
@@ -1461,12 +1462,21 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     };
 
     let previousTarget = 0;
+    let needsSnap = false;
     const update = (delta: number): void => {
         state.elapsed += delta;
         state.target = scrollProgress();
         const scrolled = Math.abs(state.target - previousTarget) > 0.00002;
         previousTarget = state.target;
 
+        // Saut instantané (lien d'ancre, retour sur la section) : on se place directement, sans rejouer le trajet.
+        if (needsSnap || Math.abs(state.target - state.progress) > 0.35) {
+            needsSnap = false;
+            state.progress = state.target;
+            state.along = paceAt(state.progress).along;
+            state.speed = 0;
+            state.accel = 0;
+        }
         if (reducedMotion) {
             state.progress = state.target;
             state.along = paceAt(state.progress).along;
@@ -1475,14 +1485,14 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         } else {
             // La progression suit le défilement (plafonnée) et ralentit tant que la voiture est en retard sur sa cible.
             const lag = Math.abs(paceAt(state.progress).along - state.along);
-            const limit = MAX_PROGRESS_SPEED * delta * (1 - smooth(0.06, 0.25, lag));
-            state.progress += clamp((state.target - state.progress) * damp(5, delta), -limit, limit);
+            const limit = MAX_PROGRESS_SPEED * delta * (1 - smooth(0.1, 0.25, lag));
+            state.progress += clamp((state.target - state.progress) * damp(11, delta), -limit, limit);
 
             // La voiture rejoint sa cible avec une vitesse, une accélération et un freinage bornés : elle s'arrête à l'arrivée
             // et ne continue jamais seule.
             const distance = (paceAt(state.progress).along - state.along) * alongToMeters;
-            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.6 * Math.abs(distance));
-            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 2.5, brakingSpeed);
+            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.5 * Math.abs(distance));
+            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 8, brakingSpeed);
             const previousSpeed = state.speed;
             state.speed += clamp(wanted - state.speed, -BRAKING * delta, ACCELERATION * delta);
             if (Math.abs(distance) < 0.02 && Math.abs(state.speed) < 0.1) {
@@ -1498,7 +1508,9 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
 
         // Caméra au repos : orbite lente après un court délai sans défilement ni interaction, reprise douce dès que l'on bouge.
         const pace = paceAt(state.progress);
-        state.focus = pace.focus;
+        // Le focus sur un panneau ne démarre que lorsque la voiture est réellement arrivée devant lui.
+        const stop = pace.index >= 0 ? (carStops[pace.index] ?? 0) : 0;
+        state.focus = pace.index >= 0 ? pace.focus * (1 - smooth(0.006, 0.03, Math.abs(state.along - stop))) : 0;
         state.focusIndex = pace.index;
         if (scrolled || state.dragging || Math.abs(state.speed) > 0.5) {
             state.idle = 0;
@@ -1525,7 +1537,8 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
         const slide = clamp((Math.abs(state.slip) - 0.02) / 0.12, 0, 1);
         const launch = clamp((state.accel - 5) / 9, 0, 1) * clamp(1 - Math.abs(state.speed) / 18, 0, 1);
         const brake = clamp((-state.accel - 12) / 8, 0, 1) * clamp(Math.abs(state.speed) / 14, 0, 1);
-        emitSmoke(delta, Math.max(slide, launch * 0.8, brake * 0.6));
+        const cruise = clamp((Math.abs(state.speed) - 10) / 20, 0, 1) * 0.3;
+        emitSmoke(delta, Math.max(slide, launch * 0.8, brake * 0.6, cruise));
         updateSmoke(delta);
     };
 
@@ -1629,10 +1642,51 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     stage.addEventListener('pointerup', endDrag);
     stage.addEventListener('pointercancel', endDrag);
 
+    // Lien d'ancre qui dépasse le parcours (ex. « Contact » depuis le hero) : on saute la section au lieu de la traverser.
+    window.addEventListener(
+        'click',
+        (event) => {
+            const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href*="#"]');
+            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || link.target === '_blank') {
+                return;
+            }
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || url.hash.length < 2) {
+                return;
+            }
+            const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+            if (!target) {
+                return;
+            }
+            const rect = container.getBoundingClientRect();
+            const journeyTop = rect.top + window.scrollY;
+            const journeyBottom = journeyTop + rect.height;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - (Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+            const here = window.scrollY;
+            const crosses = (here < journeyTop + 1 && targetTop >= journeyBottom - 1) || (here > journeyBottom - window.innerHeight - 1 && targetTop <= journeyTop + 1);
+            if (!crosses) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            history.pushState(null, '', url.hash);
+            if (lenis) {
+                lenis.scrollTo(targetTop, { immediate: true, force: true });
+            } else {
+                window.scrollTo({ top: targetTop, behavior: 'instant' });
+            }
+        },
+        true,
+    );
+
     // Visibilité : contrôle géométrique au défilement (fiable même quand l'IntersectionObserver est silencieux).
     const checkVisibility = (): void => {
         const rect = container.getBoundingClientRect();
+        const wasVisible = state.visible;
         state.visible = rect.bottom > 0 && rect.top < window.innerHeight && container.dataset.view !== 'list';
+        if (state.visible && !wasVisible) {
+            needsSnap = true;
+        }
         if (state.visible) {
             wake();
         } else if (animationFrame !== undefined) {
