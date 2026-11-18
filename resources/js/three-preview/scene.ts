@@ -77,12 +77,29 @@ const canvasTexture = (width: number, height: number, draw: (ctx: CanvasRenderin
 
 const makeAsphaltTexture = (): THREE.CanvasTexture =>
     canvasTexture(512, 512, (ctx) => {
-        ctx.fillStyle = '#17141a';
+        ctx.fillStyle = '#1a171b';
         ctx.fillRect(0, 0, 512, 512);
-        for (let i = 0; i < 9000; i++) {
-            const g = 22 + Math.random() * 30;
+        // Taches larges (usure, rapiéçage) pour casser la répétition
+        for (let i = 0; i < 46; i++) {
+            const x = Math.random() * 512;
+            const y = Math.random() * 512;
+            const r = 30 + Math.random() * 90;
+            const tone = Math.random() < 0.5 ? 255 : 0;
+            const blotch = ctx.createRadialGradient(x, y, 0, x, y, r);
+            blotch.addColorStop(0, `rgba(${tone},${tone},${tone},${0.03 + Math.random() * 0.04})`);
+            blotch.addColorStop(1, `rgba(${tone},${tone},${tone},0)`);
+            ctx.fillStyle = blotch;
+            ctx.fillRect(x - r, y - r, r * 2, r * 2);
+        }
+        // Grain d'enrobé : gravillons fins et quelques éclats plus clairs
+        for (let i = 0; i < 16000; i++) {
+            const g = 20 + Math.random() * 36;
             ctx.fillStyle = `rgb(${g + 3}, ${g}, ${g + 2})`;
             ctx.fillRect(Math.random() * 512, Math.random() * 512, 1 + Math.random() * 2, 1 + Math.random() * 2);
+        }
+        for (let i = 0; i < 700; i++) {
+            ctx.fillStyle = `rgba(190, 184, 186, ${0.08 + Math.random() * 0.14})`;
+            ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1 + Math.random() * 1.5);
         }
         // Lignes de rive pleines
         ctx.fillStyle = '#d9d6d6';
@@ -772,7 +789,7 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
     const segments = compact ? 240 : 480;
 
     const asphalt = makeAsphaltTexture();
-    const road = buildRibbon(curve, segments, -ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, () => 0, asphalt, 8, { roughness: 0.5, metalness: 0.25 });
+    const road = buildRibbon(curve, segments, -ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, () => 0, asphalt, 8, { roughness: 0.94, metalness: 0, envMapIntensity: 0.3 });
     road.receiveShadow = true;
     scene.add(road);
 
