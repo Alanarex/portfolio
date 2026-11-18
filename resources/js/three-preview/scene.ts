@@ -20,8 +20,8 @@ const SIGN_LATERAL = 9.2;
 const MAX_PROGRESS_SPEED = 0.6;
 /** Vitesse maximale de la voiture (m/s ≈ 144 km/h), accélération et freinage (m/s²) : la voiture ne s'emballe jamais. */
 const MAX_SPEED = 40;
-const ACCELERATION = 30;
-const BRAKING = 38;
+const ACCELERATION = 70;
+const BRAKING = 90;
 /** Empattement (m) pour le braquage, et plage du compteur (km/h). */
 const WHEEL_BASE = 2.7;
 const GAUGE_MAX_KMH = 180;
@@ -1491,8 +1491,8 @@ export const mountThreePreview = async (container: HTMLElement, model?: ArrayBuf
             // La voiture rejoint sa cible avec une vitesse, une accélération et un freinage bornés : elle s'arrête à l'arrivée
             // et ne continue jamais seule.
             const distance = (paceAt(state.progress).along - state.along) * alongToMeters;
-            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.6 * Math.abs(distance));
-            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 2.5, brakingSpeed);
+            const brakingSpeed = Math.sqrt(2 * BRAKING * 0.5 * Math.abs(distance));
+            const wanted = Math.sign(distance) * Math.min(MAX_SPEED, Math.abs(distance) * 8, brakingSpeed);
             const previousSpeed = state.speed;
             state.speed += clamp(wanted - state.speed, -BRAKING * delta, ACCELERATION * delta);
             if (Math.abs(distance) < 0.02 && Math.abs(state.speed) < 0.1) {
