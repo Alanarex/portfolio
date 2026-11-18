@@ -7,6 +7,7 @@ namespace Modules\Settings\Application;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Modules\ActivityLog\Contracts\AuditRecorder;
+use Modules\Settings\Data\HomeSections;
 use Modules\Settings\Infrastructure\SettingsCache;
 use Modules\Settings\Models\PublicFeatureFlag;
 use Modules\Settings\Models\SiteSetting;
@@ -89,6 +90,20 @@ final class SaveSettings
                 $flag->enabled = $enabled;
                 if ($flag->isDirty()) {
                     $changedFields[] = "feature_flags.{$key}";
+                    $flag->save();
+                }
+            }
+
+            /** @var array<string, bool> $sections */
+            $sections = $data['sections'] ?? [];
+            foreach ($sections as $id => $visible) {
+                $flag = PublicFeatureFlag::query()->firstOrNew([
+                    'site_setting_id' => $settings->getKey(),
+                    'key' => HomeSections::flagKey($id),
+                ], ['enabled' => true]);
+                $flag->enabled = (bool) $visible;
+                if (! $flag->exists || $flag->isDirty()) {
+                    $changedFields[] = "sections.{$id}";
                     $flag->save();
                 }
             }

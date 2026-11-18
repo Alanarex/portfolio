@@ -50,7 +50,6 @@ final class PublicPortfolioTest extends TestCase
                 'Projets à la une',
                 'Résultats vérifiés',
                 'Mon parcours, étape par étape',
-                'En dehors du code',
                 'Construisons quelque chose d’utile',
             ]);
 

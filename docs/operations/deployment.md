@@ -11,7 +11,7 @@ Internet ──443──► caddy (HTTPS Let's Encrypt)
                           └─► app (PHP-FPM 8.5, Laravel)
                                 ├─► postgres (PostgreSQL 17, réseau privé)
                                 └─► redis (cache, sessions, file d'attente, mot de passe)
-queue      : php artisan queue:work   (envoi des messages de contact…)
+queue      : php artisan queue:work --queue=mail,default   (envoi des messages de contact ; la file « mail » doit être écoutée)
 scheduler  : php artisan schedule:work (tâches planifiées)
 ```
 
@@ -221,6 +221,10 @@ docker compose -f compose.prod.yaml up -d --force-recreate caddy
 
 **Pour durcir encore** : si ton IP est fixe, ajoute dans le bloc `db.{$APP_DOMAIN}` du Caddyfile
 `@interdit not remote_ip TON.IP.ICI` suivi de `respond @interdit 403`, avant `basic_auth`.
+
+## Sécurité
+
+Protections applicatives, réglages Caddy/Nginx, ce qui relève de Cloudflare / du pare-feu et variables d'environnement : voir [security.md](security.md).
 
 ## Commandes utiles
 

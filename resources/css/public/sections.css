@@ -14,14 +14,23 @@
     box-shadow: inset 0 0 0 1px var(--color-border);
     backdrop-filter: blur(0.75rem);
     text-shadow: none;
+    min-width: 0;
 }
 
 .journey__period { margin: 0; color: var(--color-accent-light); font-size: 0.8rem; letter-spacing: 0.08em; }
 .journey__count { color: var(--color-text-muted); }
-.journey__step h3 { margin: var(--space-2) 0 0; font-size: clamp(1.4rem, 2.4vw, 2rem); }
+.journey__step h3 { margin: var(--space-2) 0 0; font-size: var(--step-title, clamp(1.4rem, 2.4vw, 2rem)); overflow-wrap: anywhere; hyphens: auto; }
 .journey__org { margin: 0.15rem 0 var(--space-3); color: var(--color-text-soft); font-weight: 600; }
 .journey__summary { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; }
 .journey__step .checklist { gap: var(--space-1); margin-top: var(--space-3); font-size: 0.9rem; }
+
+/* Repli sans 3D : 4 cartes par ligne (2 en tablette, 1 en mobile via mobile.css) ; les titres Orbitron, larges, ne débordent pas */
+.journey:not([data-three-preview]) .journey__steps,
+.journey[data-state="unavailable"] .journey__steps { --step-title: clamp(1.05rem, 1.45vw, 1.45rem); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (width <= 80rem) {
+    .journey:not([data-three-preview]) .journey__steps,
+    .journey[data-state="unavailable"] .journey__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 html:not(.js) [data-three-preview-load] { display: none; }
 

@@ -20,6 +20,11 @@ final readonly class PublicSettingsData
         public bool $contactFormEnabled = false,
     ) {}
 
+    public function sectionVisible(string $id): bool
+    {
+        return HomeSections::visible($this->featureFlags, $id);
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {

@@ -341,13 +341,16 @@ final class PublicPortfolioController extends Controller
     {
         $home = route('portfolio.home', ['locale' => $locale]);
 
-        return [
-            ['name' => __('portfolio.nav.projects'), 'url' => $home.'#projets'],
-            ['name' => __('portfolio.nav.experience'), 'url' => $home.'#experience'],
-            ['name' => __('portfolio.nav.skills'), 'url' => $home.'#competences'],
-            ['name' => __('portfolio.nav.contact'), 'url' => $home.'#contact'],
-            ['name' => __('portfolio.footer.legal'), 'url' => route('portfolio.legal', ['locale' => $locale])],
-        ];
+        $settings = $this->settings->forLocale($locale);
+        $items = [];
+        foreach (['projets' => 'projects', 'experience' => 'experience', 'competences' => 'skills', 'contact' => 'contact'] as $anchor => $key) {
+            if ($settings?->sectionVisible($anchor) ?? true) {
+                $items[] = ['name' => __('portfolio.nav.'.$key), 'url' => $home.'#'.$anchor];
+            }
+        }
+        $items[] = ['name' => __('portfolio.footer.legal'), 'url' => route('portfolio.legal', ['locale' => $locale])];
+
+        return $items;
     }
 
     private function activateLocale(string $locale): void

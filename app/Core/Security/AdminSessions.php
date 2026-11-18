@@ -83,4 +83,14 @@ final class AdminSessions
             ->where('id', '!=', $current->getId())
             ->delete();
     }
+
+    /** Supprime toutes les sessions de l'utilisateur (après une réinitialisation de mot de passe). */
+    public static function revokeAll(User $user): void
+    {
+        if (! self::supported()) {
+            return;
+        }
+
+        DB::table((string) config('session.table', 'sessions'))->where('user_id', $user->getKey())->delete();
+    }
 }

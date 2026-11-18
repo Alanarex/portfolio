@@ -19,11 +19,13 @@ type Settings = {
   show_phone: boolean;
   social_links: SocialLink[];
   feature_flags: Record<'projects' | 'contact' | 'cv' | 'activity' | 'three_d', boolean>;
+  sections: Record<string, boolean>;
 };
 
 const props = defineProps<{
   settings: Settings;
   locales: { code: string; label: string; direction: string; status: string }[];
+  sectionLabels: Record<string, string>;
 }>();
 
 const form = useForm(cloneProps(props.settings));
@@ -106,6 +108,13 @@ function save(): void {
           <ToggleSwitch v-model="form.feature_flags.cv">CV</ToggleSwitch>
           <ToggleSwitch v-model="form.feature_flags.activity">Activité Git publique</ToggleSwitch>
           <ToggleSwitch v-model="form.feature_flags.three_d">Expérience 3D</ToggleSwitch>
+        </fieldset>
+      </CollapsibleSection>
+
+      <CollapsibleSection id="sections" title="Sections de la page d’accueil" description="Une section désactivée disparaît de la page et du menu. Le haut de page (hero) reste toujours affiché." :summary="`${Object.values(form.sections).filter(Boolean).length} sur ${Object.keys(form.sections).length} affichées`" :invalid="hasErrorUnder(form.errors, 'sections')">
+        <fieldset class="grid gap-3 sm:grid-cols-2">
+          <legend class="sr-only">Affichage des sections</legend>
+          <ToggleSwitch v-for="(label, id) in props.sectionLabels" :key="id" v-model="form.sections[id]">{{ label }}</ToggleSwitch>
         </fieldset>
       </CollapsibleSection>
 
