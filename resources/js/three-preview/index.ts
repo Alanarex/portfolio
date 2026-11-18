@@ -1,3 +1,5 @@
+import { lenis } from '../public/site';
+
 const preview = document.querySelector<HTMLElement>('[data-three-preview]');
 
 if (preview) {
@@ -80,6 +82,66 @@ if (preview) {
 
         return loading;
     };
+
+    // Lien d'ancre qui dépasse le parcours (ex. « Contact » depuis le hero) : saut direct, sans traverser la section.
+    // Actif dès le chargement de la page, que la scène soit prête ou non.
+    const jumpTo = (top: number): void => {
+        if (lenis) {
+            lenis.resize();
+            lenis.scrollTo(top, { immediate: true, force: true });
+        } else {
+            window.scrollTo({ top, behavior: 'instant' });
+        }
+    };
+    window.addEventListener(
+        'click',
+        (event) => {
+            const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href*="#"]');
+            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || link.target === '_blank') {
+                return;
+            }
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || url.hash.length < 2) {
+                return;
+            }
+            const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+            if (!target) {
+                return;
+            }
+            const rect = preview.getBoundingClientRect();
+            const journeyTop = rect.top + window.scrollY;
+            const journeyBottom = journeyTop + rect.height;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - (Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+            const here = window.scrollY;
+            const crosses = (here < journeyTop + 1 && targetTop >= journeyBottom - 1) || (here > journeyBottom - window.innerHeight - 1 && targetTop <= journeyTop + 1);
+            if (!crosses) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            history.pushState(null, '', url.hash);
+            jumpTo(targetTop);
+        },
+        true,
+    );
+
+    // La section grandit quand la scène est prête : si elle est déjà derrière nous, on compense pour ne pas être ramené en arrière.
+    if ('ResizeObserver' in window) {
+        let lastHeight = preview.offsetHeight;
+        let lastBottom = preview.getBoundingClientRect().bottom;
+        const remember = (): void => {
+            lastBottom = preview.getBoundingClientRect().bottom;
+        };
+        window.addEventListener('scroll', remember, { passive: true });
+        new ResizeObserver(() => {
+            const height = preview.offsetHeight;
+            if (height !== lastHeight && lastBottom <= 0) {
+                jumpTo(window.scrollY + (height - lastHeight));
+            }
+            lastHeight = height;
+            remember();
+        }).observe(preview);
+    }
 
     loadButton?.addEventListener('click', () => void loadPreview());
 
